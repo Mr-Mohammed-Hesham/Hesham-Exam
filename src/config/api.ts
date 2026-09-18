@@ -13,23 +13,9 @@ export const DEFAULT_CLOUD_API_URL = "https://ais-dev-ztzoh22v25piqmda53fiyu-684
 
 export function getApiBaseUrl(): string {
   // 1. Check if an explicit environment variable was injected during build
-  let envUrl: string | undefined = undefined;
-  try {
-    envUrl = import.meta.env.VITE_API_URL;
-  } catch {
-    // fallback if env is not defined
-  }
-
+  const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
-    let cleanUrl = envUrl.trim().replace(/\/$/, "");
-    // Automatically sanitize old/defunct pre-launch URL if present in any repository secret
-    if (cleanUrl.includes("ais-pre-ztzoh22v25piqmda53fiyu-684462415759")) {
-      cleanUrl = cleanUrl.replace(
-        "ais-pre-ztzoh22v25piqmda53fiyu-684462415759",
-        "ais-dev-ztzoh22v25piqmda53fiyu-684462415759"
-      );
-    }
-    return cleanUrl;
+    return envUrl.trim().replace(/\/$/, "");
   }
 
   // 2. If running on GitHub Pages, fallback to the verified Google Cloud Run serverless endpoint
