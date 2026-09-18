@@ -10,6 +10,7 @@ import { AppLoader } from "./components/AppLoader";
 import { Footer } from "./components/Footer";
 import { ExamImage, ExamGenerationResult, GenerationHistoryItem, GenerationMode } from "./types";
 import { AlertTriangle, Sparkles, CheckCircle2, ArrowDown } from "lucide-react";
+import { API_ROUTES } from "./config/api";
 
 export default function App() {
   // Initial App Loading State (from Records repository)
@@ -110,7 +111,8 @@ export default function App() {
         difficulty,
       };
 
-      const response = await fetch("/api/generate-exam-code", {
+      const endpoint = API_ROUTES.generateExamCode();
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,10 +120,22 @@ export default function App() {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      // Defensive check to avoid SyntaxError: Unexpected token '<' ... is not valid JSON
+      const contentType = response.headers.get("content-type") || "";
+      let data: any = null;
+
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const textResp = await response.text();
+        console.error("Non-JSON response from server:", textResp.slice(0, 300));
+        throw new Error(
+          `تعذر الاتصال بخادم التوليد الذكي (${response.status} ${response.statusText || ""}). تأكد من إتاحة خادم الـBackend أو إعداد رابط الـAPI.`
+        );
+      }
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "فشل توليد الامتحان. يرجى المحاولة مرة أخرى.");
+        throw new Error(data?.error || "فشل توليد الامتحان. يرجى المحاولة مرة أخرى.");
       }
 
       const res: ExamGenerationResult = {

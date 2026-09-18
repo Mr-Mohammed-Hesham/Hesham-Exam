@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import cors from "cors";
 import { CODE_TEMPLATES } from "./src/data/templates";
 
 dotenv.config();
@@ -14,9 +15,32 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+// Enable CORS for GitHub Pages (mr-mohammed-hesham.github.io) and cross-origin clients
+app.use(
+  cors({
+    origin: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true,
+    maxAge: 86400,
+  })
+);
+app.options("*", cors());
+
 // High limit for base64 exam images
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Handle JSON parsing errors gracefully with JSON response
+app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || "Invalid JSON payload in request.",
+    });
+  }
+  next();
+});
 
 // Lazy Gemini client helper
 function getGeminiClient() {
@@ -643,13 +667,13 @@ function hydrateExamCodeWithQuestions({
   return code;
 }
 
-// Health check
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "Hesham Exam API" });
+// Health check (supports both /api/health and /Hesham-Exam/api/health)
+app.get(["/api/health", "/Hesham-Exam/api/health"], (_req, res) => {
+  res.json({ status: "ok", service: "Hesham Exam API", timestamp: new Date().toISOString() });
 });
 
 // Main endpoint: Generate exam code from image(s) + template code
-app.post("/api/generate-exam-code", async (req, res) => {
+app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], async (req, res) => {
   try {
     const {
       images, // array of { mimeType: string, data: string (base64) }
@@ -666,6 +690,7 @@ app.post("/api/generate-exam-code", async (req, res) => {
 
     if (!images || !Array.isArray(images) || images.length === 0) {
       return res.status(400).json({
+        success: false,
         error: "الرجاء رفع صورة أو ملف الامتحان أولاً لتوليد الأسئلة منها (Please provide at least one image or document).",
       });
     }
@@ -916,9 +941,27 @@ Output must strictly be valid JSON adhering to the specified schema.`;
   } catch (err: any) {
     console.error("Error generating exam code:", err);
     res.status(500).json({
+      success: false,
       error: err?.message || "حدث خطأ أثناء معالجة الصورة وتوليد كود الامتحان.",
     });
   }
+});
+
+// Explicit JSON 404 for any unhandled API routes
+app.all(["/api/*", "/Hesham-Exam/api/*"], (_req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "API endpoint not found",
+  });
+});
+
+// Global error handler guaranteeing JSON responses
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("Uncaught server error:", err);
+  res.status(err.status || 500).json({
+    success: false,
+    error: err?.message || "Internal server error occurred.",
+  });
 });
 
 // Vite middleware / production serving
@@ -931,6 +974,8 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    // Serve both root and /Hesham-Exam prefix for compatibility
+    app.use("/Hesham-Exam", express.static(distPath));
     app.use(express.static(distPath));
     app.get("*", (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
@@ -943,3 +988,6 @@ async function startServer() {
 }
 
 startServer();
+
+export { app };
+export default app;
