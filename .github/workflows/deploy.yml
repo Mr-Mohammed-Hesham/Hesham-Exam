@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://ais-pre-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app' }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app' }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

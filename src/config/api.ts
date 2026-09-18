@@ -9,7 +9,7 @@
  * - Can be overridden at build time via VITE_API_URL environment variable.
  */
 
-export const DEFAULT_CLOUD_API_URL = "https://ais-pre-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app";
+export const DEFAULT_CLOUD_API_URL = "https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app";
 
 export function getApiBaseUrl(): string {
   // 1. Check if an explicit environment variable was injected during build
