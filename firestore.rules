@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Check if user is authenticated with Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    // Check if authenticated user's email is on the authorized whitelist
+    function isWhitelisted() {
+      return isAuthenticated() && 
+        request.auth.token.email != null &&
+        request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com';
+    }
+
+    // Rules for the 'exams' collection
+    match /exams/{examId} {
+      // Only authorized, whitelisted users can read exams
+      allow read: if isWhitelisted();
+
+      // Create rule: must be whitelisted, creatorUid must match request.auth.uid,
+      // creatorEmail must match authenticated email, and required fields must be present.
+      allow create: if isWhitelisted() 
+        && request.resource.data.creatorUid == request.auth.uid
+        && request.resource.data.creatorEmail.lower() == request.auth.token.email.lower()
+        && request.resource.data.title is string
+        && request.resource.data.generatedCode is string
+        && request.resource.data.timestamp is number;
+
+      // Update rule: only creator can update
+      allow update: if isWhitelisted() 
+        && resource.data.creatorUid == request.auth.uid
+        && request.resource.data.creatorUid == resource.data.creatorUid;
+
+      // Delete rule: only creator can delete
+      allow delete: if isWhitelisted() 
+        && resource.data.creatorUid == request.auth.uid;
+    }
+
+    // Default deny-all for all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -34,6 +34,7 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

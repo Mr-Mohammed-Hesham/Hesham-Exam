@@ -58,4 +58,6 @@ export interface GenerationHistoryItem {
   language: string;
   questionsCount: number;
   result: ExamGenerationResult;
+  creatorEmail?: string;
+  creatorUid?: string;
 }

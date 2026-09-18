@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "Exam": {
+      "collection": "exams",
+      "fields": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the exam"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the generated exam"
+        },
+        "generatedCode": {
+          "type": "string",
+          "description": "Complete self-contained interactive HTML/JS code for the exam"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Summary of questions and exam structure"
+        },
+        "detectedLanguage": {
+          "type": "string",
+          "description": "Primary language of exam (html/ar/en)"
+        },
+        "extractedQuestions": {
+          "type": "array",
+          "description": "Extracted and generated question objects"
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "Server timestamp of creation"
+        },
+        "createdAtIso": {
+          "type": "string",
+          "description": "ISO timestamp string"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Epoch timestamp in milliseconds for ordering"
+        },
+        "creatorUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the creator"
+        },
+        "creatorEmail": {
+          "type": "string",
+          "description": "Firebase Auth email of the creator"
+        },
+        "questionsCount": {
+          "type": "number",
+          "description": "Number of questions in the exam"
+        },
+        "generationMode": {
+          "type": "string",
+          "description": "Mode used during generation"
+        }
+      },
+      "rules": {
+        "read": "request.auth != null && request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com'",
+        "create": "request.auth != null && request.resource.data.creatorUid == request.auth.uid && request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com'",
+        "update": "request.auth != null && resource.data.creatorUid == request.auth.uid",
+        "delete": "request.auth != null && resource.data.creatorUid == request.auth.uid"
+      }
+    }
+  }
+}
