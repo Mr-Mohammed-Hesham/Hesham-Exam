@@ -9,8 +9,19 @@ import { HelpModal } from "./components/HelpModal";
 import { AppLoader } from "./components/AppLoader";
 import { Footer } from "./components/Footer";
 import { AuthModal } from "./components/AuthModal";
-import { ExamImage, ExamGenerationResult, GenerationHistoryItem, GenerationMode } from "./types";
-import { AlertTriangle, Sparkles, CheckCircle2, ArrowDown, Lock } from "lucide-react";
+import {
+  ExamImage,
+  ExamGenerationResult,
+  GenerationHistoryItem,
+  GenerationMode,
+} from "./types";
+import {
+  AlertTriangle,
+  Sparkles,
+  CheckCircle2,
+  Lock,
+  LogIn,
+} from "lucide-react";
 import { API_ROUTES } from "./config/api";
 import { auth } from "./config/firebase";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
@@ -22,20 +33,27 @@ import {
 } from "./services/examStorage";
 
 export default function App() {
-  // Initial App Loading State
+  // ============================================================
+  // INITIAL APP LOADING
+  // ============================================================
   const [appInitializing, setAppInitializing] = useState<boolean>(true);
 
-  // Authentication State
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
-  // State: Purely file and image-based workflow
+  // ============================================================
+  // EXAM WORKFLOW STATE
+  // ============================================================
   const [images, setImages] = useState<ExamImage[]>([]);
-  
+
   const [examTitle, setExamTitle] = useState<string>("");
   const [solveQuestions, setSolveQuestions] = useState<boolean>(true);
   const [instructions, setInstructions] = useState<string>("");
-  const [generationMode, setGenerationMode] = useState<GenerationMode>("generate_new_similar");
+  const [generationMode, setGenerationMode] =
+    useState<GenerationMode>("generate_new_similar");
   const [questionCount, setQuestionCount] = useState<number>(7);
   const [durationMinutes, setDurationMinutes] = useState<number>(30);
   const [difficulty, setDifficulty] = useState<string>("same");
@@ -45,40 +63,54 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
-  const [currentResult, setCurrentResult] = useState<ExamGenerationResult | null>(null);
+  const [currentResult, setCurrentResult] =
+    useState<ExamGenerationResult | null>(null);
 
-  // Modals
+  // ============================================================
+  // MODALS
+  // ============================================================
   const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
 
-  // History synchronized with Firestore
+  // ============================================================
+  // HISTORY
+  // ============================================================
   const [history, setHistory] = useState<GenerationHistoryItem[]>([]);
 
-  // Auth state listener with Whitelist Enforcement
+  // ============================================================
+  // AUTH STATE + WHITELIST ENFORCEMENT
+  // ============================================================
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         if (!isEmailWhitelisted(user.email)) {
           const unauthorizedEmail = user.email || "غير معروف";
+
           await signOut(auth);
+
           setCurrentUser(null);
+
           setErrorMsg(
             `عذراً، هذا الحساب (${unauthorizedEmail}) غير مصرح له بالدخول. يُسمح فقط بالحسابات المعتمدة في قائمة التصاريح.`
           );
         } else {
           setCurrentUser(user);
+          setErrorMsg(null);
         }
       } else {
         setCurrentUser(null);
       }
+
       setAppInitializing(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Sync exams from Cloud Firestore for the authorized user
+  // ============================================================
+  // FIRESTORE HISTORY
+  // ============================================================
   useEffect(() => {
     if (!currentUser) {
       setHistory([]);
@@ -98,7 +130,9 @@ export default function App() {
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Camera snap handler
+  // ============================================================
+  // CAMERA CAPTURE
+  // ============================================================
   const handleCameraCapture = (imageDataUrl: string) => {
     const newImg: ExamImage = {
       id: `cam_${Date.now()}`,
@@ -107,15 +141,21 @@ export default function App() {
       data: imageDataUrl,
       previewUrl: imageDataUrl,
     };
+
     setImages((prev) => [...prev, newImg]);
   };
 
-  // Main Generate Action - pure file/image based
+  // ============================================================
+  // GENERATE EXAM
+  // ============================================================
   const handleGenerate = async () => {
-    // Require authentication before generating and saving
     if (!currentUser) {
       setIsAuthModalOpen(true);
-      setErrorMsg("يرجى تسجيل الدخول بحساب Google المصرح له أولاً للبدء في توليد الامتحانات وحفظها سحابياً.");
+
+      setErrorMsg(
+        "يرجى تسجيل الدخول بحساب Google المصرح له أولاً للبدء في توليد الامتحانات وحفظها سحابياً."
+      );
+
       return;
     }
 
@@ -127,14 +167,21 @@ export default function App() {
     setIsGenerating(true);
     setErrorMsg(null);
     setSuccessNotice(null);
-    setGenerationStep("جاري قراءة واستخراج الأسئلة والمسائل من الملفات والصور المرفوعة...");
+
+    setGenerationStep(
+      "جاري قراءة واستخراج الأسئلة والمسائل من الملفات والصور المرفوعة..."
+    );
 
     const timer1 = setTimeout(() => {
-      setGenerationStep("جاري صياغة الامتحان الإلكتروني وبنك الأسئلة وإعداد الخيارات والحلول النموذجية...");
+      setGenerationStep(
+        "جاري صياغة الامتحان الإلكتروني وبنك الأسئلة وإعداد الخيارات والحلول النموذجية..."
+      );
     }, 2200);
 
     const timer2 = setTimeout(() => {
-      setGenerationStep("جاري بناء وتجميع واجهة الامتحان التفاعلية مع المؤقت ونظام التصحيح الآلي وحفظها سحابياً...");
+      setGenerationStep(
+        "جاري بناء وتجميع واجهة الامتحان التفاعلية مع المؤقت ونظام التصحيح الآلي وحفظها سحابياً..."
+      );
     }, 4500);
 
     try {
@@ -153,6 +200,7 @@ export default function App() {
       };
 
       const endpoint = API_ROUTES.generateExamCode();
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -162,20 +210,30 @@ export default function App() {
       });
 
       const contentType = response.headers.get("content-type") || "";
+
       let data: any = null;
 
       if (contentType.includes("application/json")) {
         data = await response.json();
       } else {
         const textResp = await response.text();
-        console.error("Non-JSON response from server:", textResp.slice(0, 300));
+
+        console.error(
+          "Non-JSON response from server:",
+          textResp.slice(0, 300)
+        );
+
         throw new Error(
-          `تعذر الاتصال بخادم التوليد الذكي (${response.status} ${response.statusText || ""}). تأكد من إتاحة خادم الـBackend أو إعداد رابط الـAPI.`
+          `تعذر الاتصال بخادم التوليد الذكي (${response.status} ${
+            response.statusText || ""
+          }). تأكد من إتاحة خادم الـBackend أو إعداد رابط الـAPI.`
         );
       }
 
       if (!response.ok || !data.success) {
-        throw new Error(data?.error || "فشل توليد الامتحان. يرجى المحاولة مرة أخرى.");
+        throw new Error(
+          data?.error || "فشل توليد الامتحان. يرجى المحاولة مرة أخرى."
+        );
       }
 
       const res: ExamGenerationResult = {
@@ -186,31 +244,45 @@ export default function App() {
 
       setCurrentResult(res);
 
-      // Save to Cloud Firestore
+      // ========================================================
+      // SAVE TO FIRESTORE
+      // ========================================================
       try {
         await saveExamToFirestore(res, currentUser);
-        setSuccessNotice("تم توليد الامتحان بنجاح وحفظه في قاعدة بيانات Cloud Firestore.");
+
+        setSuccessNotice(
+          "تم توليد الامتحان بنجاح وحفظه في قاعدة بيانات Cloud Firestore."
+        );
       } catch (firestoreErr) {
         console.error("Failed saving to Firestore:", firestoreErr);
       }
 
-      // Scroll smoothly to results
+      // ========================================================
+      // SCROLL TO RESULTS
+      // ========================================================
       setTimeout(() => {
-        document.getElementById("results-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("results-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 300);
-
     } catch (err: any) {
       console.error("Generation error:", err);
-      setErrorMsg(err?.message || "حدث خطأ غير متوقع أثناء توليد الامتحان.");
+
+      setErrorMsg(
+        err?.message || "حدث خطأ غير متوقع أثناء توليد الامتحان."
+      );
     } finally {
       clearTimeout(timer1);
       clearTimeout(timer2);
+
       setIsGenerating(false);
       setGenerationStep("");
     }
   };
 
-  // Reset Session
+  // ============================================================
+  // RESET SESSION
+  // ============================================================
   const handleReset = () => {
     if (window.confirm("هل تريد بدء جلسة جديدة وتصفير الملفات الحالية؟")) {
       setImages([]);
@@ -222,17 +294,25 @@ export default function App() {
     }
   };
 
-  // History action handlers
-  const handleSelectHistoryItem = (item: GenerationHistoryItem) => {
+  // ============================================================
+  // HISTORY
+  // ============================================================
+  const handleSelectHistoryItem = (
+    item: GenerationHistoryItem
+  ) => {
     setCurrentResult(item.result);
+
     setTimeout(() => {
-      document.getElementById("results-section")?.scrollIntoView({ behavior: "smooth" });
+      document
+        .getElementById("results-section")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 200);
   };
 
   const handleClearHistory = () => {
-    // Single item deletion is supported safely via deleteExamFromFirestore
-    alert("لحماية البيانات، يمكنك حذف الامتحانات واحداً تلو الآخر عبر زر الحذف بجانب كل امتحان.");
+    alert(
+      "لحماية البيانات، يمكنك حذف الامتحانات واحداً تلو الآخر عبر زر الحذف بجانب كل امتحان."
+    );
   };
 
   const handleDeleteHistoryItem = async (id: string) => {
@@ -240,43 +320,160 @@ export default function App() {
       await deleteExamFromFirestore(id);
     } catch (e: any) {
       console.error("Error deleting from Firestore:", e);
-      setErrorMsg("تعذر حذف الامتحان من Firestore. تحقق من الاتصال والصلاحيات.");
+
+      setErrorMsg(
+        "تعذر حذف الامتحان من Firestore. تحقق من الاتصال والصلاحيات."
+      );
     }
   };
 
+  // ============================================================
+  // SIGN OUT
+  // ============================================================
   const handleSignOut = async () => {
     if (window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
       await signOut(auth);
+
       setCurrentUser(null);
       setCurrentResult(null);
       setImages([]);
+      setHistory([]);
     }
   };
 
   const canGenerate = images.length > 0;
 
+  // ============================================================
+  // INITIALIZING
+  // ============================================================
   if (appInitializing) {
-    return <AppLoader message="جاري الاتصال بالنظام والتحقق من حساب المستخدم..." />;
+    return (
+      <AppLoader message="جاري الاتصال بالنظام والتحقق من حساب المستخدم..." />
+    );
   }
 
+  // ============================================================
+  // LOGIN PAGE
+  // ============================================================
+  // إذا لم يكن هناك مستخدم مسجل دخول:
+  // لا تظهر المنصة نهائياً.
+  // تظهر صفحة تسجيل الدخول فقط.
+  // ============================================================
+  if (!currentUser) {
+    return (
+      <div
+        dir="rtl"
+        className="min-h-screen bg-[#090d16] text-[#f1f5f9] flex items-center justify-center px-4 font-['Cairo',sans-serif]"
+      >
+        <div className="w-full max-w-md">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl backdrop-blur-xl">
+            
+            {/* Background Glow */}
+            <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.18),transparent_70%)] pointer-events-none" />
+
+            <div className="relative p-8 sm:p-10 text-center">
+              
+              {/* Lock Icon */}
+              <div className="mx-auto mb-6 w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shadow-lg">
+                <Lock className="w-9 h-9 text-amber-400" />
+              </div>
+
+              {/* Title */}
+              <h1 className="text-3xl font-black text-white mb-3">
+                Hesham Exam
+              </h1>
+
+              <p className="text-lg font-bold text-slate-200 mb-2">
+                منصة إنشاء الامتحانات التفاعلية
+              </p>
+
+              <p className="text-sm text-slate-400 leading-7 mb-8">
+                يجب تسجيل الدخول بحساب Google المصرح له للوصول إلى المنصة.
+              </p>
+
+              {/* Login Button */}
+              <button
+                onClick={() => {
+                  setErrorMsg(null);
+                  setIsAuthModalOpen(true);
+                }}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-all shadow-lg shadow-amber-500/10 cursor-pointer"
+              >
+                <LogIn className="w-5 h-5" />
+                تسجيل الدخول بحساب Google
+              </button>
+
+              {/* Security Notice */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+                <Lock className="w-3.5 h-3.5" />
+                <span>
+                  الوصول مقتصر على الحسابات المصرح لها
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Text */}
+          <p className="text-center text-xs text-slate-600 mt-5">
+            Hesham Exam © {new Date().getFullYear()}
+          </p>
+        </div>
+
+        {/* Login Modal */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          requireAuth={true}
+        />
+
+        {/* Authentication Error */}
+        {errorMsg && (
+          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 rounded-xl bg-rose-950/95 border border-rose-800 text-rose-200 text-sm shadow-2xl z-50">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+
+              <span className="leading-6">
+                {errorMsg}
+              </span>
+
+              <button
+                onClick={() => setErrorMsg(null)}
+                className="text-xs text-rose-400 hover:text-rose-200 cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============================================================
+  // MAIN PLATFORM
+  // ============================================================
   return (
     <div className="min-h-screen bg-[#090d16] text-[#f1f5f9] flex flex-col font-['Cairo',sans-serif] selection:bg-amber-500 selection:text-slate-950">
       
-      {/* Full screen loader when generating exam code */}
+      {/* Full Screen Loader */}
       {isGenerating && (
         <AppLoader
-          message={generationStep || "جاري استخراج الأسئلة وتوليد الامتحان التفاعلي..."}
+          message={
+            generationStep ||
+            "جاري استخراج الأسئلة وتوليد الامتحان التفاعلي..."
+          }
           submessage="منظومة السجلات والامتحانات الأكاديمية والذكاء الاصطناعي"
         />
       )}
 
-      {/* Top Navbar */}
+      {/* Navbar */}
       <Navbar
         onOpenHistory={() => {
           if (!currentUser) {
             setIsAuthModalOpen(true);
             return;
           }
+
           setIsHistoryOpen(true);
         }}
         onOpenHelp={() => setIsHelpOpen(true)}
@@ -287,15 +484,21 @@ export default function App() {
         onSignOut={handleSignOut}
       />
 
-      {/* Hero Banner with clean, high-contrast palette */}
+      {/* Hero */}
       <section className="relative overflow-hidden pt-8 pb-6 border-b border-slate-800/80 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.12),rgba(255,255,255,0))] pointer-events-none" />
         
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.12),rgba(255,255,255,0))] pointer-events-none" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          
           <div className="text-center max-w-3xl mx-auto space-y-3">
+            
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>توليد فوري ومباشر من ملفات أو صور الامتحان فقط مع حفظ سحابي</span>
+
+              <span>
+                توليد فوري ومباشر من ملفات أو صور الامتحان فقط مع حفظ سحابي
+              </span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
@@ -306,22 +509,27 @@ export default function App() {
             </h2>
 
             <p className="text-sm text-slate-300 leading-relaxed max-w-3xl mx-auto">
-              ارفع صورة ورقة امتحان، مذكرة، أو ملف (PDF / Word / صور)، وسيقوم النظام الذكي باستخراج الأسئلة أو ابتكار أسئلة جديدة مماثلة وتوليد امتحان إلكتروني تفاعلي متكامل جاهز للحل والتصحيح الفوري مع الحفظ التلقائي في قاعدة بيانات Firestore.
+              ارفع صورة ورقة امتحان، مذكرة، أو ملف (PDF / Word / صور)، وسيقوم
+              النظام الذكي باستخراج الأسئلة أو ابتكار أسئلة جديدة مماثلة
+              وتوليد امتحان إلكتروني تفاعلي متكامل جاهز للحل والتصحيح الفوري
+              مع الحفظ التلقائي في قاعدة بيانات Firestore.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Main Workbench Area */}
+      {/* Main Workbench */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        {/* Error Alert if any */}
+        {/* Error */}
         {errorMsg && (
           <div className="p-4 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-200 text-xs flex items-center justify-between shadow-lg">
+            
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
               <span>{errorMsg}</span>
             </div>
+
             <button
               onClick={() => setErrorMsg(null)}
               className="px-2 py-1 text-[11px] bg-rose-900/60 hover:bg-rose-900 rounded text-rose-300 cursor-pointer"
@@ -331,13 +539,16 @@ export default function App() {
           </div>
         )}
 
-        {/* Success Notice if saved */}
+        {/* Success */}
         {successNotice && (
           <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/80 text-emerald-200 text-xs flex items-center justify-between shadow-lg">
+            
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+
               <span>{successNotice}</span>
             </div>
+
             <button
               onClick={() => setSuccessNotice(null)}
               className="px-2 py-1 text-[11px] bg-emerald-900/60 hover:bg-emerald-900 rounded text-emerald-300 cursor-pointer"
@@ -347,7 +558,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Dedicated File & Image Hub */}
+        {/* File & Image Hub */}
         <div className="w-full">
           <ImageUploader
             images={images}
@@ -356,7 +567,7 @@ export default function App() {
           />
         </div>
 
-        {/* Generation Options & Action Button */}
+        {/* Generation Options */}
         <GenerationOptions
           examTitle={examTitle}
           onExamTitleChange={setExamTitle}
@@ -378,33 +589,32 @@ export default function App() {
           generationStep={generationStep}
         />
 
-        {/* Generation Output & Interactive Sandbox */}
+        {/* Result */}
         {currentResult && (
           <div className="pt-4">
-            <ResultViewer
-              result={currentResult}
-            />
+            <ResultViewer result={currentResult} />
           </div>
         )}
-
       </main>
 
       {/* Footer */}
       <Footer />
 
-      {/* Modals */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         requireAuth={false}
       />
 
+      {/* Camera */}
       <CameraCaptureModal
         isOpen={isCameraOpen}
         onClose={() => setIsCameraOpen(false)}
         onCapture={handleCameraCapture}
       />
 
+      {/* History */}
       <HistoryModal
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
@@ -414,11 +624,11 @@ export default function App() {
         onDeleteOne={handleDeleteHistoryItem}
       />
 
+      {/* Help */}
       <HelpModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
       />
-
     </div>
   );
 }
