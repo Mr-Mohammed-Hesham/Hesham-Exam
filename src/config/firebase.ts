@@ -10,7 +10,7 @@ import { getFirestore } from "firebase/firestore";
  * App ID: 1:784283537317:web:1f292ef9faeec63510a24c
  */
 export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDummyKeyReplaceWithActualIfRequired",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBrv96WO4k4pvyPDoQVPj5pvTw1b3q2oYE",
   authDomain: "hesham-exam.firebaseapp.com",
   projectId: "hesham-exam",
   storageBucket: "hesham-exam.firebasestorage.app",
