@@ -3,7 +3,7 @@
  * 
  * Determines the correct backend endpoint:
  * - When running on GitHub Pages (mr-mohammed-hesham.github.io):
- *   Routes to the secure Google Cloud Run backend.
+ *   Routes to the active Google Cloud Run backend.
  * - When running in local dev or AI Studio container:
  *   Routes to relative path /api/*
  * - Can be overridden at build time via VITE_API_URL environment variable.
@@ -13,12 +13,26 @@ export const DEFAULT_CLOUD_API_URL = "https://ais-dev-ztzoh22v25piqmda53fiyu-684
 
 export function getApiBaseUrl(): string {
   // 1. Check if an explicit environment variable was injected during build
-  const envUrl = (import.meta as any).env?.VITE_API_URL;
-  if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
-    return envUrl.trim().replace(/\/$/, "");
+  let envUrl: string | undefined = undefined;
+  try {
+    envUrl = import.meta.env.VITE_API_URL;
+  } catch {
+    // fallback if env is not defined
   }
 
-  // 2. If running on GitHub Pages, fallback to the Google Cloud Run serverless endpoint
+  if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
+    let cleanUrl = envUrl.trim().replace(/\/$/, "");
+    // Automatically sanitize old/defunct pre-launch URL if present in any repository secret
+    if (cleanUrl.includes("ais-pre-ztzoh22v25piqmda53fiyu-684462415759")) {
+      cleanUrl = cleanUrl.replace(
+        "ais-pre-ztzoh22v25piqmda53fiyu-684462415759",
+        "ais-dev-ztzoh22v25piqmda53fiyu-684462415759"
+      );
+    }
+    return cleanUrl;
+  }
+
+  // 2. If running on GitHub Pages, fallback to the verified Google Cloud Run serverless endpoint
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
     if (hostname.includes("github.io")) {
