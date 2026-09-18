@@ -10,8 +10,7 @@
 
 export const ALLOWED_EMAILS: string[] = [
   "mr.mohamed.hesham93@gmail.com",
-  // Add any additional authorized educator/admin emails here:
-  // "teacher.assistant@gmail.com",
+  "mohammedhesham872@gmail.com",
 ];
 
 /**
