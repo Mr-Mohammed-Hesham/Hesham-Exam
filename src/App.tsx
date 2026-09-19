@@ -759,7 +759,10 @@ export default function App() {
         {/* Result */}
         {currentResult && (
           <div className="pt-4">
-            <ResultViewer result={currentResult} />
+            <ResultViewer 
+              result={currentResult} 
+              onUpdateResult={(updated) => setCurrentResult(updated)}
+            />
           </div>
         )}
       </main>
