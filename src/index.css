@@ -7,3 +7,77 @@
     font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
   }
 }
+
+/* Exam Diagrams (SVG) & Tables Styling */
+.exam-diagram-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.exam-diagram {
+  max-width: 100%;
+  height: auto;
+  margin: 0.5rem auto;
+  display: block;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.exam-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.exam-table {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.exam-table th {
+  background-color: #f0fdfa;
+  color: #0f766e;
+  font-weight: 700;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ccfbf1;
+}
+
+.exam-table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  font-family: 'Times New Roman', 'Cairo', serif;
+}
+
+.exam-table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.math-display {
+  display: inline-block;
+  direction: ltr;
+  font-family: 'Times New Roman', 'Cambria Math', serif;
+  font-size: 1.15em;
+  font-style: italic;
+  padding: 1px 6px;
+  background: rgba(13, 148, 136, 0.08);
+  border-radius: 4px;
+  margin: 0 2px;
+  color: #0f766e;
+  font-weight: 600;
+}

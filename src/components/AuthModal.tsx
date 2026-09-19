@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
 import { isEmailWhitelisted } from "../config/authWhitelist";
-import { GraduationCap, ShieldAlert, LogIn, CheckCircle2, Lock } from "lucide-react";
+import { ShieldAlert, LogIn, Lock, Loader2 } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
         const unauthorizedEmail = user.email || "الحساب غير معروف";
         await signOut(auth);
         setErrorMessage(
-          `عذراً، هذا الحساب (${unauthorizedEmail}) غير مصرح له بالدخول إلى منصة مستر محمد هشام. يُسمح فقط بالحسابات المعتمدة في قائمة التصاريح.`
+          `عذراً، هذا الحساب (${unauthorizedEmail}) غير مصرح له بالدخول. يُسمح فقط بحسابات المعلم المعتمدة.`
         );
       } else {
         // Successful authorized login
@@ -38,10 +38,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
       }
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
-      if (error.code === "auth/popup-closed-by-user") {
-        setErrorMessage("تم إغلاق نافذة تسجيل الدخول قبل اكتمال العملية.");
-      } else if (error.code === "auth/cancelled-popup-request") {
-        // benign user cancel
+      if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+        // user closed popup
+      } else if (error.code === "auth/unauthorized-domain") {
+        setErrorMessage("النطاق الحالي غير مصرح به في إعدادات Firebase Authentication.");
       } else {
         setErrorMessage(error.message || "تعذر إتمام تسجيل الدخول باستخدام Google.");
       }
@@ -52,38 +52,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-6 sm:p-8 text-center space-y-6">
+      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-6 sm:p-8 text-center space-y-5">
         
         {/* Icon & Title */}
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/20 font-black">
-          <GraduationCap className="w-8 h-8" />
+        <div className="mx-auto w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/20">
+          <img
+            src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
+            alt="Mr Mohamed Hesham"
+            className="w-full h-full object-cover rounded-[14px]"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (!target.src.endsWith("/teacher-logo.jpg")) {
+                target.src = "/teacher-logo.jpg";
+              }
+            }}
+          />
         </div>
 
-        <div className="space-y-2">
-          <h3 className="text-xl sm:text-2xl font-black text-white">
-            منصة مستر محمد هشام
+        <div className="space-y-1.5">
+          <h3 className="text-xl sm:text-2xl font-black text-white font-sans tracking-wide">
+            Mr. Mohamed Hesham
           </h3>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            بوابة تسجيل الدخول الآمنة المخصصة للأساتذة والمعلمين المصرح لهم
+          <div className="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 uppercase font-sans">
+            Exam Platform
+          </div>
+          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed pt-1">
+            يرجى تسجيل الدخول بحساب Google المعتمد للوصول إلى المنصة
           </p>
         </div>
 
         {/* Security / Whitelist Notice */}
-        <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-right space-y-1.5">
+        <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-right space-y-1">
           <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
             <Lock className="w-3.5 h-3.5 shrink-0" />
-            <span>نظام تصاريح حسابات Google المعتمدة</span>
+            <span>نظام الحسابات المعتمدة</span>
           </div>
           <p className="text-[11px] text-slate-400 leading-normal">
-            المنصة محمية بنظام التحقق السحابي عبر Firebase، ويقتصر الدخول وإدارة الامتحانات على الحسابات المسجلة في القائمة البيضاء فقط.
+            الوصول إلى المنصة وإدارة الامتحانات مقتصر على حسابات المعلم المعتمدة.
           </p>
         </div>
 
-        {/* Error Alert if non-whitelisted account tried to login */}
+        {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-800/80 text-rose-200 text-xs text-right flex items-start gap-2.5 animate-fadeIn">
+          <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-800/80 text-rose-200 text-xs text-right animate-fadeIn flex items-start gap-2.5">
             <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <span className="leading-relaxed">{errorMessage}</span>
+            <span className="leading-relaxed font-medium flex-1">{errorMessage}</span>
           </div>
         )}
 
@@ -92,10 +106,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[46px]"
         >
           {loading ? (
-            <span className="text-xs text-slate-700">جاري التحقق من بيانات الحساب...</span>
+            <div className="flex items-center gap-2 text-xs text-slate-700">
+              <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+              <span>جاري التحقق من الحساب...</span>
+            </div>
           ) : (
             <>
               {/* Google G Logo SVG */}
@@ -126,7 +143,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
           <button
             type="button"
             onClick={onClose}
-            className="text-xs text-slate-400 hover:text-slate-200 transition"
+            className="text-xs text-slate-400 hover:text-slate-200 transition p-1 cursor-pointer"
           >
             إغلاق النافذة
           </button>

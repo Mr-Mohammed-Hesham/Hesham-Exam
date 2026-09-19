@@ -21,10 +21,12 @@ import {
   CheckCircle2,
   Lock,
   LogIn,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { API_ROUTES } from "./config/api";
-import { auth } from "./config/firebase";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { auth, googleProvider } from "./config/firebase";
+import { onAuthStateChanged, signOut, signInWithPopup, User } from "firebase/auth";
 import { isEmailWhitelisted } from "./config/authWhitelist";
 import {
   saveExamToFirestore,
@@ -77,6 +79,93 @@ export default function App() {
   // HISTORY
   // ============================================================
   const [history, setHistory] = useState<GenerationHistoryItem[]>([]);
+
+  // ============================================================
+  // PWA DIRECT INSTALLATION (NO EXTRA POPUPS)
+  // ============================================================
+  const [deferredInstallPrompt, setDeferredInstallPrompt] =
+    useState<any>(() => {
+      return typeof window !== "undefined"
+        ? (window as any).__pwaInstallPrompt || null
+        : null;
+    });
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Detect if already installed / standalone
+    const isStandalone =
+      typeof window !== "undefined" &&
+      (window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone ===
+          true);
+
+    if (isStandalone) {
+      setIsAppInstalled(true);
+    }
+
+    if (typeof window !== "undefined" && (window as any).__pwaInstallPrompt) {
+      setDeferredInstallPrompt((window as any).__pwaInstallPrompt);
+    }
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      (window as any).__pwaInstallPrompt = e;
+      setDeferredInstallPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredInstallPrompt(null);
+      if (typeof window !== "undefined" && (window as any).__pwaInstallPrompt) {
+        (window as any).__pwaInstallPrompt = null;
+      }
+      setSuccessNotice("تم تثبيت التطبيق بنجاح على جهازك!");
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
+  const handleTriggerInstall = async () => {
+    if (isAppInstalled) {
+      setSuccessNotice("التطبيق مثبت بالفعل على جهازك وهو يعمل بأفضل كفاءة");
+      return;
+    }
+
+    const promptEvent =
+      deferredInstallPrompt ||
+      (typeof window !== "undefined"
+        ? (window as any).__pwaInstallPrompt
+        : null);
+
+    if (promptEvent) {
+      try {
+        await promptEvent.prompt();
+        const choiceResult = await promptEvent.userChoice;
+        if (choiceResult && choiceResult.outcome === "accepted") {
+          setIsAppInstalled(true);
+          setDeferredInstallPrompt(null);
+          if (typeof window !== "undefined") {
+            (window as any).__pwaInstallPrompt = null;
+          }
+        }
+      } catch (err) {
+        console.warn("Direct installation trigger error:", err);
+      }
+      return;
+    }
+
+    // Direct feedback without any browser address bar guidance
+    setSuccessNotice("جاري تحضير التثبيت المباشر...");
+  };
 
   // ============================================================
   // AUTH STATE + WHITELIST ENFORCEMENT
@@ -331,13 +420,46 @@ export default function App() {
   // SIGN OUT
   // ============================================================
   const handleSignOut = async () => {
-    if (window.confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
+    try {
       await signOut(auth);
-
+    } catch (err) {
+      console.warn("Sign out exception:", err);
+    } finally {
       setCurrentUser(null);
       setCurrentResult(null);
       setImages([]);
       setHistory([]);
+      setErrorMsg(null);
+      setIsAuthModalOpen(false);
+    }
+  };
+
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const handleDirectGoogleSignIn = async () => {
+    setLoginLoading(true);
+    setLoginError(null);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      if (!isEmailWhitelisted(user.email)) {
+        await signOut(auth);
+        setLoginError(`عذراً، البريد الإلكتروني (${user.email}) غير مصرح له بالدخول للمنصة.`);
+        return;
+      }
+      setCurrentUser(user);
+    } catch (error: any) {
+      console.error("Direct Google sign-in error:", error);
+      if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+        // user closed popup
+      } else if (error.code === "auth/unauthorized-domain") {
+        setLoginError("النطاق الحالي غير مضاف في قائمة النطاقات المصرح بها في Firebase Console.");
+      } else {
+        setLoginError(error.message || "تعذر إتمام تسجيل الدخول باستخدام Google.");
+      }
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -355,9 +477,7 @@ export default function App() {
   // ============================================================
   // LOGIN PAGE
   // ============================================================
-  // إذا لم يكن هناك مستخدم مسجل دخول:
-  // لا تظهر المنصة نهائياً.
-  // تظهر صفحة تسجيل الدخول فقط.
+  // صفحة تسجيل الدخول بحساب جوجل فقط
   // ============================================================
   if (!currentUser) {
     return (
@@ -366,85 +486,84 @@ export default function App() {
         className="min-h-screen bg-[#090d16] text-[#f1f5f9] flex items-center justify-center px-4 font-['Cairo',sans-serif]"
       >
         <div className="w-full max-w-md">
-          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl backdrop-blur-xl">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-2xl backdrop-blur-xl">
             
             {/* Background Glow */}
             <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.18),transparent_70%)] pointer-events-none" />
 
-            <div className="relative p-8 sm:p-10 text-center">
+            <div className="relative p-6 sm:p-10 text-center">
               
-              {/* Lock Icon */}
-              <div className="mx-auto mb-6 w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shadow-lg">
-                <Lock className="w-9 h-9 text-amber-400" />
+              {/* Teacher Logo */}
+              <div className="mx-auto mb-5 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl p-1 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 shadow-xl shadow-amber-500/25 flex items-center justify-center overflow-hidden">
+                <img
+                  src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
+                  alt="Mr Mohamed Hesham"
+                  className="w-full h-full object-cover rounded-[20px]"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.endsWith("/teacher-logo.jpg")) {
+                      target.src = "/teacher-logo.jpg";
+                    }
+                  }}
+                />
               </div>
 
-              {/* Title */}
-              <h1 className="text-3xl font-black text-white mb-3">
-                Hesham Exam
+              {/* Title in English */}
+              <h1 className="text-2xl sm:text-3xl font-black text-white mb-1.5 font-sans tracking-wide">
+                Mr. Mohamed Hesham
               </h1>
 
-              <p className="text-lg font-bold text-slate-200 mb-2">
-                منصة إنشاء الامتحانات التفاعلية
+              <div className="inline-block px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 mb-3 tracking-wider uppercase font-sans">
+                Exam Platform
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 max-w-xs mx-auto">
+                يرجى تسجيل الدخول بحساب Google المعتمد للوصول إلى المنصة.
               </p>
 
-              <p className="text-sm text-slate-400 leading-7 mb-8">
-                يجب تسجيل الدخول بحساب Google المصرح له للوصول إلى المنصة.
-              </p>
-
-              {/* Login Button */}
+              {/* Single Direct Google Login Button */}
               <button
-                onClick={() => {
-                  setErrorMsg(null);
-                  setIsAuthModalOpen(true);
-                }}
-                className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-all shadow-lg shadow-amber-500/10 cursor-pointer"
+                id="btn-google-login-direct"
+                type="button"
+                disabled={loginLoading}
+                onClick={handleDirectGoogleSignIn}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 sm:py-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-98 disabled:opacity-60 text-slate-950 font-black text-sm sm:text-base transition-all shadow-lg shadow-amber-500/20 cursor-pointer min-h-[48px]"
               >
-                <LogIn className="w-5 h-5" />
-                تسجيل الدخول بحساب Google
+                {loginLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>جاري الاتصال بـ Google...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-5 h-5" />
+                    <span>تسجيل الدخول بحساب Google</span>
+                  </>
+                )}
               </button>
 
+              {/* Login Error Notification */}
+              {loginError && (
+                <div className="mt-4 p-3 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-200 text-xs text-right leading-relaxed flex items-start gap-2 animate-fadeIn">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <span className="flex-1">{loginError}</span>
+                </div>
+              )}
+
               {/* Security Notice */}
-              <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
                 <Lock className="w-3.5 h-3.5" />
-                <span>
-                  الوصول مقتصر على الحسابات المصرح لها
-                </span>
+                <span>الوصول مقتصر على حسابات المعلم المعتمدة</span>
               </div>
             </div>
           </div>
 
           {/* Footer Text */}
-          <p className="text-center text-xs text-slate-600 mt-5">
-            Hesham Exam © {new Date().getFullYear()}
+          <p className="text-center text-xs text-slate-500 mt-5 font-sans">
+            Mr. Mohamed Hesham © {new Date().getFullYear()}
           </p>
         </div>
-
-        {/* Login Modal */}
-        <AuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          requireAuth={true}
-        />
-
-        {/* Authentication Error */}
-        {errorMsg && (
-          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 rounded-xl bg-rose-950/95 border border-rose-800 text-rose-200 text-sm shadow-2xl z-50">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
-
-              <span className="leading-6">
-                {errorMsg}
-              </span>
-
-              <button
-                onClick={() => setErrorMsg(null)}
-                className="text-xs text-rose-400 hover:text-rose-200 cursor-pointer"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -482,6 +601,8 @@ export default function App() {
         user={currentUser}
         onSignIn={() => setIsAuthModalOpen(true)}
         onSignOut={handleSignOut}
+        onInstall={handleTriggerInstall}
+        isAppInstalled={isAppInstalled}
       />
 
       {/* Hero */}
@@ -629,6 +750,19 @@ export default function App() {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
       />
+
+      {/* Floating Quick Install Button */}
+      {!isAppInstalled && (
+        <button
+          id="btn-floating-install-pwa"
+          onClick={handleTriggerInstall}
+          aria-label="تثبيت التطبيق مباشرة"
+          title="تثبيت التطبيق مباشرة على الهاتف أو سطح المكتب"
+          className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 shadow-xl shadow-amber-500/30 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group cursor-pointer border border-white/20"
+        >
+          <Download className="w-5 h-5 transition-transform group-hover:translate-y-0.5 text-slate-950 font-black" />
+        </button>
+      )}
     </div>
   );
 }

@@ -107,106 +107,245 @@ function generateCurriculumQuestionsFallback({
   count: number;
 }): any[] {
   const text = (subjectHint + " " + examTitle).toLowerCase();
-  const isPhysics = /فيزياء|physics|سرعة|تسارع|نيوتن|طاقة|تيار|مقاومة|وحدات|بادئات/i.test(text);
-  const isChemistry = /كيمياء|chemistry|ذرة|عنصر|تفاعل|حمض|قاعدة|مركب|محلول/i.test(text);
-  const isMath = /رياضيات|math|تفاضل|تكامل|معادلة|هندسة|جبر|دالة|حساب/i.test(text);
+  const isPhysics = /فيزياء|physics|سرعة|تسارع|نيوتن|طاقة|تيار|مقاومة|وحدات|بادئات|دائرة|شغل|قوة/i.test(text);
+  const isChemistry = /كيمياء|chemistry|ذرة|عنصر|تفاعل|حمض|قاعدة|مركب|محلول|مول|كتلة/i.test(text);
+  const isMath = /رياضيات|math|تفاضل|تكامل|معادلة|هندسة|جبر|دالة|حساب|مثلث|مصفوفة/i.test(text);
   const isEnglish = /english|انجليزي|إنجليزي|grammar|vocab|comprehension|tense/i.test(text);
   const isArabic = /عربي|لغة عربية|نحو|بلاغة|أدب|نصوص|إعراب/i.test(text);
-  const isBiology = /أحياء|biology|خلية|جينات|وراثة|تنفس|نبات|حيوان/i.test(text);
+  const isBiology = /أحياء|biology|خلية|جينات|وراثة|تنفس|نبات|حيوان|وراثي/i.test(text);
+
+  const physicsBank = [
+    {
+      questionAr: `في الدائرة الكهربائية الموضحة بالرسم أدناه، وصلت مقاومتان متوازيتان (R₁ = 6 Ω, R₂ = 3 Ω) على التوالي مع مقاومة ثالثة (R₃ = 2 Ω) وبطارية مثالية فرق جهدها V = 16 V. ما مقدار شدة التيار الكلي (I) المار في الدائرة؟
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 380 130" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:380px;">
+    <rect width="380" height="130" fill="#f8fafc" rx="8"/>
+    <rect x="30" y="25" width="320" height="80" fill="none" stroke="#0f766e" stroke-width="2.5" rx="4"/>
+    <!-- Battery -->
+    <line x1="30" y1="50" x2="30" y2="80" stroke="#f8fafc" stroke-width="5"/>
+    <line x1="20" y1="58" x2="40" y2="58" stroke="#0f766e" stroke-width="3"/>
+    <line x1="25" y1="68" x2="35" y2="68" stroke="#0f766e" stroke-width="1.5"/>
+    <text x="50" y="66" fill="#0f766e" font-weight="bold" font-size="12">V = 16V</text>
+    <!-- Series Resistor R3 -->
+    <rect x="90" y="16" width="55" height="18" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="117" y="29" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₃ = 2Ω</text>
+    <!-- Parallel branches -->
+    <line x1="180" y1="25" x2="180" y2="10" stroke="#0f766e" stroke-width="2"/>
+    <line x1="180" y1="25" x2="180" y2="40" stroke="#0f766e" stroke-width="2"/>
+    <rect x="205" y="2" width="55" height="16" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="232" y="14" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₁ = 6Ω</text>
+    <rect x="205" y="32" width="55" height="16" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="232" y="44" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₂ = 3Ω</text>
+    <line x1="180" y1="10" x2="205" y2="10" stroke="#0f766e" stroke-width="2"/>
+    <line x1="180" y1="40" x2="205" y2="40" stroke="#0f766e" stroke-width="2"/>
+    <line x1="260" y1="10" x2="285" y2="10" stroke="#0f766e" stroke-width="2"/>
+    <line x1="260" y1="40" x2="285" y2="40" stroke="#0f766e" stroke-width="2"/>
+    <line x1="285" y1="10" x2="285" y2="40" stroke="#0f766e" stroke-width="2"/>
+    <line x1="285" y1="25" x2="350" y2="25" stroke="#0f766e" stroke-width="2"/>
+  </svg>
+</div>`,
+      questionEn: "In the electric circuit shown, two parallel resistors (R₁ = 6 Ω, R₂ = 3 Ω) are connected in series with R₃ = 2 Ω and a 16 V source. What is the total current (I)?",
+      optionsAr: ["4 A", "2.67 A", "8 A", "1.6 A"],
+      optionsEn: ["4 A", "2.67 A", "8 A", "1.6 A"],
+      correctIndex: 0,
+      explanationAr: "حساب المقاومة المكافئة لمجموعتي التوازي والتوالي: R_p = (6 × 3) / (6 + 3) = 18 / 9 = 2 Ω. المقاومة الكلية R_eq = R_p + R₃ = 2 + 2 = 4 Ω. شدة التيار الكلي I = V / R_eq = 16 / 4 = 4 A.",
+      explanationEn: "Parallel equivalent: R_p = (6 × 3) / (6 + 3) = 2 Ω. Total resistance: R_eq = 2 + 2 = 4 Ω. Current: I = V / R_eq = 16 / 4 = 4 A.",
+    },
+    {
+      questionAr: `يوضح الرسم البياني المقابل منحنى (السرعة - الزمن) لسيارة تتحرك في خط مستقيم انطلاقاً من السكون:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 360 150" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;">
+    <rect width="360" height="150" fill="#f8fafc" rx="8"/>
+    <line x1="45" y1="120" x2="330" y2="120" stroke="#334155" stroke-width="2"/>
+    <line x1="45" y1="120" x2="45" y2="20" stroke="#334155" stroke-width="2"/>
+    <line x1="45" y1="40" x2="300" y2="40" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <line x1="150" y1="120" x2="150" y2="40" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <line x1="300" y1="120" x2="300" y2="40" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <polyline points="45,120 150,40 300,40" fill="none" stroke="#0d9488" stroke-width="3"/>
+    <circle cx="45" cy="120" r="3" fill="#0d9488"/>
+    <circle cx="150" cy="40" r="3" fill="#0d9488"/>
+    <circle cx="300" cy="40" r="3" fill="#0d9488"/>
+    <text x="35" y="44" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="end">20</text>
+    <text x="35" y="124" fill="#64748b" font-size="11" text-anchor="end">0</text>
+    <text x="150" y="136" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">4 s</text>
+    <text x="300" y="136" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">10 s</text>
+    <text x="45" y="15" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">v (m/s)</text>
+    <text x="340" y="124" fill="#0f766e" font-size="11" font-weight="bold">t (s)</text>
+  </svg>
+</div>
+احسب الإزاحة الكلية (d) التي قطعتها السيارة خلال الفترة الزمنية من t = 0 إلى t = 10 s:`,
+      questionEn: "From the given velocity-time graph, calculate the total displacement covered by the car from t = 0 to t = 10 s:",
+      optionsAr: ["160 m", "200 m", "120 m", "140 m"],
+      optionsEn: ["160 m", "200 m", "120 m", "140 m"],
+      correctIndex: 0,
+      explanationAr: "الإزاحة في منحنى السرعة-الزمن تساوي المساحة تحت المنحنى = مساحة المثلث (0 إلى 4 ثوانٍ) + مساحة المستطيل (4 إلى 10 ثوانٍ). مساحة المثلث = 0.5 × 4 × 20 = 40 m. مساحة المستطيل = (10 - 4) × 20 = 6 × 20 = 120 m. الإزاحة الكلية d = 40 + 120 = 160 m.",
+      explanationEn: "Displacement is the area under the v-t curve: Triangle (0 to 4s) = 0.5 × 4 × 20 = 40 m. Rectangle (4 to 10s) = (10 - 4) × 20 = 120 m. Total displacement = 40 + 120 = 160 m.",
+    },
+    {
+      questionAr: `يوضح الجدول أدناه نتائج تجربة عملية لقياس فرق الجهد (V) وشدة التيار (I) المار في موصل فلزي أومي:
+<div class="exam-table-container">
+  <table class="exam-table">
+    <thead>
+      <tr>
+        <th>فرق الجهد V (فولت)</th>
+        <td>2.0</td>
+        <td>4.0</td>
+        <td>6.0</td>
+        <td>8.0</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>شدة التيار I (أمبير)</th>
+        <td>0.5</td>
+        <td>1.0</td>
+        <td>1.5</td>
+        <td>2.0</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+طبق قانون أوم لحساب المقاومة الكهربائية (R) لهذا الموصل:`,
+      questionEn: "Based on the experimental data table for V and I across an ohmic conductor, calculate the electrical resistance R:",
+      optionsAr: ["4.0 Ω", "0.25 Ω", "8.0 Ω", "2.0 Ω"],
+      optionsEn: ["4.0 Ω", "0.25 Ω", "8.0 Ω", "2.0 Ω"],
+      correctIndex: 0,
+      explanationAr: "وفقاً لقانون أوم: R = ΔV / ΔI. بأخذ أي زوج من القيم: R = (8.0 - 2.0) / (2.0 - 0.5) = 6.0 / 1.5 = 4.0 Ω.",
+      explanationEn: "According to Ohm's law: R = ΔV / ΔI = (8.0 - 2.0) / (2.0 - 0.5) = 6.0 / 1.5 = 4.0 Ω.",
+    },
+    {
+      questionAr: "تؤثر قوة أفقية ثابتة مقدارها F = 40 N على جسم كتلته m = 5 kg موضوع على سطح أفقي أملس عديم الاحتكاك. احسب سرعة الجسم (v) بعد قطعه مسافة d = 4 m بدءاً من السكون:",
+      questionEn: "A constant force F = 40 N acts on a 5 kg mass on a frictionless surface. What is its speed after moving d = 4 m from rest?",
+      optionsAr: ["8 m/s", "4 m/s", "16 m/s", "6.4 m/s"],
+      optionsEn: ["8 m/s", "4 m/s", "16 m/s", "6.4 m/s"],
+      correctIndex: 0,
+      explanationAr: "أولاً نحسب التسارع: a = F / m = 40 / 5 = 8 m/s². ثانياً من معادلة الحركة: v² = v₀² + 2ad = 0 + 2(8)(4) = 64. بأخذ الجذر التربيعي: v = √64 = 8 m/s.",
+      explanationEn: "Acceleration a = F / m = 40 / 5 = 8 m/s². From motion equation: v² = 0 + 2(8)(4) = 64 => v = 8 m/s.",
+    },
+  ];
 
   const mathBank = [
     {
-      questionAr: "ما هو ميل المماس لمنحنى الدالة f(x) = x² + 3x عند النقطة x = 2؟",
-      questionEn: "What is the slope of the tangent to f(x) = x² + 3x at x = 2?",
-      optionsAr: ["7", "5", "4", "10"],
-      optionsEn: ["7", "5", "4", "10"],
+      questionAr: `في المثلث القائم الزاوية الموضح بالشكل أدناه، طول الضلع المجاور a = 6 cm، وطول الضلع المقابل b = 8 cm:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 320 160" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;">
+    <rect width="320" height="160" fill="#f8fafc" rx="8"/>
+    <polygon points="50,130 230,130 50,30" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+    <rect x="50" y="115" width="15" height="15" fill="none" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="140" y="148" fill="#0369a1" font-weight="bold" font-size="12" text-anchor="middle">a = 6 cm</text>
+    <text x="35" y="85" fill="#0369a1" font-weight="bold" font-size="12" text-anchor="end">b = 8 cm</text>
+    <text x="155" y="70" fill="#dc2626" font-weight="bold" font-size="13">c = ?</text>
+    <text x="195" y="122" fill="#0369a1" font-weight="bold" font-size="12">θ</text>
+  </svg>
+</div>
+احسب طول الوتر (c) ثم أوجد قيمة الجيب sin(θ) للزاوية الموضحة:`,
+      questionEn: "In the right-angled triangle shown with adjacent side a = 6 cm and opposite side b = 8 cm, find the hypotenuse c and sin(θ):",
+      optionsAr: ["c = 10 cm, sin(θ) = 0.8", "c = 10 cm, sin(θ) = 0.6", "c = 14 cm, sin(θ) = 0.8", "c = 12 cm, sin(θ) = 0.5"],
+      optionsEn: ["c = 10 cm, sin(θ) = 0.8", "c = 10 cm, sin(θ) = 0.6", "c = 14 cm, sin(θ) = 0.8", "c = 12 cm, sin(θ) = 0.5"],
       correctIndex: 0,
-      explanationAr: "المشتقة f'(x) = 2x + 3. بالتعويض عن x = 2: f'(2) = 2(2) + 3 = 7.",
-      explanationEn: "The derivative is f'(x) = 2x + 3. At x = 2: 2(2) + 3 = 7.",
+      explanationAr: "من مبرهنة فيثاغورس: c = √(6² + 8²) = √(36 + 64) = √100 = 10 cm. جيب الزاوية sin(θ) = المقابل / الوتر = 8 / 10 = 0.8.",
+      explanationEn: "By Pythagorean theorem: c = √(36 + 64) = 10 cm. sin(θ) = opposite / hypotenuse = 8 / 10 = 0.8.",
     },
     {
-      questionAr: "مجموعة حل المعادلة x² - 9 = 0 في مجموعة الأعداد الحقيقية ℝ هي:",
-      questionEn: "The solution set of x² - 9 = 0 in ℝ is:",
-      optionsAr: ["{3, -3}", "{9, -9}", "{3}", "{0}"],
-      optionsEn: ["{3, -3}", "{9, -9}", "{3}", "{0}"],
+      questionAr: "أوجد ميل المماس لمنحنى الدالة f(x) = 2x² - 5x + 4 عند النقطة التي إحداثيها السيني x = 3:",
+      questionEn: "Find the slope of the tangent to the curve f(x) = 2x² - 5x + 4 at x = 3:",
+      optionsAr: ["7", "11", "5", "9"],
+      optionsEn: ["7", "11", "5", "9"],
       correctIndex: 0,
-      explanationAr: "x² = 9 بأخذ الجذر التربيعي للطرفين ينتج x = ±3.",
-      explanationEn: "Taking the square root gives x = ±3.",
+      explanationAr: "المشتقة الأولى تمثل ميل المماس: f'(x) = 4x - 5. بالتعويض بقيمة x = 3: f'(3) = 4(3) - 5 = 12 - 5 = 7.",
+      explanationEn: "Derivative gives the slope: f'(x) = 4x - 5. At x = 3: f'(3) = 4(3) - 5 = 7.",
+    },
+    {
+      questionAr: "احسب قيمة التكامل المحدد التالي: ∫ من 0 إلى 3 للدالة (2x + 1) dx:",
+      questionEn: "Evaluate the definite integral ∫ from 0 to 3 of (2x + 1) dx:",
+      optionsAr: ["12", "9", "15", "6"],
+      optionsEn: ["12", "9", "15", "6"],
+      correctIndex: 0,
+      explanationAr: "دالة التكامل الأصلية: F(x) = [x² + x]. بالتعويض بحدود التكامل: F(3) - F(0) = (3² + 3) - 0 = 9 + 3 = 12.",
+      explanationEn: "Antiderivative: [x² + x]. Evaluating from 0 to 3 gives (3² + 3) - 0 = 12.",
+    },
+  ];
+
+  const chemistryBank = [
+    {
+      questionAr: "احسب كتلة (m) عينة من كربونات الكالسيوم CaCO₃ تحتوي على 0.5 mol من المادة، علماً بأن الكتل الذرية: (Ca = 40, C = 12, O = 16 g/mol):",
+      questionEn: "Calculate the mass of a 0.5 mol sample of CaCO₃, given atomic masses (Ca = 40, C = 12, O = 16 g/mol):",
+      optionsAr: ["50 g", "100 g", "25 g", "75 g"],
+      optionsEn: ["50 g", "100 g", "25 g", "75 g"],
+      correctIndex: 0,
+      explanationAr: "الكتلة المولية لمركب CaCO₃ = 40 + 12 + (3 × 16) = 100 g/mol. الكتلة بالجرام = عدد المولات × الكتلة المولية = 0.5 × 100 = 50 g.",
+      explanationEn: "Molar mass of CaCO₃ = 40 + 12 + 48 = 100 g/mol. Mass = moles × molar mass = 0.5 × 100 = 50 g.",
+    },
+  ];
+
+  const biologyBank = [
+    {
+      questionAr: `يوضح مربع بانيت أدناه تزاوجاً وراثياً بين نباتين هجينين لصفة لون الأزهار (Bb × Bb):
+<div class="exam-table-container">
+  <table class="exam-table">
+    <thead>
+      <tr>
+        <th>الجاميطات</th>
+        <th>B</th>
+        <th>b</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>B</th>
+        <td>BB</td>
+        <td>Bb</td>
+      </tr>
+      <tr>
+        <th>b</th>
+        <td>Bb</td>
+        <td>bb</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ما هي النسبة المئوية المتوقعة لظهور الطراز الشكلي المتنحي (bb) في أفراد الجيل الناتج؟`,
+      questionEn: "From the Punnett square of Bb × Bb cross, what is the expected percentage of the recessive phenotype (bb)?",
+      optionsAr: ["25%", "50%", "75%", "0%"],
+      optionsEn: ["25%", "50%", "75%", "0%"],
+      correctIndex: 0,
+      explanationAr: "ينتج من التزاوج 4 احتمالات: 1 BB و 2 Bb و 1 bb. احتمال الطراز المتنحي bb هو 1 من أصل 4 أي بنسبة (1 / 4) × 100% = 25%.",
+      explanationEn: "The cross yields 1 BB : 2 Bb : 1 bb. The recessive genotype bb is 1 out of 4 = 25%.",
     },
   ];
 
   const englishBank = [
     {
-      questionAr: "Choose the correct verb form: 'She ______ to the library yesterday.'",
-      questionEn: "Choose the correct verb form: 'She ______ to the library yesterday.'",
-      optionsAr: ["went", "goes", "has gone", "going"],
-      optionsEn: ["went", "goes", "has gone", "going"],
+      questionAr: "Choose the correct verb form to complete the conditional sentence: 'If the team ______ harder, they will win the tournament.'",
+      questionEn: "Choose the correct verb form: 'If the team ______ harder, they will win the tournament.'",
+      optionsAr: ["trains", "trained", "will train", "had trained"],
+      optionsEn: ["trains", "trained", "will train", "had trained"],
       correctIndex: 0,
-      explanationAr: "نستخدم صيغة الماضي البسيط (went) لوجود الكلمة الدالة 'yesterday'.",
-      explanationEn: "Past simple tense (went) is required due to the time indicator 'yesterday'.",
-    },
-    {
-      questionAr: "Which word is a synonym for 'essential'?",
-      questionEn: "Which word is a synonym for 'essential'?",
-      optionsAr: ["crucial", "optional", "minor", "trivial"],
-      optionsEn: ["crucial", "optional", "minor", "trivial"],
-      correctIndex: 0,
-      explanationAr: "كلمة crucial تعني ضروري ومصيري وتعد مرادفاً لكلمة essential.",
-      explanationEn: "'Crucial' is a direct synonym for 'essential'.",
+      explanationAr: "في الجملة الشرطية من النوع الأول (First Conditional): If + Present Simple, will + base verb. لذلك نستخدم trains.",
+      explanationEn: "First conditional rule requires present simple in the if-clause: 'trains'.",
     },
   ];
 
   const arabicBank = [
     {
-      questionAr: "إعراب كلمة (العلمَ) في جملة: 'إنّ العلمَ نورٌ' هو:",
-      questionEn: "Grammatical case of 'العلم' in 'إنّ العلمَ نورٌ':",
-      optionsAr: ["اسم إنّ منصوب وعلامة نصبه الفتحة", "خبر إنّ مرفوع وعلامة رفعه الضمة", "فاعل مرفوع", "مبتدأ مؤخر"],
-      optionsEn: ["Noun of Inna (mansoob)", "Predicate of Inna", "Subject", "Delayed topic"],
+      questionAr: "في جملة: 'لا تقصرْ في أداءِ واجبِكَ'، ما هو الإعراب الدقيق للفعل المضارع (تقصرْ)؟",
+      questionEn: "Grammatical case of 'تقصر' after 'لا' الناهية:",
+      optionsAr: ["فعل مضارع مجزوم بلا الناهية وعلامة جزمه السكون", "فعل مضارع مرفوع وعلامة رفعه الضمة", "فعل مضارع منصوب وعلامة نصبه الفتحة", "فعل ماض مبني على الفتح"],
+      optionsEn: ["Jussive verb (Majzoom with Sukoon)", "Nominative verb", "Accusative verb", "Past tense"],
       correctIndex: 0,
-      explanationAr: "إنّ حرف ناسخ ينصب المبتدأ ويسمى اسمه ويرفع الخبر ويسمى خبره.",
-      explanationEn: "Inna takes a noun in the accusative case (mansoob).",
+      explanationAr: "'لا' هنا هي لا الناهية الجازمة التي تجزم الفعل المضارع، وعلامة جزمه السكون لأنه صحيح الآخر.",
+      explanationEn: "La al-Nahiyah is a jussive particle causing the present verb to be majzoom with sukoon.",
     },
   ];
 
-  const physicsBank = [
-    {
-      questionAr: "ما هي الوحدة الدولية المعتمدة (SI) لقياس شدة التيار الكهربائي؟",
-      questionEn: "What is the SI base unit for electric current?",
-      optionsAr: ["الفولت (V)", "الأمبير (A)", "الأوم (Ω)", "الكولوم (C)"],
-      optionsEn: ["Volt (V)", "Ampere (A)", "Ohm (Ω)", "Coulomb (C)"],
-      correctIndex: 1,
-      explanationAr: "الأمبير (A) هو الوحدة الدولية الأساسية المعتمدة لقياس شدة التيار الكهربائي في النظام الدولي.",
-      explanationEn: "The Ampere (A) is the SI base unit used to measure electric current.",
-    },
-    {
-      questionAr: "وفقاً لقانون نيوتن الثاني، تتناسب القوة المحصلة المؤثرة على جسم تناسباً طردياً مع:",
-      questionEn: "According to Newton's second law, net force is directly proportional to:",
-      optionsAr: ["السرعة اللحظية", "التسارع (العجلة)", "المسافة المقطوعة", "الحجم"],
-      optionsEn: ["Instantaneous speed", "Acceleration", "Distance", "Volume"],
-      correctIndex: 1,
-      explanationAr: "ينص قانون نيوتن الثاني على أن F = m * a، فالقوة تتناسب طردياً مع التسارع بثبوت الكتلة.",
-      explanationEn: "Newton's second law states F = m * a, so force is directly proportional to acceleration.",
-    },
-  ];
-
-  const generalBank = [
-    {
-      questionAr: "ما هو المفهوم العلمي الذي يعبر عن التغير في موضع الجسم بمرور الزمن؟",
-      questionEn: "What scientific concept describes the change in position over time?",
-      optionsAr: ["الكتلة", "الحركة", "الكثافة", "الحرارة النوعية"],
-      optionsEn: ["Mass", "Motion", "Density", "Specific heat"],
-      correctIndex: 1,
-      explanationAr: "الحركة هي التغير المستمر في موقع الجسم بالنسبة لنقطة مرجعية ثابتة مع مرور الزمن.",
-      explanationEn: "Motion is the continuous change of position relative to a reference point over time.",
-    },
-  ];
-
-  let sourceBank: any[] = generalBank;
-  if (isMath) sourceBank = mathBank.concat(generalBank);
+  let sourceBank: any[] = physicsBank;
+  if (isMath) sourceBank = mathBank.concat(physicsBank);
+  else if (isPhysics) sourceBank = physicsBank;
+  else if (isChemistry) sourceBank = chemistryBank.concat(physicsBank);
+  else if (isBiology) sourceBank = biologyBank.concat(physicsBank);
   else if (isEnglish) sourceBank = englishBank;
   else if (isArabic) sourceBank = arabicBank;
-  else if (isPhysics) sourceBank = physicsBank.concat(generalBank);
-  else if (isChemistry || isBiology) sourceBank = physicsBank.concat(generalBank);
+  else sourceBank = physicsBank.concat(mathBank);
 
   const result: any[] = [];
   for (let i = 0; i < count; i++) {
@@ -242,6 +381,20 @@ function escapeHtml(str: any): string {
     .replace(/'/g, "&#039;");
 }
 
+function formatMathInText(text: string): string {
+  if (!text) return "";
+  // Convert LaTeX $formula$ to <span class="math-display">formula</span>
+  let res = text.replace(/\$([^$]+)\$/g, '<span class="math-display">$1</span>');
+  // Convert backticked formulas
+  res = res.replace(/`([^`]+)`/g, '<span class="math-display">$1</span>');
+  return res;
+}
+
+function renderQuestionContent(text: string): string {
+  if (!text) return "";
+  return formatMathInText(text);
+}
+
 function normalizeQuestions(rawList: any[], targetCount: number): any[] {
   if (!Array.isArray(rawList) || rawList.length === 0) {
     return [];
@@ -249,9 +402,41 @@ function normalizeQuestions(rawList: any[], targetCount: number): any[] {
 
   return rawList.map((q: any, idx: number) => {
     const num = idx + 1;
-    const questionAr = q.questionAr || q.question || q.text || `سؤال فيزيائي / علمي رقم ${num}`;
-    const questionEn = q.questionEn || q.question || `Scientific Question #${num}`;
-    const questionText = questionAr;
+    let questionAr = q.questionAr || q.question || q.text || `مسألة علمية تطبيقية رقم ${num}`;
+    let questionEn = q.questionEn || q.question || `Applied Problem #${num}`;
+
+    // Clean any unwanted reference to the uploaded picture
+    questionAr = questionAr
+      .replace(/بالرجوع إلى الصورة المرفقة\s*،?/g, "")
+      .replace(/بالرجوع للصورة المرفقة\s*،?/g, "")
+      .replace(/في الصورة المرفقة\s*،?/g, "")
+      .replace(/كما في الصورة المرفقة\s*،?/g, "")
+      .replace(/وفقاً للملف المرفق\s*،?/g, "");
+
+    questionEn = questionEn
+      .replace(/referring to the attached image\s*,?/gi, "")
+      .replace(/as shown in the attached image\s*,?/gi, "")
+      .replace(/according to the attached file\s*,?/gi, "");
+
+    // Integrate diagramSvg if provided separately
+    if (q.diagramSvg && typeof q.diagramSvg === 'string' && q.diagramSvg.includes('<svg')) {
+      if (!questionAr.includes('<svg')) {
+        questionAr += `\n<div class="exam-diagram-container">${q.diagramSvg}</div>`;
+      }
+      if (!questionEn.includes('<svg')) {
+        questionEn += `\n<div class="exam-diagram-container">${q.diagramSvg}</div>`;
+      }
+    }
+
+    // Integrate tableHtml if provided separately
+    if (q.tableHtml && typeof q.tableHtml === 'string' && q.tableHtml.includes('<table')) {
+      if (!questionAr.includes('<table')) {
+        questionAr += `\n<div class="exam-table-container">${q.tableHtml}</div>`;
+      }
+      if (!questionEn.includes('<table')) {
+        questionEn += `\n<div class="exam-table-container">${q.tableHtml}</div>`;
+      }
+    }
 
     // Options
     let optsAr: string[] = [];
@@ -260,7 +445,7 @@ function normalizeQuestions(rawList: any[], targetCount: number): any[] {
     } else if (Array.isArray(q.options) && q.options.length > 0) {
       optsAr = q.options.map(String);
     } else {
-      optsAr = ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"];
+      optsAr = ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"];
     }
 
     let optsEn: string[] = [];
@@ -295,14 +480,14 @@ function normalizeQuestions(rawList: any[], targetCount: number): any[] {
       }
     }
 
-    const explanationAr = q.explanationAr || q.explanation || "إجابة معتمدة ومطابقة لقوانين ومفاهيم المنهج.";
-    const explanationEn = q.explanationEn || q.explanation || "Standard verified scientific explanation.";
+    const explanationAr = q.explanationAr || q.explanation || "حل المسألة بخطوات رياضية وعلمية دقيقة وتطبيق القوانين المعتمدة.";
+    const explanationEn = q.explanationEn || q.explanation || "Step-by-step mathematical derivation and formula application.";
     const points = q.points || Math.round(100 / Math.max(1, rawList.length));
 
     return {
       id: num,
       number: num,
-      question: questionText,
+      question: questionAr,
       questionAr,
       questionEn,
       type: q.type || "mcq",
@@ -315,6 +500,8 @@ function normalizeQuestions(rawList: any[], targetCount: number): any[] {
       explanationAr,
       explanationEn,
       points,
+      diagramSvg: q.diagramSvg || null,
+      tableHtml: q.tableHtml || null,
     };
   });
 }
@@ -324,7 +511,7 @@ function generateHtmlQuestionCards(questions: any[]): string {
     const optionsHtml = q.optionsAr.map((opt: string, optIdx: number) => `
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_${idx}" value="${optIdx}" onchange="selectAnswer(${idx}, ${optIdx})" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">${escapeHtml(opt)}</span>
+            <span class="font-medium text-slate-800">${formatMathInText(opt)}</span>
           </label>`).join("\n");
 
     const correctChoiceText = q.optionsAr[q.correctAnswer] || q.options[q.correctAnswer] || "";
@@ -333,10 +520,10 @@ function generateHtmlQuestionCards(questions: any[]): string {
       <!-- Question Card ${idx + 1} (Pre-rendered for instant visibility) -->
       <div class="bg-white teal-border-card p-5 md:p-6 transition shadow-sm" id="question-card-${idx}">
         <div class="flex items-start justify-between gap-3 mb-3">
-          <h3 class="font-bold text-slate-800 text-sm md:text-base leading-relaxed">
+          <div class="font-bold text-slate-800 text-sm md:text-base leading-relaxed w-full">
             <span class="text-teal-600 font-extrabold ml-1">(${idx + 1})</span>
-            <span id="q-text-${idx}">${escapeHtml(q.questionAr || q.question)}</span>
-          </h3>
+            <div id="q-text-${idx}" class="inline-block w-full">${renderQuestionContent(q.questionAr || q.question)}</div>
+          </div>
           <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-bold shrink-0 border border-teal-200">
             ${q.points} درجات
           </span>
@@ -345,21 +532,11 @@ function generateHtmlQuestionCards(questions: any[]): string {
 ${optionsHtml}
         </div>
         <div id="explanation-${idx}" class="hidden p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 font-medium">
-          💡 <strong>الإجابة الصحيحة:</strong> <span id="q-correct-${idx}">${escapeHtml(correctChoiceText)}</span><br>
-          <span class="text-slate-600 mt-1 block" id="q-expl-${idx}">${escapeHtml(q.explanationAr || q.explanation || "")}</span>
+          💡 <strong>الإجابة الصحيحة:</strong> <span id="q-correct-${idx}">${formatMathInText(correctChoiceText)}</span><br>
+          <div class="text-slate-600 mt-1 block" id="q-expl-${idx}">${renderQuestionContent(q.explanationAr || q.explanation || "")}</div>
         </div>
       </div>`;
   }).join("\n\n");
-}
-
-function formatMathInText(text: string): string {
-  if (!text) return "";
-  if (text.includes('class="math-display"')) return text;
-  // Convert LaTeX $formula$ to <span class="math-display">formula</span>
-  let res = text.replace(/\$([^$]+)\$/g, '<span class="math-display">$1</span>');
-  // Convert backticked formulas
-  res = res.replace(/`([^`]+)`/g, '<span class="math-display">$1</span>');
-  return res;
 }
 
 function hydrateOfficialExamTemplate({
@@ -755,45 +932,60 @@ app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], asy
       });
     }
 
-    const systemPrompt = `You are "Hesham Exam AI Engine" - an elite educational AI engine specialized in generating new exams derived STRICTLY and EXCLUSIVELY from uploaded exam sheets/files.
+    const systemPrompt = `You are "Hesham Exam AI Engine" - an elite educational AI engine specialized in generating comprehensive, self-contained, and skill-based simulated exams (امتحانات محاكية متكاملة وقائمة بذاتها) based on the curriculum topic and difficulty of the uploaded exam sheets/files.
 
 ======================================================================
-CRITICAL SUPREME DIRECTIVE (القاعدة الأساسية الصارمة للمنظومة):
-"توليد الأسئلة وحلها يكون من الصورة فقط أو الملف المرفوع حصرياً، وإهمال الكود القديم نهائياً عند استخراج وتوليد الأسئلة!"
+CRITICAL CORE DIRECTIVES (القواعد الأساسية الصارمة لتوليد الامتحان):
 ======================================================================
 
 1. الحظر التام والنهائي لاستخدام أي سؤال خارجي أو قديم (STRICT BAN ON OLD QUESTIONS):
-   - YOU ARE STRICTLY FORBIDDEN from using, borrowing, copying, adapting, or mentioning ANY question, topic, or problem outside the uploaded image(s) / file(s).
-   - The questions must NEVER be influenced by any previous session, old physics sheets, or past templates.
+   - YOU ARE STRICTLY FORBIDDEN from using, borrowing, or copying any question from the previous code template.
    - Any questions in the old code must be 100% ignored, discarded, and wiped out.
 
-2. المصدر الوحيد والحصري للأسئلة هو الصورة أو الملف المرفوع (THE UPLOADED IMAGE/FILE IS THE 100% EXCLUSIVE SOURCE):
-   - ALL generated questions, problems, numbers, equations, concepts, and topics MUST ORIGINATE EXCLUSIVELY from the uploaded image(s) or attached file(s).
-   - Carefully examine the uploaded image(s) or file:
-     * Identify the exact subject matter (المادة: مثل الرياضيات، الكيمياء، الفيزياء، الأحياء، اللغة الإنجليزية، اللغة العربية، الحاسب، التاريخ، إلخ) and curriculum topic.
-     * Identify the educational principles, laws, formulas, and cognitive skills tested in the image/file.
-   - GENERATE A COMPLETE EXAM (توليد امتحان كامل على نفس نوع الأسئلة):
-     * Formulate EXACTLY ${questionCount} questions and problems inspired by and modeled after the type of questions in the image/file.
-     * The new questions must test the SAME subject, curriculum concepts, and difficulty as the image/file.
-     * For every question, create 4 distinct multiple-choice options with ONE unequivocally correct answer.
-     * Accurately solve each question step-by-step (solveQuestions: ${solveQuestions ? "YES" : "NO"}), mark the correct answer index (0, 1, 2, or 3), and provide a detailed explanation of the steps and formulas.
-     * Provide both Arabic (questionAr, optionsAr, explanationAr) and English (questionEn, optionsEn, explanationEn) texts for each question.
+2. امتحان محاكٍ متكامل قائم بذاته بدون أي إحالة خارجية للصورة (100% STANDALONE SIMULATED EXAM):
+   - The generated questions must be SIMULATED (محاكية), meaning they reflect the SAME curriculum concepts, difficulty, and skills as the image, BUT they are 100% independent and self-contained.
+   - STRICT BAN ON EXTERNAL REFERENCES: You must NEVER refer to the uploaded picture in the question text.
+     * STRICTLY FORBIDDEN: Do NOT write "بالرجوع للصورة المرفقة", "كما في الصورة", "في الشكل المقابل بالورقة", "وفقاً للملف المرفق".
+     * Why? The student taking the generated exam sees ONLY this interactive exam webpage and does NOT see the teacher's upload!
+     * Every question must contain all its own givens, variables, and context.
+
+3. توليد رسومات بيانية وجداول داخل الامتحان المولد (EMBEDDED STANDALONE DIAGRAMS & TABLES):
+   - If the uploaded exam image/file contains diagrams, circuits, graphs, coordinate curves, pulleys, forces, or data tables:
+     * YOU MUST GENERATE SIMULATED STANDALONE VISUALS directly inside the generated exam!
+     * FOR DIAGRAMS/CIRCUITS/GRAPHS: Provide a clean, standalone, responsive inline SVG in 'diagramSvg' or directly in 'questionAr' (e.g. <svg viewBox="0 0 360 150" class="exam-diagram" xmlns="http://www.w3.org/2000/svg">...</svg>) with axes, arrows, grid lines, circuit components, or geometric shapes with clear numerical labels.
+     * FOR MEASUREMENTS/DATA: Provide a clean HTML table in 'tableHtml' or directly in 'questionAr' (e.g. <table class="exam-table">...</table>) with column headers and numerical data rows.
+     * The generated exam must look like an official, high-quality, fully illustrated exam sheet!
+
+4. التركيز على الأسئلة المهارية والمسائل الحسابية والتطبيقية (SKILL-BASED & QUANTITATIVE PROBLEMS):
+   - Make the questions primarily SKILL-BASED PROBLEMS (مسائل حسابية وتطبيقية) rather than dry theoretical definitions.
+   - Strictly avoid rote definitions (e.g. "ما هو تعريف...", "المصطلح العلمي...").
+   - Give realistic numbers, initial values, physical units (m/s², Ω, V, N, J, kg, mol), and ask the student to solve for the unknown using equations and physical/mathematical laws.
+   - Provide 4 distinct multiple-choice options with ONE unequivocally correct answer. The options must be realistic calculated values.
+   - Accurately solve each question step-by-step (solveQuestions: ${solveQuestions ? "YES" : "NO"}), mark the correct answer index (0, 1, 2, or 3), and provide detailed step-by-step mathematical reasoning in 'explanationAr' and 'explanationEn'.
+   - Formulate EXACTLY ${questionCount} questions.
+   - Provide both Arabic (questionAr, optionsAr, explanationAr) and English (questionEn, optionsEn, explanationEn).
 
 Output must strictly be valid JSON adhering to the specified schema.`;
 
     const promptText = `
 === ATTACHED EXAM IMAGES / FILES ===
-(Carefully inspect and analyze the attached image/document parts above. THIS IS YOUR 100% EXCLUSIVE SOURCE OF QUESTIONS AND TOPICS!)
+(Carefully inspect and analyze the attached image/document parts above. Identify the subject, curriculum concepts, and whether there are circuits, graphs, tables, or geometric figures.)
 
-=== EXAM SPECIFICATIONS ===
-- STRICT MANDATE: All generated questions MUST come strictly and exclusively from the uploaded image/file content. Zero old code questions.
-- Target Questions Count: EXACTLY ${questionCount} questions
-- Exam Duration: EXACTLY ${durationMinutes} minutes
-- Exam Title: ${examTitle || "Auto-detect from image/file topic"}
-- Automatically solve and explain answers: ${solveQuestions ? "Yes" : "No"}
-- Difficulty: ${difficulty === "same" ? "نفس مستوى صعوبة مسائل الصورة/الملف" : difficulty}
-- Additional instructions: ${instructions || "None"}
-- Formula styling: For mathematical or scientific formulas, you can wrap equations inside <span class="math-display">formula</span> so they appear beautifully formatted.
+=== GENERATION INSTRUCTIONS ===
+1. GENERATE A STANDALONE SIMULATED EXAM (امتحان محاكٍ قائم بذاته متكامل).
+2. DO NOT write "بالرجوع للصورة المرفقة" or "كما بالصورة". The questions must be 100% self-contained for the student.
+3. If the uploaded material contains or requires diagrams, circuits, graphs, or tables:
+   - Provide inline SVG diagrams in 'diagramSvg' or within the question!
+   - Provide clean HTML tables in 'tableHtml' or within the question!
+4. MAKE QUESTIONS SKILL-BASED PROBLEMS (أسئلة مهارية ومسائل حسابية وتطبيقية):
+   - Focus on problem-solving, calculations, quantitative analysis, reading values from tables and graphs, and applying laws and formulas.
+   - Avoid memorization and theoretical definitions.
+5. Target Questions Count: EXACTLY ${questionCount} questions.
+6. Exam Duration: EXACTLY ${durationMinutes} minutes.
+7. Exam Title: ${examTitle || "Auto-detect from curriculum topic"}.
+8. Difficulty: ${difficulty === "same" ? "نفس مستوى صعوبة مسائل الصورة/الملف" : difficulty}.
+9. Additional instructions: ${instructions || "None"}.
+10. Formula styling: For mathematical or scientific formulas, you can wrap equations inside <span class="math-display">formula</span> so they appear beautifully formatted.
 `;
 
     parts.push({ text: promptText });
@@ -836,7 +1028,7 @@ Output must strictly be valid JSON adhering to the specified schema.`;
                 },
                 extractedQuestions: {
                   type: Type.ARRAY,
-                  description: "List of extracted questions with choices and answers derived strictly from image/file",
+                  description: "List of simulated, skill-based questions with choices, answers, and optional diagrams/tables",
                   items: {
                     type: Type.OBJECT,
                     properties: {
@@ -845,6 +1037,14 @@ Output must strictly be valid JSON adhering to the specified schema.`;
                       questionAr: { type: Type.STRING },
                       questionEn: { type: Type.STRING },
                       type: { type: Type.STRING, description: "mcq, true_false, essay, or coding" },
+                      diagramSvg: {
+                        type: Type.STRING,
+                        description: "If the question tests a graph, circuit, geometric figure, or mechanism, provide a clean inline SVG (<svg viewBox='0 0 360 150' class='exam-diagram' xmlns='http://www.w3.org/2000/svg'>...</svg>) with axes, arrows, and labels.",
+                      },
+                      tableHtml: {
+                        type: Type.STRING,
+                        description: "If the question is based on experimental data, measurements, truth tables, or coordinates, provide a clean HTML table (<table class='exam-table'>...</table>) with header and data rows.",
+                      },
                       options: {
                         type: Type.ARRAY,
                         items: { type: Type.STRING },

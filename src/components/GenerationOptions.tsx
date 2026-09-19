@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, CheckCircle, Wand2, Sliders, AlertCircle, RefreshCw, FileText, Lightbulb } from "lucide-react";
+import { Sparkles, CheckCircle, Wand2, Sliders, AlertCircle, RefreshCw, FileText, Lightbulb, ChevronDown } from "lucide-react";
 import { GenerationMode } from "../types";
 
 interface GenerationOptionsProps {
@@ -151,13 +151,13 @@ export const GenerationOptions: React.FC<GenerationOptionsProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1">
             {[3, 5, 7, 10, 15, 20, 25].map((cnt) => (
               <button
                 key={cnt}
                 type="button"
                 onClick={() => onQuestionCountChange(cnt)}
-                className={`flex-1 py-1 rounded font-mono font-bold text-[11px] transition cursor-pointer ${
+                className={`flex-1 min-w-[32px] py-1.5 sm:py-1 rounded-lg font-mono font-bold text-xs sm:text-[11px] transition cursor-pointer active:scale-95 ${
                   questionCount === cnt
                     ? "bg-indigo-600 text-white shadow"
                     : "bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800"
@@ -192,13 +192,13 @@ export const GenerationOptions: React.FC<GenerationOptionsProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1">
             {[10, 15, 20, 30, 45, 60].map((mins) => (
               <button
                 key={mins}
                 type="button"
                 onClick={() => onDurationMinutesChange(mins)}
-                className={`flex-1 py-1 rounded font-mono font-bold text-[11px] transition cursor-pointer ${
+                className={`flex-1 min-w-[34px] py-1.5 sm:py-1 rounded-lg font-mono font-bold text-xs sm:text-[11px] transition cursor-pointer active:scale-95 ${
                   durationMinutes === mins
                     ? "bg-teal-600 text-white shadow"
                     : "bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800"
@@ -212,19 +212,22 @@ export const GenerationOptions: React.FC<GenerationOptionsProps> = ({
 
         {/* Difficulty Selector */}
         <div className="md:col-span-3 space-y-1.5">
-          <label className="block text-slate-200 font-bold">
+          <label className="block text-slate-200 font-bold text-xs">
             مستوى الصعوبة:
           </label>
-          <select
-            value={difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value)}
-            className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="same">نفس مستوى الصورة تماماً</option>
-            <option value="medium">متوسط وشامل للمفاهيم</option>
-            <option value="hard">متقدم للمتفوقين (تحدي)</option>
-            <option value="easy">مباشر وتمهيدي</option>
-          </select>
+          <div className="relative">
+            <select
+              value={difficulty}
+              onChange={(e) => onDifficultyChange(e.target.value)}
+              className="w-full appearance-none px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition cursor-pointer pr-3 pl-8 min-h-[42px]"
+            >
+              <option value="same" className="bg-slate-900 text-slate-200 py-1">نفس مستوى الصورة تماماً</option>
+              <option value="medium" className="bg-slate-900 text-slate-200 py-1">متوسط وشامل للمفاهيم</option>
+              <option value="hard" className="bg-slate-900 text-slate-200 py-1">متقدم للمتفوقين (تحدي)</option>
+              <option value="easy" className="bg-slate-900 text-slate-200 py-1">مباشر وتمهيدي</option>
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
       </div>

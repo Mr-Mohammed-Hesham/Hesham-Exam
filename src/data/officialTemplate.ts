@@ -67,6 +67,33 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
             font-family: 'Times New Roman', serif;
             direction: ltr; text-align: center;
         }
+        .exam-diagram-container {
+            display: flex; justify-content: center; align-items: center;
+            margin: 14px 0; width: 100%; overflow-x: auto;
+        }
+        .exam-diagram {
+            max-width: 100%; height: auto; margin: 8px auto; display: block;
+            background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px;
+            padding: 10px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        .exam-table-container {
+            width: 100%; overflow-x: auto; margin: 12px 0;
+        }
+        .exam-table {
+            width: 100%; max-width: 520px; margin: 0 auto;
+            border-collapse: collapse; font-size: 0.88rem; text-align: center;
+            background-color: #ffffff; border-radius: 8px; overflow: hidden;
+            border: 1.5px solid #cbd5e1;
+        }
+        .exam-table th {
+            background-color: #f0fdfa; color: #0f766e; font-weight: bold;
+            padding: 8px 12px; border: 1px solid #ccfbf1;
+        }
+        .exam-table td {
+            padding: 6px 12px; border: 1px solid #e2e8f0; color: #1e293b;
+            font-family: 'Times New Roman', serif;
+        }
+        .exam-table tr:nth-child(even) { background-color: #f8fafc; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-teal-50 to-emerald-50 text-gray-800 p-4 md:p-8 min-h-screen">

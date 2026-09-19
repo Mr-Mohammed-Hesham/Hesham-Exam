@@ -1,6 +1,6 @@
 {
-  "name": "Hesham Exam",
-  "description": "منصة مستر محمد هشام الرسمية - نظام ذكي لتوليد الامتحانات التفاعلية المتطابقة من الصور والملفات مباشرة",
+  "name": "Mr. Mohamed Hesham",
+  "description": "Mr. Mohamed Hesham Exam Platform - Professional academic system for interactive exam generation, question extraction, and student assessment.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
