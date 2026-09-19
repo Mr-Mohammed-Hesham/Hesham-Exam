@@ -2,35 +2,72 @@
  * Hesham Exam API Configuration
  * 
  * Determines the correct backend endpoint:
- * - When running on GitHub Pages (mr-mohammed-hesham.github.io):
- *   Routes to the active Google Cloud Run backend.
- * - When running in local dev or AI Studio container:
- *   Routes to relative path /api/*
- * - Can be overridden at build time via VITE_API_URL environment variable.
+ * - If user configured a custom backend URL (stored in localStorage): uses that.
+ * - If VITE_API_URL is set at build time: uses that.
+ * - When running in local dev or AI Studio container: uses relative path /api/*.
+ * - When running on GitHub Pages without a custom backend: uses Standalone Client Engine
+ *   (bypassing private dev container CORS blocks).
  */
 
-export const DEFAULT_CLOUD_API_URL = "https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app";
+export const CUSTOM_BACKEND_STORAGE_KEY = "hesham_custom_backend_url";
+
+export function getCustomBackendUrl(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem(CUSTOM_BACKEND_STORAGE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+export function setCustomBackendUrl(url: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (!url || !url.trim()) {
+      localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
+    } else {
+      localStorage.setItem(CUSTOM_BACKEND_STORAGE_KEY, url.trim().replace(/\/$/, ""));
+    }
+  } catch (err) {
+    console.warn("Failed to update custom backend URL:", err);
+  }
+}
+
+export function isRunningOnGitHubPages(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.hostname.includes("github.io");
+}
 
 export function getApiBaseUrl(): string {
-  // 1. Check if an explicit environment variable was injected during build
+  // 1. User-specified custom backend URL (e.g. deployed Cloud Run or server)
+  const customUrl = getCustomBackendUrl();
+  if (customUrl) {
+    return customUrl;
+  }
+
+  // 2. Build-time environment variable
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
     return envUrl.trim().replace(/\/$/, "");
   }
 
-  // 2. If running on GitHub Pages, fallback to the verified Google Cloud Run serverless endpoint
-  if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-    if (hostname.includes("github.io")) {
-      return DEFAULT_CLOUD_API_URL;
-    }
+  // 3. For GitHub Pages without custom backend, relative path won't hit dev container directly
+  // It will attempt the request or trigger seamless client generator
+  if (isRunningOnGitHubPages()) {
+    return "";
   }
 
-  // 3. For local dev or inside AI Studio preview container, use relative path
+  // 4. Default relative path for local dev and AI Studio preview
   return "";
 }
 
 export const API_ROUTES = {
-  generateExamCode: () => `${getApiBaseUrl()}/api/generate-exam-code`,
-  health: () => `${getApiBaseUrl()}/api/health`,
+  generateExamCode: () => {
+    const base = getApiBaseUrl();
+    return base ? `${base}/api/generate-exam-code` : "/api/generate-exam-code";
+  },
+  health: () => {
+    const base = getApiBaseUrl();
+    return base ? `${base}/api/health` : "/api/health";
+  },
 };

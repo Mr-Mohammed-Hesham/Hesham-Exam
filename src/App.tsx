@@ -24,7 +24,9 @@ import {
   Download,
   Loader2,
 } from "lucide-react";
-import { API_ROUTES } from "./config/api";
+import { API_ROUTES, isRunningOnGitHubPages, getCustomBackendUrl } from "./config/api";
+import { generateClientExam } from "./services/clientExamGenerator";
+import { CODE_TEMPLATES } from "./data/templates";
 import { auth, googleProvider } from "./config/firebase";
 import { onAuthStateChanged, signOut, signInWithPopup, User } from "firebase/auth";
 import { isEmailWhitelisted } from "./config/authWhitelist";
@@ -288,48 +290,83 @@ export default function App() {
         difficulty,
       };
 
-      const endpoint = API_ROUTES.generateExamCode();
+      let res: ExamGenerationResult | null = null;
+      let usedClientEngine = false;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const contentType = response.headers.get("content-type") || "";
-
-      let data: any = null;
-
-      if (contentType.includes("application/json")) {
-        data = await response.json();
+      // When running on GitHub Pages (mr-mohammed-hesham.github.io) without a custom backend:
+      // Run the Standalone Client Engine directly to prevent CORS/redirect errors from private dev containers
+      if (isRunningOnGitHubPages() && !getCustomBackendUrl()) {
+        setGenerationStep(
+          "جاري إعداد وصياغة الامتحان التفاعلي عبر محرك المنصة المستقل المباشر..."
+        );
+        res = generateClientExam({
+          images,
+          instructions,
+          solveQuestions,
+          examTitle,
+          generationMode,
+          questionCount,
+          durationMinutes,
+          difficulty,
+          templateCode: CODE_TEMPLATES[0]?.code,
+        });
+        usedClientEngine = true;
       } else {
-        const textResp = await response.text();
+        try {
+          const endpoint = API_ROUTES.generateExamCode();
 
-        console.error(
-          "Non-JSON response from server:",
-          textResp.slice(0, 300)
-        );
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
 
-        throw new Error(
-          `تعذر الاتصال بخادم التوليد الذكي (${response.status} ${
-            response.statusText || ""
-          }). تأكد من إتاحة خادم الـBackend أو إعداد رابط الـAPI.`
-        );
+          const contentType = response.headers.get("content-type") || "";
+
+          let data: any = null;
+
+          if (contentType.includes("application/json")) {
+            data = await response.json();
+          } else {
+            const textResp = await response.text();
+            console.warn("Non-JSON response from server:", textResp.slice(0, 300));
+            throw new Error(`Server returned status ${response.status}`);
+          }
+
+          if (!response.ok || !data.success) {
+            throw new Error(data?.error || "فشل التوليد عبر الخادم.");
+          }
+
+          res = {
+            ...data.data,
+            generatedAt: new Date().toISOString(),
+            generationMode,
+          };
+        } catch (fetchErr: any) {
+          console.warn("Backend API unreachable or blocked by CORS, seamlessly falling back to Client-Side Exam Generator:", fetchErr);
+          setGenerationStep(
+            "جاري إتمام توليد الامتحان التفاعلي وحفظه عبر المحرك الذكي المباشر..."
+          );
+          res = generateClientExam({
+            images,
+            instructions,
+            solveQuestions,
+            examTitle,
+            generationMode,
+            questionCount,
+            durationMinutes,
+            difficulty,
+            templateCode: CODE_TEMPLATES[0]?.code,
+          });
+          usedClientEngine = true;
+        }
       }
 
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data?.error || "فشل توليد الامتحان. يرجى المحاولة مرة أخرى."
-        );
+      if (!res) {
+        throw new Error("تعذر توليد بيانات الامتحان. يرجى إعادة المحاولة.");
       }
-
-      const res: ExamGenerationResult = {
-        ...data.data,
-        generatedAt: new Date().toISOString(),
-        generationMode,
-      };
 
       setCurrentResult(res);
 
@@ -340,7 +377,9 @@ export default function App() {
         await saveExamToFirestore(res, currentUser);
 
         setSuccessNotice(
-          "تم توليد الامتحان بنجاح وحفظه في قاعدة بيانات Cloud Firestore."
+          usedClientEngine
+            ? "تم توليد الامتحان بنجاح عبر محرك المنصة المستقل وحفظه في Cloud Firestore."
+            : "تم توليد الامتحان بنجاح وحفظه في قاعدة بيانات Cloud Firestore."
         );
       } catch (firestoreErr) {
         console.error("Failed saving to Firestore:", firestoreErr);
@@ -621,6 +660,13 @@ export default function App() {
                 توليد فوري ومباشر من ملفات أو صور الامتحان فقط مع حفظ سحابي
               </span>
             </div>
+
+            {isRunningOnGitHubPages() && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/40 text-teal-300 text-xs font-bold shadow-xs">
+                <span>🌐</span>
+                <span>الموقع الخارجي متصل وجاهز للعمل (GitHub Pages Engine)</span>
+              </div>
+            )}
 
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
               توليد امتحان تفاعلي كامل على نفس نوع أسئلة{" "}
