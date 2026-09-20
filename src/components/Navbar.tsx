@@ -48,7 +48,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl p-0.5 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 shadow-md shadow-amber-500/20 shrink-0 overflow-hidden">
             <img
               src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
-              alt="Mr Mohamed Hesham"
+              alt="Hesham Exam"
+              title="Hesham Exam"
               className="w-full h-full object-cover rounded-[10px]"
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -62,10 +63,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-sm sm:text-lg font-black text-white tracking-wide font-sans truncate">
-                Mr. Mohamed Hesham
+                Hesham Exam
               </span>
               <span className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 whitespace-nowrap">
-                Exam Platform
+                Platform
               </span>
             </div>
             <p className="text-[10px] sm:text-[11px] text-slate-400 hidden sm:block truncate">

@@ -58,7 +58,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
         <div className="mx-auto w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/20">
           <img
             src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
-            alt="Mr Mohamed Hesham"
+            alt="Hesham Exam"
+            title="Hesham Exam"
             className="w-full h-full object-cover rounded-[14px]"
             referrerPolicy="no-referrer"
             onError={(e) => {
@@ -72,10 +73,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, requireAu
 
         <div className="space-y-1.5">
           <h3 className="text-xl sm:text-2xl font-black text-white font-sans tracking-wide">
-            Mr. Mohamed Hesham
+            Hesham Exam
           </h3>
           <div className="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 uppercase font-sans">
-            Exam Platform
+            Platform
           </div>
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed pt-1">
             يرجى تسجيل الدخول بحساب Google المعتمد للوصول إلى المنصة

@@ -15,6 +15,11 @@ export interface ExtractedQuestion {
   questionAr?: string;
   questionEn?: string;
   type?: 'mcq' | 'true_false' | 'essay' | 'coding' | string;
+  category?: 'problem_and_law' | 'function_and_graph' | 'practical_and_table' | 'interactive_reasoning' | string;
+  categoryLabel?: string;
+  lawOrFormula?: string;
+  diagramSvg?: string;
+  tableHtml?: string;
   options?: string[];
   optionsAr?: string[];
   optionsEn?: string[];

@@ -293,76 +293,36 @@ export default function App() {
       let res: ExamGenerationResult | null = null;
       let usedClientEngine = false;
 
-      // When running on GitHub Pages (mr-mohammed-hesham.github.io) without a custom backend:
-      // Run the Standalone Client Engine directly to prevent CORS/redirect errors from private dev containers
-      if (isRunningOnGitHubPages() && !getCustomBackendUrl()) {
-        setGenerationStep(
-          "جاري إعداد وصياغة الامتحان التفاعلي عبر محرك المنصة المستقل المباشر..."
-        );
-        res = generateClientExam({
-          images,
-          instructions,
-          solveQuestions,
-          examTitle,
-          generationMode,
-          questionCount,
-          durationMinutes,
-          difficulty,
-          templateCode: CODE_TEMPLATES[0]?.code,
-        });
-        usedClientEngine = true;
+      const endpoint = API_ROUTES.generateExamCode();
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      let data: any = null;
+
+      if (contentType.includes("application/json")) {
+        data = await response.json();
       } else {
-        try {
-          const endpoint = API_ROUTES.generateExamCode();
-
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const contentType = response.headers.get("content-type") || "";
-
-          let data: any = null;
-
-          if (contentType.includes("application/json")) {
-            data = await response.json();
-          } else {
-            const textResp = await response.text();
-            console.warn("Non-JSON response from server:", textResp.slice(0, 300));
-            throw new Error(`Server returned status ${response.status}`);
-          }
-
-          if (!response.ok || !data.success) {
-            throw new Error(data?.error || "فشل التوليد عبر الخادم.");
-          }
-
-          res = {
-            ...data.data,
-            generatedAt: new Date().toISOString(),
-            generationMode,
-          };
-        } catch (fetchErr: any) {
-          console.warn("Backend API unreachable or blocked by CORS, seamlessly falling back to Client-Side Exam Generator:", fetchErr);
-          setGenerationStep(
-            "جاري إتمام توليد الامتحان التفاعلي وحفظه عبر المحرك الذكي المباشر..."
-          );
-          res = generateClientExam({
-            images,
-            instructions,
-            solveQuestions,
-            examTitle,
-            generationMode,
-            questionCount,
-            durationMinutes,
-            difficulty,
-            templateCode: CODE_TEMPLATES[0]?.code,
-          });
-          usedClientEngine = true;
-        }
+        const textResp = await response.text();
+        console.warn("Non-JSON response from server:", textResp.slice(0, 300));
+        throw new Error(`استجاب الخادم برمز غير متوقع (${response.status})`);
       }
+
+      if (!response.ok || !data.success) {
+        throw new Error(data?.error || "فشل استخراج الأسئلة من الصورة عبر محرك الذكاء الاصطناعي.");
+      }
+
+      res = {
+        ...data.data,
+        generatedAt: new Date().toISOString(),
+        generationMode,
+      };
 
       if (!res) {
         throw new Error("تعذر توليد بيانات الامتحان. يرجى إعادة المحاولة.");
@@ -536,7 +496,8 @@ export default function App() {
               <div className="mx-auto mb-5 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl p-1 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 shadow-xl shadow-amber-500/25 flex items-center justify-center overflow-hidden">
                 <img
                   src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
-                  alt="Mr Mohamed Hesham"
+                  alt="Hesham Exam"
+                  title="Hesham Exam"
                   className="w-full h-full object-cover rounded-[20px]"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
@@ -550,11 +511,11 @@ export default function App() {
 
               {/* Title in English */}
               <h1 className="text-2xl sm:text-3xl font-black text-white mb-1.5 font-sans tracking-wide">
-                Mr. Mohamed Hesham
+                Hesham Exam
               </h1>
 
               <div className="inline-block px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 mb-3 tracking-wider uppercase font-sans">
-                Exam Platform
+                Platform
               </div>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 max-w-xs mx-auto">
@@ -600,7 +561,7 @@ export default function App() {
 
           {/* Footer Text */}
           <p className="text-center text-xs text-slate-500 mt-5 font-sans">
-            Mr. Mohamed Hesham © {new Date().getFullYear()}
+            Hesham Exam © {new Date().getFullYear()}
           </p>
         </div>
       </div>

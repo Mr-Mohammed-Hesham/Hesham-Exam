@@ -1,5 +1,5 @@
 // Progressive Web App Service Worker
-const CACHE_NAME = 'mr-mohamed-hesham-pwa-v1';
+const CACHE_NAME = 'hesham-exam-pwa-v1';
 
 const PRECACHE_ASSETS = [
   './',

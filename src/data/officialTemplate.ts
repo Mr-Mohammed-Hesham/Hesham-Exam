@@ -94,6 +94,26 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
             font-family: 'Times New Roman', serif;
         }
         .exam-table tr:nth-child(even) { background-color: #f8fafc; }
+        .q-meta-badges {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center;
+        }
+        .q-category-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
+            font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 9999px;
+        }
+        .q-law-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #fef3c7; color: #b45309; border: 1px solid #fde68a;
+            font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 9999px;
+            font-family: 'Times New Roman', 'Cambria Math', serif; direction: ltr;
+        }
+        .q-type-interactive {
+            background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;
+        }
+        .q-type-graph {
+            background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-teal-50 to-emerald-50 text-gray-800 p-4 md:p-8 min-h-screen">

@@ -10,7 +10,8 @@ export const Footer: React.FC = () => {
           <div className="w-8 h-8 rounded-lg p-0.5 bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
             <img
               src={`${import.meta.env.BASE_URL}teacher-logo.jpg`}
-              alt="Mr Mohammed Hesham"
+              alt="Hesham Exam"
+              title="Hesham Exam"
               className="w-full h-full object-cover rounded-[6px]"
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -23,7 +24,7 @@ export const Footer: React.FC = () => {
           </div>
           <div>
             <p className="text-slate-200 font-bold text-sm tracking-wide font-sans">
-              Mr. Mohamed Hesham | Exam Platform
+              Hesham Exam
             </p>
             <p className="text-[11px] text-slate-400">
               Interactive Examination System & Academic Assessment
@@ -42,7 +43,7 @@ export const Footer: React.FC = () => {
             <span>مدعوم بالذكاء الاصطناعي</span>
           </span>
           <span className="hidden sm:inline">•</span>
-          <span>Mr. Mohamed Hesham © {new Date().getFullYear()}</span>
+          <span>Hesham Exam © {new Date().getFullYear()}</span>
         </div>
 
       </div>

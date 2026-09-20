@@ -22,7 +22,12 @@ import {
   Save,
   Loader2,
   AlertTriangle,
-  Undo
+  Undo,
+  Calculator,
+  BarChart2,
+  Beaker,
+  Zap,
+  Layers
 } from "lucide-react";
 import { ExamGenerationResult } from "../types";
 import { PublishModal } from "./PublishModal";
@@ -516,86 +521,179 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
       {/* Tab 3: Extracted Questions Cards */}
       {activeTab === "questions" && (
         <div className="p-5 bg-slate-950">
-          <div className="grid grid-cols-1 gap-4 max-w-4xl mx-auto">
-            {result.extractedQuestions && result.extractedQuestions.length > 0 ? (
-              result.extractedQuestions.map((q, idx) => (
-                <div
-                  key={idx}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden"
-                >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
-                        {q.number || idx + 1}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
-                        {q.type?.toUpperCase() || "سؤال"}
-                      </span>
-                      {q.points && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                          {q.points} درجات
-                        </span>
-                      )}
-                    </div>
+          <div className="max-w-4xl mx-auto space-y-4">
+            
+            {/* Comprehensive Distribution Banner */}
+            {result.extractedQuestions && result.extractedQuestions.length > 0 && (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 shadow-md">
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-slate-200 font-bold">
+                    <Layers className="w-4 h-4 text-amber-400" />
+                    <span>توزيع أسئلة الامتحان الشامل:</span>
+                    <span className="text-slate-400 font-normal">({result.extractedQuestions.length} أسئلة متنوعة)</span>
                   </div>
-
-                  {/* Question Text */}
-                  <h4 className="text-sm sm:text-base font-bold text-white mb-4 leading-relaxed">
-                    {q.question}
-                  </h4>
-
-                  {/* Options */}
-                  {q.options && q.options.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                      {q.options.map((opt, optIdx) => {
-                        const isCorrect = q.correctAnswer && (
-                          q.correctAnswer.toString().toLowerCase().includes(opt.toLowerCase()) ||
-                          q.correctAnswer.toString() === optIdx.toString() ||
-                          (q.correctAnswer.toString().toUpperCase() === "A" && optIdx === 0) ||
-                          (q.correctAnswer.toString().toUpperCase() === "B" && optIdx === 1) ||
-                          (q.correctAnswer.toString().toUpperCase() === "C" && optIdx === 2) ||
-                          (q.correctAnswer.toString().toUpperCase() === "D" && optIdx === 3)
-                        );
-                        return (
-                          <div
-                            key={optIdx}
-                            className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-between ${
-                              isCorrect
-                                ? "bg-emerald-950/40 border-emerald-500/60 text-emerald-200 font-semibold"
-                                : "bg-slate-950 border-slate-800 text-slate-300"
-                            }`}
-                          >
-                            <span>{opt}</span>
-                            {isCorrect && (
-                              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-                                الإجابة الصحيحة ✓
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Explanation / Rationale */}
-                  {q.explanation && (
-                    <div className="p-3 rounded-xl bg-indigo-950/30 border border-indigo-900/40 text-xs text-indigo-300 flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="block text-indigo-200 mb-0.5">الشرح والتبرير العلمي:</strong>
-                        <span>{q.explanation}</span>
-                      </div>
-                    </div>
-                  )}
-
+                  
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 font-semibold text-[11px]">
+                      <Calculator className="w-3 h-3 text-amber-400" />
+                      <span>مسائل وقوانين</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 font-semibold text-[11px]">
+                      <BarChart2 className="w-3 h-3 text-purple-400" />
+                      <span>دوال ورسوم بيانية</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-semibold text-[11px]">
+                      <Beaker className="w-3 h-3 text-cyan-400" />
+                      <span>تجارب عملية وجداول</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-semibold text-[11px]">
+                      <Zap className="w-3 h-3 text-emerald-400" />
+                      <span>استنتاج تفاعلي</span>
+                    </span>
+                  </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12 text-slate-400">
-                <HelpCircle className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-                <p>لا توجد أسئلة مستخرجة بشكل منفصل، تم تضمين الأسئلة مباشرة داخل الكود.</p>
               </div>
             )}
+
+            <div className="grid grid-cols-1 gap-4">
+              {result.extractedQuestions && result.extractedQuestions.length > 0 ? (
+                result.extractedQuestions.map((q, idx) => {
+                  const isGraph = q.category === "function_and_graph" || Boolean(q.diagramSvg);
+                  const isPractical = q.category === "practical_and_table" || Boolean(q.tableHtml);
+                  const isInteractive = q.category === "interactive_reasoning";
+                  
+                  const categoryLabel = q.categoryLabel || (
+                    isGraph ? "دالة وعلاقة بيانية وتناسب" :
+                    isPractical ? "تجربة عملية وجدول قياسات" :
+                    isInteractive ? "استنتاج وتطبيق تفاعلي" :
+                    "مسألة حسابية وتطبيق قانون"
+                  );
+
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden space-y-3.5"
+                    >
+                      {/* Top Header: Number, Category, Formula, Points */}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            {q.number || idx + 1}
+                          </span>
+                          
+                          {/* Category Badge */}
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${
+                            isGraph ? "bg-purple-950/40 text-purple-300 border-purple-500/40" :
+                            isPractical ? "bg-cyan-950/40 text-cyan-300 border-cyan-500/40" :
+                            isInteractive ? "bg-emerald-950/40 text-emerald-300 border-emerald-500/40" :
+                            "bg-amber-950/40 text-amber-300 border-amber-500/40"
+                          }`}>
+                            {isGraph && <BarChart2 className="w-3 h-3 text-purple-400" />}
+                            {isPractical && <Beaker className="w-3 h-3 text-cyan-400" />}
+                            {isInteractive && <Zap className="w-3 h-3 text-emerald-400" />}
+                            {!isGraph && !isPractical && !isInteractive && <Calculator className="w-3 h-3 text-amber-400" />}
+                            <span>{categoryLabel}</span>
+                          </span>
+
+                          {/* Law or Formula Badge */}
+                          {q.lawOrFormula && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-800/90 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold" dir="ltr">
+                              <span>📐</span>
+                              <span>{q.lawOrFormula}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {q.points && (
+                          <span className="text-xs px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-bold">
+                            {q.points} درجات
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Question Text */}
+                      <div className="text-sm sm:text-base font-bold text-white leading-relaxed">
+                        <div 
+                          dangerouslySetInnerHTML={{ 
+                            __html: q.questionAr || q.question 
+                          }} 
+                        />
+                      </div>
+
+                      {/* Inline Diagram SVG if present */}
+                      {q.diagramSvg && (
+                        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center overflow-x-auto">
+                          <div dangerouslySetInnerHTML={{ __html: q.diagramSvg }} />
+                        </div>
+                      )}
+
+                      {/* Inline Data Table HTML if present */}
+                      {q.tableHtml && (
+                        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto">
+                          <div dangerouslySetInnerHTML={{ __html: q.tableHtml }} />
+                        </div>
+                      )}
+
+                      {/* Options */}
+                      {q.options && q.options.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                          {q.options.map((opt, optIdx) => {
+                            const isCorrect = q.correctAnswer !== undefined && (
+                              q.correctAnswer.toString().toLowerCase().includes(opt.toLowerCase()) ||
+                              q.correctAnswer.toString() === optIdx.toString() ||
+                              (q.correctAnswer.toString().toUpperCase() === "A" && optIdx === 0) ||
+                              (q.correctAnswer.toString().toUpperCase() === "B" && optIdx === 1) ||
+                              (q.correctAnswer.toString().toUpperCase() === "C" && optIdx === 2) ||
+                              (q.correctAnswer.toString().toUpperCase() === "D" && optIdx === 3)
+                            );
+                            return (
+                              <div
+                                key={optIdx}
+                                className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-between ${
+                                  isCorrect
+                                    ? "bg-emerald-950/50 border-emerald-500/70 text-emerald-200 font-semibold"
+                                    : "bg-slate-950 border-slate-800 text-slate-300"
+                                }`}
+                              >
+                                <span dangerouslySetInnerHTML={{ __html: opt }} />
+                                {isCorrect && (
+                                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold shrink-0">
+                                    الإجابة الصحيحة ✓
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Explanation / Rationale */}
+                      {(q.explanationAr || q.explanation) && (
+                        <div className="p-3.5 rounded-xl bg-indigo-950/30 border border-indigo-900/50 text-xs text-indigo-300 flex items-start gap-2.5">
+                          <Sparkles className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <strong className="block text-indigo-200">خطوات البرهان والشرح العلمي:</strong>
+                            <div 
+                              className="text-slate-300 leading-relaxed font-sans"
+                              dangerouslySetInnerHTML={{ 
+                                __html: q.explanationAr || q.explanation || "" 
+                              }} 
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-12 text-slate-400">
+                  <HelpCircle className="w-12 h-12 mx-auto mb-3 text-slate-600" />
+                  <p>لا توجد أسئلة مستخرجة بشكل منفصل، تم تضمين الأسئلة مباشرة داخل الكود.</p>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       )}

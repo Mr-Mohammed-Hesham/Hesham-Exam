@@ -51,10 +51,9 @@ export function getApiBaseUrl(): string {
     return envUrl.trim().replace(/\/$/, "");
   }
 
-  // 3. For GitHub Pages without custom backend, relative path won't hit dev container directly
-  // It will attempt the request or trigger seamless client generator
+  // 3. For GitHub Pages without custom backend, connect to the official Cloud Run backend
   if (isRunningOnGitHubPages()) {
-    return "";
+    return "https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app";
   }
 
   // 4. Default relative path for local dev and AI Studio preview
