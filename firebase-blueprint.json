@@ -57,8 +57,8 @@
         }
       },
       "rules": {
-        "read": "request.auth != null && request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com'",
-        "create": "request.auth != null && request.resource.data.creatorUid == request.auth.uid && request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com'",
+        "read": "request.auth != null && (request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com' || request.auth.token.email.lower() == 'mohammedhesham872@gmail.com')",
+        "create": "request.auth != null && request.resource.data.creatorUid == request.auth.uid && (request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com' || request.auth.token.email.lower() == 'mohammedhesham872@gmail.com')",
         "update": "request.auth != null && resource.data.creatorUid == request.auth.uid",
         "delete": "request.auth != null && resource.data.creatorUid == request.auth.uid"
       }

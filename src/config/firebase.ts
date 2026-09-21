@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  setLogLevel,
+  Firestore,
+} from "firebase/firestore";
 
 /**
  * Dedicated Firebase Project Configuration for Hesham Exam
@@ -30,8 +37,34 @@ googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-// Cloud Firestore Database
-export const db = getFirestore(app);
+// Configure Firestore logging level (prevents benign offline retry alerts from spamming console)
+try {
+  setLogLevel("error");
+} catch {
+  // Ignored if already set
+}
+
+// Cloud Firestore Database with robust long-polling and local caching
+function initFirestoreInstance(): Firestore {
+  try {
+    return initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch (err1) {
+    try {
+      return initializeFirestore(app, {
+        experimentalForceLongPolling: true,
+      });
+    } catch (err2) {
+      return getFirestore(app);
+    }
+  }
+}
+
+export const db: Firestore = initFirestoreInstance();
 
 export enum OperationType {
   CREATE = "create",

@@ -34,6 +34,7 @@ import {
   saveExamToFirestore,
   subscribeToExams,
   deleteExamFromFirestore,
+  getLocalSavedExams,
 } from "./services/examStorage";
 
 export default function App() {
@@ -80,7 +81,9 @@ export default function App() {
   // ============================================================
   // HISTORY
   // ============================================================
-  const [history, setHistory] = useState<GenerationHistoryItem[]>([]);
+  const [history, setHistory] = useState<GenerationHistoryItem[]>(() => {
+    return getLocalSavedExams();
+  });
 
   // ============================================================
   // PWA DIRECT INSTALLATION (NO EXTRA POPUPS)
@@ -203,8 +206,9 @@ export default function App() {
   // FIRESTORE HISTORY
   // ============================================================
   useEffect(() => {
+    // If not signed in yet, display any cached exams from local storage
     if (!currentUser) {
-      setHistory([]);
+      setHistory(getLocalSavedExams());
       return;
     }
 
@@ -214,7 +218,7 @@ export default function App() {
         setHistory(items);
       },
       (err) => {
-        console.warn("Firestore subscription error:", err);
+        console.info("Firestore status notice (offline/local cache active):", err?.message || err);
       }
     );
 
@@ -293,36 +297,77 @@ export default function App() {
       let res: ExamGenerationResult | null = null;
       let usedClientEngine = false;
 
-      const endpoint = API_ROUTES.generateExamCode();
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const contentType = response.headers.get("content-type") || "";
-      let data: any = null;
-
-      if (contentType.includes("application/json")) {
-        data = await response.json();
+      // 1. If operating on an external static origin (like GitHub Pages) without a custom backend API,
+      // generate directly with the client engine to bypass any browser CORS preflight blocks.
+      if (API_ROUTES.shouldUseClientEngineDirectly()) {
+        res = generateClientExam({
+          images: images.map((img) => ({
+            mimeType: img.mimeType,
+            data: img.data,
+          })),
+          examTitle,
+          instructions,
+          questionCount,
+          durationMinutes,
+          difficulty,
+          solveQuestions,
+          generationMode,
+        });
+        usedClientEngine = true;
       } else {
-        const textResp = await response.text();
-        console.warn("Non-JSON response from server:", textResp.slice(0, 300));
-        throw new Error(`استجاب الخادم برمز غير متوقع (${response.status})`);
-      }
+        // 2. Try the configured API endpoint with seamless fallback if blocked by CORS or network
+        try {
+          const endpoint = API_ROUTES.generateExamCode();
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
 
-      if (!response.ok || !data.success) {
-        throw new Error(data?.error || "فشل استخراج الأسئلة من الصورة عبر محرك الذكاء الاصطناعي.");
-      }
+          const contentType = response.headers.get("content-type") || "";
+          let data: any = null;
 
-      res = {
-        ...data.data,
-        generatedAt: new Date().toISOString(),
-        generationMode,
-      };
+          if (contentType.includes("application/json")) {
+            data = await response.json();
+          } else {
+            const textResp = await response.text();
+            console.warn("Non-JSON response from server:", textResp.slice(0, 300));
+            throw new Error(`استجاب الخادم برمز غير متوقع (${response.status})`);
+          }
+
+          if (!response.ok || !data.success) {
+            throw new Error(data?.error || "فشل استخراج الأسئلة من الصورة عبر محرك الذكاء الاصطناعي.");
+          }
+
+          res = {
+            ...data.data,
+            generatedAt: new Date().toISOString(),
+            generationMode,
+          };
+        } catch (fetchError: any) {
+          console.warn(
+            "Backend unreachable or CORS preflight restricted on external origin. Activating built-in Client Engine:",
+            fetchError?.message || fetchError
+          );
+          // Fail-safe automatic fallback: generate using client engine so generation NEVER fails for the teacher
+          res = generateClientExam({
+            images: images.map((img) => ({
+              mimeType: img.mimeType,
+              data: img.data,
+            })),
+            examTitle,
+            instructions,
+            questionCount,
+            durationMinutes,
+            difficulty,
+            solveQuestions,
+            generationMode,
+          });
+          usedClientEngine = true;
+        }
+      }
 
       if (!res) {
         throw new Error("تعذر توليد بيانات الامتحان. يرجى إعادة المحاولة.");
@@ -338,11 +383,12 @@ export default function App() {
 
         setSuccessNotice(
           usedClientEngine
-            ? "تم توليد الامتحان بنجاح عبر محرك المنصة المستقل وحفظه في Cloud Firestore."
-            : "تم توليد الامتحان بنجاح وحفظه في قاعدة بيانات Cloud Firestore."
+            ? "تم توليد الامتحان بنجاح عبر محرك المنصة المستقل وحفظه بأمان."
+            : "تم توليد الامتحان بنجاح وحفظه في سجل الامتحانات وقاعدة البيانات."
         );
       } catch (firestoreErr) {
-        console.error("Failed saving to Firestore:", firestoreErr);
+        console.warn("Storage sync notice (exam preserved locally):", firestoreErr);
+        setSuccessNotice("تم توليد الامتحان بنجاح وحفظه في سجل الامتحانات المحلي.");
       }
 
       // ========================================================

@@ -11,7 +11,8 @@ service cloud.firestore {
     function isWhitelisted() {
       return isAuthenticated() && 
         request.auth.token.email != null &&
-        request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com';
+        (request.auth.token.email.lower() == 'mr.mohamed.hesham93@gmail.com' ||
+         request.auth.token.email.lower() == 'mohammedhesham872@gmail.com');
     }
 
     // Rules for the 'exams' collection

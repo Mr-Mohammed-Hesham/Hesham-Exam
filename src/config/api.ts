@@ -38,8 +38,22 @@ export function isRunningOnGitHubPages(): boolean {
   return window.location.hostname.includes("github.io");
 }
 
+export function isExternalOrigin(): boolean {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname.toLowerCase();
+  // Any origin outside the direct container host
+  return (
+    host.includes("github.io") ||
+    (!host.includes("localhost") &&
+      !host.includes("127.0.0.1") &&
+      !host.includes("europe-west2.run.app") &&
+      !host.includes("run.app") &&
+      !host.includes("google.com"))
+  );
+}
+
 export function getApiBaseUrl(): string {
-  // 1. User-specified custom backend URL (e.g. deployed Cloud Run or server)
+  // 1. User-specified custom backend URL (e.g. deployed Cloud Run or custom server)
   const customUrl = getCustomBackendUrl();
   if (customUrl) {
     return customUrl;
@@ -51,16 +65,19 @@ export function getApiBaseUrl(): string {
     return envUrl.trim().replace(/\/$/, "");
   }
 
-  // 3. For GitHub Pages without custom backend, connect to the official Cloud Run backend
-  if (isRunningOnGitHubPages()) {
-    return "https://ais-dev-ztzoh22v25piqmda53fiyu-684462415759.europe-west2.run.app";
-  }
-
-  // 4. Default relative path for local dev and AI Studio preview
+  // 3. For GitHub Pages or external static sites without a custom backend,
+  // do NOT point to a private dev container URL that requires internal Google cookies.
+  // Instead, return empty so the client engine or same-origin endpoint is used.
   return "";
 }
 
 export const API_ROUTES = {
+  shouldUseClientEngineDirectly: (): boolean => {
+    const customUrl = getCustomBackendUrl();
+    const envUrl = import.meta.env.VITE_API_URL;
+    // On external sites without a designated backend API, use client engine directly to prevent CORS failures
+    return (isRunningOnGitHubPages() || isExternalOrigin()) && !customUrl && !envUrl;
+  },
   generateExamCode: () => {
     const base = getApiBaseUrl();
     return base ? `${base}/api/generate-exam-code` : "/api/generate-exam-code";
