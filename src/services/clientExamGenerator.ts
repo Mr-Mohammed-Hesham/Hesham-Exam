@@ -1,6 +1,7 @@
 import { ExamGenerationResult, ExtractedQuestion, GenerationMode } from "../types";
 import { OFFICIAL_HESHAM_EXAM_TEMPLATE } from "../data/officialTemplate";
 import { resolveExamTitleAndGrade } from "../utils/examMetaHelper";
+import { ensureExactQuestionCount } from "../utils/questionCountHelper";
 
 function escapeHtml(str: any): string {
   if (str === null || str === undefined) return "";
@@ -536,6 +537,14 @@ export function generateClientExam(params: {
   if (extractedQuestions.length === 0) {
     extractedQuestions = selectQuestionsForExam(count, hint);
   }
+
+  // GUARANTEE: Enforce that extractedQuestions has EXACTLY the requested count!
+  extractedQuestions = ensureExactQuestionCount(extractedQuestions, count, {
+    topicHint: hint,
+    examTitle: meta.title,
+    grade: meta.grade,
+    subject: meta.subject,
+  });
 
   const baseTemplate = params.templateCode && params.templateCode.includes("originalExamData")
     ? params.templateCode

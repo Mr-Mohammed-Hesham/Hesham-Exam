@@ -3,6 +3,7 @@ import { OFFICIAL_HESHAM_EXAM_TEMPLATE } from "../data/officialTemplate";
 import { hydrateClientExamTemplate } from "./clientExamGenerator";
 import { getGeminiApiKey } from "../config/api";
 import { resolveExamTitleAndGrade } from "../utils/examMetaHelper";
+import { ensureExactQuestionCount } from "../utils/questionCountHelper";
 
 export interface ClientGeminiPayload {
   images?: { mimeType: string; data: string; name?: string }[];
@@ -113,6 +114,15 @@ The teacher's absolute imperative rule:
    - If the teacher provided a lesson title (e.g. "درس قانون أوم" or "الحركة الدائرية"), generate an intensive simulated exam focused 100% on that lesson.
 
 ======================================================================
+MANDATORY QUESTION COUNT REQUIREMENT: EXACTLY ${questionCount} QUESTIONS!
+======================================================================
+- The teacher explicitly requested an exam with EXACTLY ${questionCount} questions.
+- You MUST generate EXACTLY ${questionCount} distinct, complete questions in the "questions" array.
+- The "questions" array in your JSON output MUST have a length of EXACTLY ${questionCount} (items from index 0 to ${questionCount - 1}).
+- Under NO circumstances generate fewer than ${questionCount} questions (do NOT stop at 3 or 5).
+- If the source image/text only has a few questions, your job is to generate SIMULATED PARALLEL questions on the same lesson/topic until you reach EXACTLY ${questionCount} questions.
+
+======================================================================
 EXAM TITLE & GRADE MANDATE (اسم الامتحان والصف الدراسي يتغير حسب خانة الملاحظات):
 ======================================================================
 - Target Exam Title: "${resolvedMeta.title}"
@@ -156,7 +166,8 @@ Return ONLY valid JSON matching this schema:
 }`;
 
   parts.push({
-    text: `Generate ${questionCount} parallel simulated questions based on the attached materials and teacher notes.
+    text: `CRITICAL MANDATORY INSTRUCTION: Generate EXACTLY ${questionCount} parallel simulated questions in the 'questions' array.
+Do NOT generate 3 questions or stop early. You MUST output all ${questionCount} questions completely.
 Exam Title: ${resolvedMeta.title}
 Grade / Stage: ${resolvedMeta.grade || "محدد بالملاحظات"}
 Difficulty: ${difficulty}
@@ -198,6 +209,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
           generationConfig: {
             responseMimeType: "application/json",
             temperature: 0.2,
+            maxOutputTokens: 16384,
           },
         }),
       });
@@ -234,7 +246,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   }
 
   const rawQuestions: any[] = parsedData.questions || [];
-  const extractedQuestions: ExtractedQuestion[] = rawQuestions.map((q, idx) => ({
+  const normalizedQuestions: ExtractedQuestion[] = rawQuestions.map((q, idx) => ({
     number: q.number || idx + 1,
     question: q.questionAr || q.question || `سؤال ${idx + 1}`,
     questionAr: q.questionAr || q.question || `سؤال ${idx + 1}`,
@@ -248,19 +260,27 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
     explanation: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
     explanationAr: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
     explanationEn: q.explanationEn || q.explanation || "Standard verified solution",
-    points: q.points || Math.round(100 / Math.max(1, rawQuestions.length)),
+    points: q.points || Math.round(100 / Math.max(1, questionCount)),
   }));
-
-  const baseTemplate =
-    templateCode && templateCode.includes("originalExamData")
-      ? templateCode
-      : OFFICIAL_HESHAM_EXAM_TEMPLATE;
 
   const finalMeta = resolveExamTitleAndGrade({
     examTitle: parsedData.examTitle || resolvedMeta.title,
     instructions: instructions,
     examText: examText,
   });
+
+  // ABSOLUTE GUARANTEE: Enforce that extractedQuestions has EXACTLY questionCount items!
+  const extractedQuestions = ensureExactQuestionCount(normalizedQuestions, questionCount, {
+    topicHint: `${finalMeta.title} ${finalMeta.subheading} ${instructions || ""} ${examText || ""}`,
+    examTitle: finalMeta.title,
+    grade: finalMeta.grade,
+    subject: finalMeta.subject,
+  });
+
+  const baseTemplate =
+    templateCode && templateCode.includes("originalExamData")
+      ? templateCode
+      : OFFICIAL_HESHAM_EXAM_TEMPLATE;
 
   const generatedCode = hydrateClientExamTemplate({
     code: baseTemplate,

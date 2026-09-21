@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { CODE_TEMPLATES } from "./src/data/templates";
 import { resolveExamTitleAndGrade } from "./src/utils/examMetaHelper";
+import { ensureExactQuestionCount } from "./src/utils/questionCountHelper";
 
 dotenv.config();
 
@@ -125,15 +126,13 @@ function renderQuestionContent(text: string): string {
   return formatMathInText(text);
 }
 
-function normalizeQuestions(rawList: any[], targetCount: number): any[] {
-  if (!Array.isArray(rawList) || rawList.length === 0) {
-    return [];
-  }
-
-  return rawList.map((q: any, idx: number) => {
-    const num = idx + 1;
-    let questionAr = q.questionAr || q.question || q.text || `مسألة علمية تطبيقية رقم ${num}`;
-    let questionEn = q.questionEn || q.question || `Applied Problem #${num}`;
+function normalizeQuestions(rawList: any[], targetCount: number, metaContext: any = {}): any[] {
+  let mapped: any[] = [];
+  if (Array.isArray(rawList) && rawList.length > 0) {
+    mapped = rawList.map((q: any, idx: number) => {
+      const num = idx + 1;
+      let questionAr = q.questionAr || q.question || q.text || `مسألة علمية تطبيقية رقم ${num}`;
+      let questionEn = q.questionEn || q.question || `Applied Problem #${num}`;
 
     // Clean any unwanted reference to the uploaded picture
     questionAr = questionAr
@@ -257,6 +256,9 @@ function normalizeQuestions(rawList: any[], targetCount: number): any[] {
       tableHtml: q.tableHtml || null,
     };
   });
+  }
+
+  return ensureExactQuestionCount(mapped as any, targetCount, metaContext);
 }
 
 function generateHtmlQuestionCards(questions: any[]): string {
@@ -780,12 +782,22 @@ The teacher's absolute imperative rule:
 7. الامتحان قائم بذاته ومكتمل المعطيات دون أي إحالة خارجية للصورة (100% STANDALONE):
    - الطالب يرى صفحة الويب فقط. يُمنع كتابة: "كما بالصورة المرفقة" أو "بالرجوع للملف".
    - اذكر جميع الأرقام والمعطيات مباشرة في نص السؤال.
-   - اضبط عدد الأسئلة ليكون بالضبط ${questionCount} أسئلة.
+
+======================================================================
+MANDATORY QUESTION COUNT REQUIREMENT: EXACTLY ${questionCount} QUESTIONS!
+======================================================================
+- The teacher explicitly requested an exam with EXACTLY ${questionCount} questions.
+- You MUST generate EXACTLY ${questionCount} distinct, complete questions in the 'extractedQuestions' array (items from index 0 to ${questionCount - 1}).
+- Under NO circumstances generate fewer than ${questionCount} questions (e.g. NEVER stop at 3 or 5 questions!).
+- If the uploaded image or text only has 1 or 2 questions, your role is to generate SIMULATED PARALLEL questions on the same scientific laws, concepts, and formulas until the array contains EXACTLY ${questionCount} questions.
 `;
 
     const promptText = `
 === ATTACHED EXAM IMAGES / FILES ===
 (Carefully inspect and analyze the attached image/document parts above. Identify the subject, curriculum concepts, formulas, laws, graphs, tables, and numerical relations.)
+
+=== MANDATORY QUESTION COUNT: EXACTLY ${questionCount} QUESTIONS ===
+You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' array. Do NOT stop at 3 questions.
 
 === GENERATION MODE: ${isExactExtract ? "EXACT EXTRACTION (استخراج دقيق للمسائل من الصورة)" : "SIMILAR NEW QUESTIONS (توليد مسائل ودوال وقوانين جديدة من نفس أفكار الصورة)"} ===
 
@@ -820,6 +832,7 @@ The teacher's absolute imperative rule:
             config: {
               systemInstruction: systemPrompt,
               responseMimeType: "application/json",
+              maxOutputTokens: 16384,
               responseSchema: {
                 type: Type.OBJECT,
                 properties: {
@@ -944,10 +957,6 @@ The teacher's absolute imperative rule:
 
     parsedData.generationMode = generationMode;
 
-    // Normalize questions array
-    const normalizedQuestions = normalizeQuestions(parsedData.extractedQuestions || [], questionCount);
-    parsedData.extractedQuestions = normalizedQuestions;
-
     // Resolve Title, Grade and Subject dynamically from teacher notes and inputs
     const finalMeta = resolveExamTitleAndGrade({
       examTitle: parsedData.examTitle || examTitle,
@@ -955,6 +964,15 @@ The teacher's absolute imperative rule:
       examText: examText || "",
     });
     parsedData.examTitle = finalMeta.title;
+
+    // Normalize questions array and guarantee EXACT questionCount items
+    const normalizedQuestions = normalizeQuestions(parsedData.extractedQuestions || [], questionCount, {
+      topicHint: `${finalMeta.title} ${finalMeta.subheading} ${instructions || ""} ${examText || ""}`,
+      examTitle: finalMeta.title,
+      grade: finalMeta.grade,
+      subject: finalMeta.subject,
+    });
+    parsedData.extractedQuestions = normalizedQuestions;
 
     // Guaranteed Hydration: inject the fresh questions (derived 100% from image/file) into the template code,
     // preserving all layout, CSS styling, timer, and student input/submit functions,

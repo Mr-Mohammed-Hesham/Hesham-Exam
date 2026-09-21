@@ -445,14 +445,16 @@ export default function App() {
       try {
         await saveExamToFirestore(res, currentUser);
 
+        const countNotice = res.extractedQuestions?.length ? ` (${res.extractedQuestions.length} أسئلة)` : "";
         setSuccessNotice(
           usedClientEngine
-            ? "تم توليد الامتحان بنجاح عبر محرك المنصة المستقل وحفظه بأمان."
-            : "تم توليد الامتحان بنجاح وحفظه في سجل الامتحانات وقاعدة البيانات."
+            ? `تم بنجاح توليد الامتحان المحاكي${countNotice} وحفظه بأمان.`
+            : `تم بنجاح توليد الامتحان${countNotice} وحفظه في السجل وقاعدة البيانات.`
         );
       } catch (firestoreErr) {
         console.warn("Storage sync notice (exam preserved locally):", firestoreErr);
-        setSuccessNotice("تم توليد الامتحان بنجاح وحفظه في سجل الامتحانات المحلي.");
+        const countNotice = res.extractedQuestions?.length ? ` (${res.extractedQuestions.length} أسئلة)` : "";
+        setSuccessNotice(`تم بنجاح توليد الامتحان${countNotice} وحفظه في السجل المحلي.`);
       }
 
       // ========================================================
