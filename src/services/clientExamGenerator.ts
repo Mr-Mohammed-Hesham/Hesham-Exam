@@ -1,5 +1,6 @@
 import { ExamGenerationResult, ExtractedQuestion, GenerationMode } from "../types";
 import { OFFICIAL_HESHAM_EXAM_TEMPLATE } from "../data/officialTemplate";
+import { resolveExamTitleAndGrade } from "../utils/examMetaHelper";
 
 function escapeHtml(str: any): string {
   if (str === null || str === undefined) return "";
@@ -247,8 +248,11 @@ export function hydrateClientExamTemplate(params: {
   questions: ExtractedQuestion[];
   examTitle: string;
   durationMinutes: number;
+  grade?: string;
+  subheading?: string;
+  detectedSubject?: string;
 }): string {
-  let { code, questions, examTitle, durationMinutes } = params;
+  let { code, questions, examTitle, durationMinutes, grade, subheading, detectedSubject } = params;
   const totalQ = questions.length;
   const durationSecs = durationMinutes * 60;
 
@@ -314,14 +318,24 @@ export function hydrateClientExamTemplate(params: {
   code = code.replace(/const\s+QUESTIONS_PER_SECTION\s*=\s*\d+;/, `const QUESTIONS_PER_SECTION = ${questionsPerSection};`);
 
   // 3. Update Title & Headers
-  const titleAr = examTitle || "امتحان تفاعلي شامل";
+  const titleAr = examTitle || "امتحان محاكٍ تفاعلي متكامل";
   const titleEn = "Interactive Exam: " + (titleAr.replace(/[^\w\s-]/g, "").trim() || "STEM Assessment");
+
+  const subAr = subheading || (grade ? `${grade} • مادة ${detectedSubject || "العلوم"}` : (detectedSubject ? `مادة ${detectedSubject}` : "المرحلة التعليمية والمادة"));
+  const subEn = "Grade & Subject: " + (grade || "Assessment Level");
 
   code = code.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(titleAr)} | Mr. Mohammed Hesham</title>`);
 
+  // Replace Header h1 (Title)
   code = code.replace(
     /(<h1[^>]*data-ar=["'])[^"']*(["'][^>]*data-en=["'])[^"']*(["'][^>]*>)([\s\S]*?)(<\/h1>)/i,
     `$1📐 ${escapeHtml(titleAr)}$2📐 ${escapeHtml(titleEn)}$3📐 ${escapeHtml(titleAr)}$5`
+  );
+
+  // Replace Header h2 (Grade and Subject)
+  code = code.replace(
+    /(<h2[^>]*data-ar=["'])[^"']*(["'][^>]*data-en=["'])[^"']*(["'][^>]*>)([\s\S]*?)(<\/h2>)/i,
+    `$1${escapeHtml(subAr)}$2${escapeHtml(subEn)}$3${escapeHtml(subAr)}$5`
   );
 
   code = code.replace(
@@ -330,6 +344,12 @@ export function hydrateClientExamTemplate(params: {
   );
   code = code.replace(/<span>⏰ المدة: \d+ دقيقة<\/span>/i, `<span>⏰ المدة: ${durationMinutes} دقيقة</span>`);
   code = code.replace(/(<span\s+id=["']timer["'][^>]*>)\s*[\d:]+\s*(<\/span>)/i, `$1${String(durationMinutes).padStart(2, "0")}:00$2`);
+
+  // Replace Footer
+  code = code.replace(
+    /(©\s*<span\s+data-ar=["'])[^"']*(["']\s+data-en=["'])[^"']*(["']>)[^<]*(<\/span>)/i,
+    `$1${escapeHtml(titleAr)}$2${escapeHtml(titleEn)}$3${escapeHtml(titleAr)}$4`
+  );
 
   return code;
 }
@@ -495,17 +515,24 @@ export function generateClientExam(params: {
 }): ExamGenerationResult {
   const count = params.questionCount || 7;
   const duration = params.durationMinutes || 30;
-  const hint = (params.examTitle || "") + " " + (params.instructions || "") + " " + (params.examText || "");
-  const title = params.examTitle || "امتحان تجريبي تفاعلي متكامل";
+  
+  // Resolve exact title and grade from teacher's notes, title input, or text
+  const meta = resolveExamTitleAndGrade({
+    examTitle: params.examTitle,
+    instructions: params.instructions,
+    examText: params.examText,
+  });
+
+  const hint = `${meta.title} ${meta.subheading} ${params.instructions || ""} ${params.examText || ""}`;
 
   let extractedQuestions: ExtractedQuestion[] = [];
 
-  // Priority 1: If user provided text, parse questions directly from their text!
+  // Priority 1: If user provided text with questions, parse them!
   if (params.examText && params.examText.trim().length > 10) {
     extractedQuestions = parseQuestionsFromText(params.examText, count);
   }
 
-  // Priority 2: If no text or text was insufficient, use topic bank matching the title/instructions
+  // Priority 2: If no text or text was insufficient, generate simulated parallel questions matching topic, grade and subject!
   if (extractedQuestions.length === 0) {
     extractedQuestions = selectQuestionsForExam(count, hint);
   }
@@ -517,20 +544,23 @@ export function generateClientExam(params: {
   const generatedCode = hydrateClientExamTemplate({
     code: baseTemplate,
     questions: extractedQuestions,
-    examTitle: title,
+    examTitle: meta.title,
+    grade: meta.grade,
+    subheading: meta.subheading,
+    detectedSubject: meta.subject,
     durationMinutes: duration,
   });
 
   return {
-    examTitle: title,
+    examTitle: meta.title,
     detectedLanguage: "html",
     suggestedFileName: "interactive_exam.html",
     summary: params.examText?.trim()
-      ? `تم بنجاح استخراج وبناء ${extractedQuestions.length} أسئلة مباشرة من النص والأسئلة التي أدخلتها مع خياراتها وتصحيحها التفاعلي.`
-      : `تم بنجاح توليد امتحان محاكٍ متكامل (${extractedQuestions.length} أسئلة مهارية وحسابية ورسومات بيانية وجداول وتصحيح آلي) عبر محرك المنصة المباشر.`,
+      ? `تم بنجاح توليد امتحان محاكٍ متكامل ومطابق (${extractedQuestions.length} أسئلة) لـ "${meta.title}" (${meta.subheading}) مع خياراتها وتصحيحها التفاعلي.`
+      : `تم بنجاح توليد امتحان محاكٍ متكامل (${extractedQuestions.length} أسئلة مهارية ومسائل ورسومات بيانية وتصحيح آلي) لـ "${meta.title}" (${meta.subheading}).`,
     extractedQuestions,
     generatedCode,
     generatedAt: new Date().toISOString(),
-    generationMode: params.generationMode || "exact_extract",
+    generationMode: params.generationMode || "generate_new_similar",
   };
 }

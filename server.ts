@@ -6,6 +6,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 import cors from "cors";
 import { CODE_TEMPLATES } from "./src/data/templates";
+import { resolveExamTitleAndGrade } from "./src/utils/examMetaHelper";
 
 dotenv.config();
 
@@ -729,49 +730,57 @@ app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], asy
 
     const isExactExtract = generationMode === "exact_extract";
 
+    // Pre-resolve title and grade from teacher's notes and inputs
+    const preMeta = resolveExamTitleAndGrade({
+      examTitle,
+      instructions,
+      examText,
+    });
+
     const systemPrompt = `You are "Hesham Exam AI Engine" - an elite educational AI engine specialized in deeply analyzing uploaded exam sheets, worksheets, and textbooks to generate interactive digital exams.
 
 ======================================================================
-CRITICAL PEDAGOGICAL & ARCHITECTURAL DIRECTIVES:
+CRITICAL CORE DIRECTIVE: FULL SIMULATED EXAM GENERATION (توليد امتحان محاكي بالكامل)
 ======================================================================
+The teacher's absolute imperative rule:
+"تذكر دائما دورك هو توليد امتحان محاكي للصورة المرفوعة أو الاسئلة المكتوبة أو عنوان الدرس المكتوب"
+"مطلوب توليد امتحان محاكي لنفس نوع الاسئلة وليس كتابة امتحان من مخك أو استخراج للاسئلة فقط"
+"اسم الامتحان والصف يتغير حسب ما اكتبه انا في خانة الملاحظات"
+"توليد امتحان محاكي كامل وليس نفس الاسئلة"
 
-1. الحظر التام للأسئلة النظرية المصمتة أو العبارات الإنشائية البحتة:
-   (STRICT BAN ON DRY THEORETICAL / ROTE VERBAL DEFINITIONS)
-   - الأسئلة لا ينبغى أن تكون كلها نظرية مصمتة أو عبارات سردية أو تعريفات مجردة (مثل: "أي العبارات الآتية صحيحة؟" أو "ما هو تعريف كذا؟" أو أسئلة حفظ وتلقين).
+1. الحظر التام لمجرد النقل الحرفي (NOT JUST EXTRACTION):
+   لا تقم بمجرد استخراج الأسئلة نفسها حرفياً، بل قم بتوليد أسئلة ومسائل جديدة محاكية لنفس الفكرة والنوع والقانون.
+
+2. الحظر التام للأسئلة العشوائية من الذاكرة (NOT WRITING UNRELATED QUESTIONS FROM YOUR HEAD):
+   ممنوع اختراع أسئلة عامة أو تافهة من مخك لا علاقة لها بالمفاهيم والقوانين الموجودة بالصورة أو النص.
+
+3. الدور المطلوب بدقة: توليد امتحان محاكٍ كامل متكافئ (TRUE PARALLEL SIMULATION):
+   - قم بتحليل عميق للمواد المرفوعة (صورة / نص / عنوان درس).
+   - استخرج: القوانين والمعادلات العلمية، الدوال البيانية، التجارب وجداول القياسات، وطريقة التفكير.
+   - قم بابتكار مسائل وأسئلة جديدة تماماً محاكية لنفس القوانين ونفس الأسلوب والصعوبة (تغيير المعطيات الرقمية، عكس المطلوب، تغيير السيناريو الفيزيائي/الكيميائي/الرياضي).
+   - إذا كتب المعلم عنوان درس أو موضوع في الملاحظات أو النص (مثل: "قانون كيرشوف"، "المعادلات الخطية"، "الخلية الجلفانية")، ابنِ امتحاناً محاكياً مكثفاً يدور بالكامل حول ذلك الدرس.
+
+4. اسم الامتحان والصف الدراسي (EXAM TITLE & GRADE MANDATE):
+   - Target Exam Title: "${preMeta.title}"
+   - Target Grade / Class: "${preMeta.grade || "محدد من ملاحظات المعلم"}"
+   - Target Subheading: "${preMeta.subheading}"
+   - Teacher Notes / Instructions: "${instructions || "توليد امتحان محاكٍ متكامل لنفس نوع وأفكار الأسئلة"}"
+   - يجب أن يطابق 'examTitle' في مخرجات JSON اسم الامتحان والصف كما حدده المعلم: "${preMeta.title}".
+
+5. الحظر التام للأسئلة النظرية المصمتة أو العبارات الإنشائية البحتة:
+   - الأسئلة لا ينبغى أن تكون كلها نظرية مصمتة أو عبارات سردية أو تعريفات مجردة (مثل: "أي العبارات الآتية صحيحة؟" أو أسئلة حفظ وتلقين).
    - يجب أن تركز الأسئلة على: [مسائل حسابية دقيقة] + [دوال وتغيرات] + [علاقات بيانية وتناسبات] + [قوانين ومعادلات علمية ورياضية] + [تجارب عملية وجداول قياسات].
 
-2. الشمول والتنوع الإلزامي لجميع أنواع الأسئلة (MANDATORY COMPREHENSIVE DIVERSITY):
-   يجب أن يكون الامتحان شاملاً لكل الأنواع (نظري استنتاجي، عملي وتجريبي، وتفاعلي) وتوزيعها بشكل متوازن:
-   - [النوع 1: مسائل حسابية وتطبيق قوانين] (problem_and_law):
-     مسائل حقيقية بأرقام دقيقة، معطيات واضحة، ووحدات قياس (e.g. m/s², Ω, V, N, J, kg, mol, cm³). ذكر القانون المستخدم والتعويض الرقمي لحساب المجهول.
-   - [النوع 2: دوال وعلاقات بيانية وتناسبات] (function_and_graph):
-     دوال رياضية/فيزيائية مثل f(x)، تغيرات، تناسب طردي أو عكسي (y ∝ x, y ∝ 1/x²)، أو استنتاج ميل منحنى (Slope).
-     *يجب تضمين رسم بياني SVG كامل ومنسق بداخل 'diagramSvg'* يحتوي على محاور (X, Y)، أسهم، وتسميات، ومنحنى بياني واضح.
-   - [النوع 3: أسئلة عملية وتجارب معملية وجداول قياسات] (practical_and_table):
-     سؤال مستمد من تجربة عملية أو قراءة أجهزة، مع جدول قياسات HTML منسق في 'tableHtml' (<table class='exam-table'>...</table>) يحتوي على صفوف بيانات تجريبية لاستنتاج قيمة مجهولة أو ثابت علمي.
-   - [النوع 4: أسئلة استنتاجية وتفاعلية وفهم للعلاقات] (interactive_reasoning):
-     تفكير استنتاجي تفاعلي قائم على القوانين: ماذا يحدث لمتغير عند مضاعفة متغير آخر وفقاً للقانون؟ تفسير الظواهر بربط السبب بالقانون الرياضي.
+6. الشمول والتنوع الإلزامي لجميع أنواع الأسئلة (MANDATORY COMPREHENSIVE DIVERSITY):
+   - [النوع 1: مسائل حسابية وتطبيق قوانين] (problem_and_law)
+   - [النوع 2: دوال وعلاقات بيانية وتناسبات] (function_and_graph) مع رسم بياني SVG بداخل 'diagramSvg'.
+   - [النوع 3: أسئلة عملية وتجارب معملية وجداول قياسات] (practical_and_table) مع جدول HTML بداخل 'tableHtml'.
+   - [النوع 4: أسئلة استنتاجية وتفاعلية وفهم للعلاقات] (interactive_reasoning).
 
-3. الحظر التام للذاكرة القديمة أو الأسئلة المعلبة أو النماذج الموحدة (STRICT BAN ON PRE-CANNED / UNRELATED QUESTIONS):
-   - YOU ARE STRICTLY FORBIDDEN from using pre-canned or static templates unless the uploaded file/image is specifically about those exact topics.
-   - The generated exam questions MUST BE 100% ROOTED IN AND DERIVED FROM the uploaded image/document concepts.
-   - If the uploaded image is Chemistry -> Chemistry problems/laws.
-   - If Mathematics -> algebra/calculus/geometry functions and problems.
-   - If Physics -> physics laws, circuits, kinematics, optics, etc.
-
-4. طريقة التعامل حسب نمط التوليد (MODE-SPECIFIC SYNTHESIS):
-   - نمط "الاستخراج الدقيق للمسائل كما هي" (exact_extract):
-     استخرج المسائل والأرقام والمعطيات كما وردت بالملف، مع حلها خطوة بخطوة بالبرهان الحسابي الدقيق.
-   - نمط "توليد مسائل جديدة محاكية لنفس الأفكار" (generate_new_similar):
-     حلل أفكار وقوانين ومسائل الصورة/الملف المرفوع، وابتكر مسائل ودوال وتجارب جديدة كلياً بنفس الروح والقوانين والمستوى التعليمي.
-
-5. الامتحان قائم بذاته ومكتمل المعطيات دون أي إحالة خارجية للصورة (100% STANDALONE):
+7. الامتحان قائم بذاته ومكتمل المعطيات دون أي إحالة خارجية للصورة (100% STANDALONE):
    - الطالب يرى صفحة الويب فقط. يُمنع كتابة: "كما بالصورة المرفقة" أو "بالرجوع للملف".
    - اذكر جميع الأرقام والمعطيات مباشرة في نص السؤال.
-   - عند وجود رسم بياني أو شكل، ضعه ككود SVG داخل 'diagramSvg'.
-   - عند وجود جدول، ضعه كجدول HTML داخل 'tableHtml'.
    - اضبط عدد الأسئلة ليكون بالضبط ${questionCount} أسئلة.
-   - اكتب في 'lawOrFormula' القانون أو المعادلة الرياضية/العلمية المستخدمة.
 `;
 
     const promptText = `
@@ -939,6 +948,14 @@ CRITICAL PEDAGOGICAL & ARCHITECTURAL DIRECTIVES:
     const normalizedQuestions = normalizeQuestions(parsedData.extractedQuestions || [], questionCount);
     parsedData.extractedQuestions = normalizedQuestions;
 
+    // Resolve Title, Grade and Subject dynamically from teacher notes and inputs
+    const finalMeta = resolveExamTitleAndGrade({
+      examTitle: parsedData.examTitle || examTitle,
+      instructions: instructions || "",
+      examText: examText || "",
+    });
+    parsedData.examTitle = finalMeta.title;
+
     // Guaranteed Hydration: inject the fresh questions (derived 100% from image/file) into the template code,
     // preserving all layout, CSS styling, timer, and student input/submit functions,
     // while completely purging all old questions.
@@ -947,17 +964,17 @@ CRITICAL PEDAGOGICAL & ARCHITECTURAL DIRECTIVES:
       generatedCode: "",
       questions: normalizedQuestions,
       meta: {
-        examTitle: parsedData.examTitle || examTitle || "اختبار جديد مطابق",
+        examTitle: finalMeta.title,
         durationMinutes: durationMinutes || 30,
         questionCount: normalizedQuestions.length,
         difficulty,
         solveQuestions,
-        detectedSubject: parsedData.detectedSubject,
+        detectedSubject: finalMeta.subheading,
       },
     });
 
     if (!parsedData.summary) {
-      parsedData.summary = `تم استخراج وتوليد ${normalizedQuestions.length} أسئلة بنجاح وحلولها حصرياً من محتوى الصورة/الملف وإهمال أسئلة الكود القديم تماماً.`;
+      parsedData.summary = `تم بنجاح توليد امتحان محاكٍ كامل (${normalizedQuestions.length} أسئلة) لـ "${finalMeta.title}" (${finalMeta.subheading}) بناءً على المواد والملاحظات المقدمة.`;
     }
 
     res.json({

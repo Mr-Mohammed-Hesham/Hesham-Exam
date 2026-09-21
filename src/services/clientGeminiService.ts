@@ -2,6 +2,7 @@ import { ExamGenerationResult, ExtractedQuestion, GenerationMode } from "../type
 import { OFFICIAL_HESHAM_EXAM_TEMPLATE } from "../data/officialTemplate";
 import { hydrateClientExamTemplate } from "./clientExamGenerator";
 import { getGeminiApiKey } from "../config/api";
+import { resolveExamTitleAndGrade } from "../utils/examMetaHelper";
 
 export interface ClientGeminiPayload {
   images?: { mimeType: string; data: string; name?: string }[];
@@ -30,14 +31,21 @@ export async function generateExamWithClientGemini(
     images = [],
     examText = "",
     instructions = "",
-    examTitle = "امتحان تفاعلي",
+    examTitle = "",
     questionCount = 7,
     durationMinutes = 30,
     difficulty = "same",
     solveQuestions = true,
-    generationMode = "exact_extract",
+    generationMode = "generate_new_similar",
     templateCode = "",
   } = payload;
+
+  // Resolve Title, Grade and Subject dynamically from teacher notes and inputs
+  const resolvedMeta = resolveExamTitleAndGrade({
+    examTitle,
+    instructions,
+    examText,
+  });
 
   const parts: any[] = [];
 
@@ -47,6 +55,7 @@ export async function generateExamWithClientGemini(
     if (base64Data.includes(",")) {
       base64Data = base64Data.split(",")[1];
     }
+
     const mimeType = img.mimeType || "image/jpeg";
 
     if (mimeType.startsWith("text/")) {
@@ -70,29 +79,61 @@ export async function generateExamWithClientGemini(
   // 2. Add exam text if provided
   if (examText && examText.trim()) {
     parts.push({
-      text: `=== EXAM TEXT AND QUESTIONS PROVIDED BY TEACHER ===\n${examText.trim()}\n\nSTRICT REQUIREMENT: Extract and build the exam questions strictly from this text!`,
+      text: `=== EXAM TEXT / LESSON TOPIC / QUESTIONS PROVIDED BY TEACHER ===\n${examText.trim()}\n\nSTRICT REQUIREMENT: Generate the simulated exam questions based on this curriculum content and topic!`,
     });
   }
 
-  // 3. System prompt for multimodal generation
-  const systemPrompt = `You are "Hesham Exam AI Engine" - an elite educational AI engine specialized in extracting and generating interactive digital exams from uploaded exam sheets, images, and text.
+  // 3. System prompt for simulated exam generation
+  const systemPrompt = `You are "Hesham Exam AI Engine" - an elite educational AI engine specialized in generating parallel SIMULATED digital exams for Mr. Mohammed Hesham's educational platform.
 
-PEDAGOGICAL & ACCURACY DIRECTIVES:
-1. STRICT BAN ON RANDOM QUESTIONS:
-   - You MUST extract and derive questions directly from the provided images and/or text.
-   - If the teacher provided text with questions and choices, extract those exact questions faithfully!
-   - If images are provided, perform OCR and vision analysis to read every question, formula, and diagram accurately.
-2. Question Structure:
-   - Each question must have:
-     * questionAr & questionEn (or bilingual).
-     * 4 distinct options (optionsAr & optionsEn).
-     * correctIndex (0, 1, 2, or 3).
-     * explanationAr & explanationEn with clear step-by-step reasoning.
-     * points: integer score.
-     * type: "mcq".
-3. Return ONLY valid JSON matching this schema:
+======================================================================
+CRITICAL PEDAGOGICAL MISSION: FULL SIMULATED EXAM GENERATION (توليد امتحان محاكي بالكامل)
+======================================================================
+The teacher's absolute imperative rule:
+"تذكر دائما دورك هو توليد امتحان محاكي للصورة المرفوعة أو الاسئلة المكتوبة أو عنوان الدرس المكتوب"
+"مطلوب توليد امتحان محاكي لنفس نوع الاسئلة وليس كتابة امتحان من مخك أو استخراج للاسئلة فقط"
+"اسم الامتحان والصف يتغير حسب ما اكتبه انا في خانة الملاحظات"
+"توليد امتحان محاكي كامل وليس نفس الاسئلة"
+
+1. DO NOT MERELY TRANSCRIBE OR COPY-PASTE (ممنوع مجرد استخراج نفس الأسئلة):
+   Do not just copy the identical questions word-for-word.
+
+2. DO NOT INVENT RANDOM QUESTIONS FROM YOUR HEAD (ممنوع كتابة امتحان عشوائي من مخك):
+   Do not invent arbitrary or random questions unrelated to the source material.
+
+3. YOUR REQUIRED MISSION: GENERATE A PARALLEL SIMULATED EXAM (امتحان محاكي لنفس نوع الأسئلة):
+   - Thoroughly inspect the attached image(s), text, or lesson title.
+   - Extract:
+     * Subject and educational stage (e.g., Physics, Chemistry, Math, Biology).
+     * The exact lesson / branch (e.g. Electric circuits & Ohm's law, Kinematics, Chemical equations).
+     * Specific physical laws, formulas, mathematical relations, and scientific principles.
+     * Question styles (computational problems, graph slope analysis, experimental data tables, physical deductions).
+   - Generate BRAND NEW, SIMULATED QUESTIONS that mirror the EXACT SAME type, style, difficulty, and scientific concepts as the source material.
+     (e.g., Change numbers, circuit component values, physical scenarios, or ask for another variable using the exact same formula and question style).
+   - If the teacher provided a lesson title (e.g. "درس قانون أوم" or "الحركة الدائرية"), generate an intensive simulated exam focused 100% on that lesson.
+
+======================================================================
+EXAM TITLE & GRADE MANDATE (اسم الامتحان والصف الدراسي يتغير حسب خانة الملاحظات):
+======================================================================
+- Target Exam Title: "${resolvedMeta.title}"
+- Target Grade / Class: "${resolvedMeta.grade || "الصف الدراسي المحدد"}"
+- Target Subject: "${resolvedMeta.subject}"
+- Teacher Instructions / Notes: "${instructions || "توليد امتحان محاكٍ متكامل لنفس نمط الأسئلة والأفكار"}"
+
+You MUST set the JSON 'examTitle' property to: "${resolvedMeta.title}".
+
+Question Structure:
+- Each question must have:
+  * questionAr & questionEn (or bilingual).
+  * 4 distinct options (optionsAr & optionsEn).
+  * correctIndex (0, 1, 2, or 3).
+  * explanationAr & explanationEn with clear step-by-step reasoning.
+  * points: integer score.
+  * type: "mcq".
+
+Return ONLY valid JSON matching this schema:
 {
-  "examTitle": "string",
+  "examTitle": "${resolvedMeta.title}",
   "summary": "string",
   "questions": [
     {
@@ -115,11 +156,11 @@ PEDAGOGICAL & ACCURACY DIRECTIVES:
 }`;
 
   parts.push({
-    text: `Generate ${questionCount} questions based on the attached materials.
-Exam Title: ${examTitle || "امتحان تفاعلي"}
-Generation Mode: ${generationMode}
+    text: `Generate ${questionCount} parallel simulated questions based on the attached materials and teacher notes.
+Exam Title: ${resolvedMeta.title}
+Grade / Stage: ${resolvedMeta.grade || "محدد بالملاحظات"}
 Difficulty: ${difficulty}
-Teacher Instructions: ${instructions || "استخرج الأسئلة بدقة من المحتوى المرفق واحلها بدقة."}
+Teacher Instructions: ${instructions || "توليد امتحان محاكٍ متكامل لنفس نوع وأفكار الأسئلة"}
 Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
@@ -215,20 +256,29 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
       ? templateCode
       : OFFICIAL_HESHAM_EXAM_TEMPLATE;
 
+  const finalMeta = resolveExamTitleAndGrade({
+    examTitle: parsedData.examTitle || resolvedMeta.title,
+    instructions: instructions,
+    examText: examText,
+  });
+
   const generatedCode = hydrateClientExamTemplate({
     code: baseTemplate,
     questions: extractedQuestions,
-    examTitle: parsedData.examTitle || examTitle,
+    examTitle: finalMeta.title,
+    grade: finalMeta.grade,
+    subheading: finalMeta.subheading,
+    detectedSubject: finalMeta.subject,
     durationMinutes: durationMinutes,
   });
 
   return {
-    examTitle: parsedData.examTitle || examTitle,
+    examTitle: finalMeta.title,
     detectedLanguage: "html",
     suggestedFileName: "interactive_exam.html",
     summary:
       parsedData.summary ||
-      `تم استخراج وتوليد ${extractedQuestions.length} أسئلة بنجاح من المواد المرفقة عبر محرك الذكاء الاصطناعي.`,
+      `تم بنجاح توليد امتحان محاكٍ متكامل (${extractedQuestions.length} أسئلة) لـ "${finalMeta.title}" (${finalMeta.subheading}) بناءً على المواد والملاحظات المقدمة.`,
     extractedQuestions,
     generatedCode,
     generatedAt: new Date().toISOString(),

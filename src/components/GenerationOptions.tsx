@@ -238,28 +238,29 @@ export const GenerationOptions: React.FC<GenerationOptionsProps> = ({
         {/* Exam Title */}
         <div className="md:col-span-4">
           <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            عنوان الامتحان الجديد (اختياري)
+            عنوان الامتحان (اختياري - أو اتركه للملاحظات)
           </label>
           <input
             type="text"
             value={examTitle}
             onChange={(e) => onExamTitleChange(e.target.value)}
-            placeholder="مثال: اختبار الفيزياء: البادئات والوحدات الأساسية"
+            placeholder="مثال: امتحان الفيزياء - البادئات والوحدات"
             className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
         </div>
 
-        {/* Custom Instructions */}
+        {/* Custom Instructions (Notes) */}
         <div className="md:col-span-5">
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            توجيهات أو تعديلات برمجية إضافية (Prompt)
+          <label className="block text-xs font-semibold text-amber-300 mb-1.5 flex items-center justify-between">
+            <span>خانة الملاحظات (اسم الامتحان، الصف، التوجيهات)</span>
+            <span className="text-[10px] text-teal-400 font-normal">اسم الامتحان والصف يتغير من هنا ✨</span>
           </label>
           <input
             type="text"
             value={instructions}
             onChange={(e) => onInstructionsChange(e.target.value)}
-            placeholder="مثال: ركز على تحويل الميكرو والنانو، أضف مؤقت 30 دقيقة..."
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            placeholder="مثال: امتحان فيزياء الصف الثاني الثانوي - ركز على مسائل الدوائر..."
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-amber-500/50 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition"
           />
         </div>
 
