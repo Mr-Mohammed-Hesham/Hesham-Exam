@@ -123,45 +123,74 @@ Teacher Instructions: ${instructions || "استخرج الأسئلة بدقة م
 Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
-    apiKey
-  )}`;
+  const modelsToTry = [
+    "gemini-3.6-flash",
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+    "gemini-3.1-flash-lite",
+  ];
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: "user",
-          parts: parts,
-        },
-      ],
-      systemInstruction: {
-        parts: [{ text: systemPrompt }],
-      },
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-      },
-    }),
-  });
+  let lastError: any = null;
+  let parsedData: any = null;
 
-  if (!response.ok) {
-    const errText = await response.text();
-    let errMsg = "فشل الاتصال بمحرك Gemini المباشر.";
+  for (const modelName of modelsToTry) {
     try {
-      const parsed = JSON.parse(errText);
-      errMsg = parsed.error?.message || errMsg;
-    } catch {}
-    throw new Error(`خطأ Gemini API: ${errMsg}`);
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(
+        apiKey
+      )}`;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: parts,
+            },
+          ],
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.2,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        let errMsg = `فشل الاتصال بالنموذج ${modelName}`;
+        try {
+          const parsed = JSON.parse(errText);
+          errMsg = parsed.error?.message || errMsg;
+        } catch {}
+        lastError = new Error(errMsg);
+        console.warn(`[Gemini Direct] Model ${modelName} returned error:`, errMsg);
+        continue;
+      }
+
+      const resultData = await response.json();
+      const rawContent = resultData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      const candidateData = JSON.parse(rawContent);
+
+      if (candidateData && Array.isArray(candidateData.questions) && candidateData.questions.length > 0) {
+        parsedData = candidateData;
+        console.log(`[Gemini Direct] Successfully generated exam using model: ${modelName}`);
+        break;
+      }
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[Gemini Direct] Model ${modelName} fetch exception:`, err?.message || err);
+    }
   }
 
-  const resultData = await response.json();
-  const rawContent = resultData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-  const parsedData = JSON.parse(rawContent);
+  if (!parsedData || !Array.isArray(parsedData.questions) || parsedData.questions.length === 0) {
+    throw new Error(`خطأ Gemini API: ${lastError?.message || "تعذر استخراج الأسئلة من النماذج المدعومة"}`);
+  }
 
   const rawQuestions: any[] = parsedData.questions || [];
   const extractedQuestions: ExtractedQuestion[] = rawQuestions.map((q, idx) => ({

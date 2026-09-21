@@ -77,32 +77,53 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({
     }
 
     setTestStatus("testing");
-    setTestMessage("جاري اختبار الاتصال بمحرك Gemini 2.5 Flash...");
+    setTestMessage("جاري اختبار الاتصال بمحرك Gemini 3.6 / 3.8 Flash...");
 
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
-        apiKey.trim()
-      )}`;
+    const modelsToTest = [
+      "gemini-3.6-flash",
+      "gemini-3.8-flash",
+      "gemini-flash-latest",
+      "gemini-3.1-flash-lite",
+    ];
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: "Hello, reply with OK" }] }],
-          generationConfig: { maxOutputTokens: 10 },
-        }),
-      });
+    let success = false;
+    let successfulModel = "";
+    let lastErr = "";
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error?.message || `HTTP ${res.status}`);
+    for (const model of modelsToTest) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
+          apiKey.trim()
+        )}`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: "ping" }] }],
+            generationConfig: { maxOutputTokens: 10 },
+          }),
+        });
+
+        if (res.ok) {
+          success = true;
+          successfulModel = model;
+          break;
+        } else {
+          const data = await res.json().catch(() => ({}));
+          lastErr = data.error?.message || `HTTP ${res.status}`;
+        }
+      } catch (err: any) {
+        lastErr = err.message || String(err);
       }
+    }
 
+    if (success) {
       setTestStatus("success");
-      setTestMessage("✅ تم الاتصال بنجاح! المفتاح فعال ويدعم التوليد واستخراج الأسئلة من الصور والنصوص.");
-    } catch (err: any) {
+      setTestMessage(`✅ تم الاتصال بنجاح بمحرك (${successfulModel})! المفتاح جاهز للتوليد من الصور والنصوص فوراً.`);
+    } else {
       setTestStatus("error");
-      setTestMessage(`❌ فشل الاتصال بالمفتاح: ${err.message || err}`);
+      setTestMessage(`❌ فشل الاتصال بالمفتاح: ${lastErr}`);
     }
   };
 

@@ -360,10 +360,9 @@ export default function App() {
           });
           usedClientEngine = true;
         } else {
-          // Only images were uploaded on external origin without an API key or backend
-          setIsApiConfigOpen(true);
+          // Only images were uploaded on external origin without an API key or text
           throw new Error(
-            "لاستخراج الأسئلة من الصور عبر الذكاء الاصطناعي على الموقع الخارجي (GitHub Pages)، يرجى إدخال مفتاح Gemini API المجاني الخاص بك، أو كتابة نص الامتحان مباشرة في الحقل المخصص بجوار الصور للتوليد الفوري."
+            "لاستخراج الأسئلة من الصور عبر الذكاء الاصطناعي على الموقع الخارجي، يرجى كتابة أو لصق نص الامتحان في الحقل المخصص بجوار الصور، أو إدخال مفتاح Gemini المجاني في زر 'الربط و Gemini' بالشريط العلوي."
           );
         }
       } else {
@@ -414,9 +413,8 @@ export default function App() {
             });
             usedClientEngine = true;
           } else if (isExternalOrigin()) {
-            setIsApiConfigOpen(true);
             throw new Error(
-              "تعذر الاتصال بالخادم. لاستخراج الأسئلة من الصور على الموقع الخارجي (GitHub Pages)، يرجى إدخال مفتاح Gemini API المجاني الخاص بك، أو كتابة نص الامتحان مباشرة بجوار الصور."
+              "تعذر الاتصال بالخادم. لاستخراج الأسئلة من الصور على الموقع الخارجي، يرجى كتابة أو لصق نص الامتحان مباشرة بجوار الصور، أو إدخال مفتاح Gemini API في شريط التنقل العلوي."
             );
           } else {
             res = generateClientExam({
