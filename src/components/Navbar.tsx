@@ -10,7 +10,8 @@ import {
   UserCheck,
   Download,
   Menu,
-  X
+  X,
+  Key
 } from "lucide-react";
 import { User } from "firebase/auth";
 
@@ -18,6 +19,7 @@ interface NavbarProps {
   onOpenHistory: () => void;
   onOpenHelp: () => void;
   onReset: () => void;
+  onOpenApiConfig?: () => void;
   historyCount: number;
   user: User | null;
   onSignIn: () => void;
@@ -30,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenHistory,
   onOpenHelp,
   onReset,
+  onOpenApiConfig,
   historyCount,
   user,
   onSignIn,
@@ -167,6 +170,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>المساعدة</span>
           </button>
 
+          {/* API / External Settings Button */}
+          {onOpenApiConfig && (
+            <button
+              type="button"
+              onClick={onOpenApiConfig}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-semibold transition cursor-pointer"
+              title="إعدادات الذكاء الاصطناعي ومفتاح Gemini"
+            >
+              <Key className="w-4 h-4 text-amber-400" />
+              <span>الربط و Gemini</span>
+            </button>
+          )}
+
           {/* Reset Button */}
           <button
             type="button"
@@ -279,6 +295,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="grid grid-cols-1 gap-2">
+            {/* API Config button */}
+            {onOpenApiConfig && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenApiConfig();
+                }}
+                className="flex items-center justify-center gap-2 p-3 min-h-[44px] rounded-xl bg-slate-900 text-amber-300 border border-slate-800 text-xs font-semibold active:bg-slate-800 transition"
+              >
+                <Key className="w-4 h-4 text-amber-400" />
+                <span>إعدادات الذكاء الاصطناعي و Gemini</span>
+              </button>
+            )}
+
             {/* New Session */}
             <button
               type="button"

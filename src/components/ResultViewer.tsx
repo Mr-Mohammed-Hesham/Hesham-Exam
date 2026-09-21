@@ -425,7 +425,7 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
                 key={previewKey}
                 title="Hesham Exam Live Sandbox"
                 srcDoc={result.generatedCode}
-                sandbox="allow-scripts allow-modals"
+                sandbox="allow-scripts allow-modals allow-same-origin allow-forms"
                 className="w-full h-[580px] border-0"
               />
             </div>

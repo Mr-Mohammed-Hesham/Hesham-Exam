@@ -654,7 +654,8 @@ app.get(["/api/health", "/Hesham-Exam/api/health"], (_req, res) => {
 app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], async (req, res) => {
   try {
     const {
-      images, // array of { mimeType: string, data: string (base64) }
+      images = [], // array of { mimeType: string, data: string (base64) }
+      examText = "", // Direct text or questions provided by teacher
       templateCode, // the old template code
       templateType = "html",
       instructions = "",
@@ -666,10 +667,13 @@ app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], asy
       difficulty = "same",
     } = req.body;
 
-    if (!images || !Array.isArray(images) || images.length === 0) {
+    const hasImages = Array.isArray(images) && images.length > 0;
+    const hasText = typeof examText === "string" && examText.trim().length > 0;
+
+    if (!hasImages && !hasText) {
       return res.status(400).json({
         success: false,
-        error: "الرجاء رفع صورة أو ملف الامتحان أولاً لتوليد الأسئلة منها (Please provide at least one image or document).",
+        error: "الرجاء رفع صورة أو ملف الامتحان أو كتابة نص الامتحان والأسئلة (Please provide at least one image, document, or exam text).",
       });
     }
 
@@ -679,39 +683,48 @@ app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], asy
 
     const ai = getGeminiClient();
 
-    // Prepare contents: ONLY image and document parts (no old template code is passed to Gemini!)
+    // Prepare contents: image and document parts + user provided text
     const parts: any[] = [];
 
-    // Add image and file parts
-    for (const img of images) {
-      // Clean base64 if it has data URL prefix
-      let base64Data = img.data || "";
-      if (base64Data.includes(",")) {
-        base64Data = base64Data.split(",")[1];
-      }
-
-      const mimeType = img.mimeType || "image/jpeg";
-      
-      // If it's a plain text file, decode and send as direct text part for optimal parsing
-      if (mimeType.startsWith("text/")) {
-        try {
-          const decodedText = Buffer.from(base64Data, "base64").toString("utf-8");
-          parts.push({
-            text: `=== ATTACHED EXAM DOCUMENT/FILE CONTENT (${img.name || "Exam Document"}) ===\n${decodedText}`
-          });
-          continue;
-        } catch {
-          // fallback to inlineData
-        }
-      }
-
-      // Images (jpeg, png, webp) and PDFs
+    // Add direct exam text if provided by teacher
+    if (hasText) {
       parts.push({
-        inlineData: {
-          mimeType: mimeType,
-          data: base64Data,
-        },
+        text: `=== EXAM TEXT / DIRECT QUESTIONS / CONTENT PROVIDED BY TEACHER ===\n${examText.trim()}\n\nSTRICT INSTRUCTION: Extract and formulate the questions directly from this provided text and content! Do NOT use generic or unrelated questions.`
       });
+    }
+
+    // Add image and file parts
+    if (hasImages) {
+      for (const img of images) {
+        // Clean base64 if it has data URL prefix
+        let base64Data = img.data || "";
+        if (base64Data.includes(",")) {
+          base64Data = base64Data.split(",")[1];
+        }
+
+        const mimeType = img.mimeType || "image/jpeg";
+        
+        // If it's a plain text file, decode and send as direct text part for optimal parsing
+        if (mimeType.startsWith("text/")) {
+          try {
+            const decodedText = Buffer.from(base64Data, "base64").toString("utf-8");
+            parts.push({
+              text: `=== ATTACHED EXAM DOCUMENT/FILE CONTENT (${img.name || "Exam Document"}) ===\n${decodedText}`
+            });
+            continue;
+          } catch {
+            // fallback to inlineData
+          }
+        }
+
+        // Images (jpeg, png, webp) and PDFs
+        parts.push({
+          inlineData: {
+            mimeType: mimeType,
+            data: base64Data,
+          },
+        });
+      }
     }
 
     const isExactExtract = generationMode === "exact_extract";

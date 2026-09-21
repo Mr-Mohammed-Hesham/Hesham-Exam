@@ -241,6 +241,26 @@ function showSaveIndicator() {
     saveIndicatorTimeout = setTimeout(() => indicator.classList.remove('show'), 1500);
 }
 
+const _memoryStore = {};
+function safeStorageGet(k) {
+    try {
+        if (typeof window !== 'undefined' && window.localStorage) return window.localStorage.getItem(k);
+    } catch(e) {}
+    return _memoryStore[k] || null;
+}
+function safeStorageSet(k, v) {
+    try {
+        if (typeof window !== 'undefined' && window.localStorage) { window.localStorage.setItem(k, v); return; }
+    } catch(e) {}
+    _memoryStore[k] = String(v);
+}
+function safeStorageRemove(k) {
+    try {
+        if (typeof window !== 'undefined' && window.localStorage) { window.localStorage.removeItem(k); return; }
+    } catch(e) {}
+    delete _memoryStore[k];
+}
+
 function saveState(showIndicator = true) {
     try {
         const state = {
@@ -252,16 +272,16 @@ function saveState(showIndicator = true) {
             timeRemaining: timeRemaining,
             answersVisible: answersVisible, savedAt: Date.now()
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        safeStorageSet(STORAGE_KEY, JSON.stringify(state));
         if (showIndicator) showSaveIndicator();
-    } catch (e) { console.error('خطأ في الحفظ:', e); }
+    } catch (e) {}
 }
 
 function loadState() {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = safeStorageGet(STORAGE_KEY);
         if (saved) return JSON.parse(saved);
-    } catch (e) { console.error('خطأ في التحميل:', e); }
+    } catch (e) {}
     return null;
 }
 
@@ -284,7 +304,7 @@ function restoreAnswers(answers) {
 
 function clearProgress() {
     const confirmMsg = currentLang === 'ar' ? '⚠️ هل أنت متأكد من مسح كل التقدم؟' : '⚠️ Are you sure you want to clear all progress?';
-    if (confirm(confirmMsg)) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    if (confirm(confirmMsg)) { safeStorageRemove(STORAGE_KEY); location.reload(); }
 }
 
 function setupAnswerListeners() {

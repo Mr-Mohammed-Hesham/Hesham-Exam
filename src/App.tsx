@@ -24,8 +24,10 @@ import {
   Download,
   Loader2,
 } from "lucide-react";
-import { API_ROUTES, isRunningOnGitHubPages, getCustomBackendUrl } from "./config/api";
+import { API_ROUTES, isRunningOnGitHubPages, getCustomBackendUrl, getGeminiApiKey, isExternalOrigin } from "./config/api";
 import { generateClientExam } from "./services/clientExamGenerator";
+import { generateExamWithClientGemini } from "./services/clientGeminiService";
+import { ApiConfigModal } from "./components/ApiConfigModal";
 import { CODE_TEMPLATES } from "./data/templates";
 import { auth, googleProvider } from "./config/firebase";
 import { onAuthStateChanged, signOut, signInWithPopup, User } from "firebase/auth";
@@ -53,6 +55,7 @@ export default function App() {
   // EXAM WORKFLOW STATE
   // ============================================================
   const [images, setImages] = useState<ExamImage[]>([]);
+  const [examText, setExamText] = useState<string>("");
 
   const [examTitle, setExamTitle] = useState<string>("");
   const [solveQuestions, setSolveQuestions] = useState<boolean>(true);
@@ -77,6 +80,7 @@ export default function App() {
   const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+  const [isApiConfigOpen, setIsApiConfigOpen] = useState<boolean>(false);
 
   // ============================================================
   // HISTORY
@@ -246,16 +250,17 @@ export default function App() {
   const handleGenerate = async () => {
     if (!currentUser) {
       setIsAuthModalOpen(true);
-
       setErrorMsg(
         "يرجى تسجيل الدخول بحساب Google المصرح له أولاً للبدء في توليد الامتحانات وحفظها سحابياً."
       );
-
       return;
     }
 
-    if (images.length === 0) {
-      setErrorMsg("يرجى رفع صورة أو ملف الامتحان أولاً للبدء في التوليد.");
+    const hasImages = images.length > 0;
+    const hasText = examText.trim().length > 0;
+
+    if (!hasImages && !hasText) {
+      setErrorMsg("يرجى رفع صورة أو ملف الامتحان أو كتابة نص الامتحان للبدء في التوليد.");
       return;
     }
 
@@ -264,7 +269,9 @@ export default function App() {
     setSuccessNotice(null);
 
     setGenerationStep(
-      "جاري قراءة واستخراج الأسئلة والمسائل من الملفات والصور المرفوعة..."
+      hasText && !hasImages
+        ? "جاري قراءة وتحليل نص الامتحان وصياغة الأسئلة والخيارات والحلول النموذجية..."
+        : "جاري قراءة واستخراج الأسئلة والمسائل من الملفات والصور والنصوص المرفوعة..."
     );
 
     const timer1 = setTimeout(() => {
@@ -280,11 +287,14 @@ export default function App() {
     }, 4500);
 
     try {
+      const payloadImages = images.map((img) => ({
+        mimeType: img.mimeType,
+        data: img.data,
+      }));
+
       const payload = {
-        images: images.map((img) => ({
-          mimeType: img.mimeType,
-          data: img.data,
-        })),
+        images: payloadImages,
+        examText: examText.trim(),
         instructions,
         solveQuestions,
         examTitle,
@@ -297,25 +307,67 @@ export default function App() {
       let res: ExamGenerationResult | null = null;
       let usedClientEngine = false;
 
-      // 1. If operating on an external static origin (like GitHub Pages) without a custom backend API,
-      // generate directly with the client engine to bypass any browser CORS preflight blocks.
-      if (API_ROUTES.shouldUseClientEngineDirectly()) {
-        res = generateClientExam({
-          images: images.map((img) => ({
-            mimeType: img.mimeType,
-            data: img.data,
-          })),
-          examTitle,
-          instructions,
-          questionCount,
-          durationMinutes,
-          difficulty,
-          solveQuestions,
-          generationMode,
-        });
-        usedClientEngine = true;
+      const apiKey = getGeminiApiKey();
+
+      // 1. Direct Client Gemini Engine (Ideal for GitHub Pages with free Gemini API key)
+      if (apiKey) {
+        try {
+          setGenerationStep("جاري المعالجة المباشرة عبر محرك Gemini 2.5 Flash من المتصفح...");
+          res = await generateExamWithClientGemini({
+            images: payloadImages,
+            examText: examText.trim(),
+            instructions,
+            solveQuestions,
+            examTitle,
+            generationMode,
+            questionCount,
+            durationMinutes,
+            difficulty,
+          });
+        } catch (geminiError: any) {
+          console.warn("Client Gemini direct call failed, checking fallback:", geminiError);
+          if (hasText) {
+            res = generateClientExam({
+              images: payloadImages,
+              examText: examText.trim(),
+              examTitle,
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+          } else {
+            throw geminiError;
+          }
+        }
+      } else if (API_ROUTES.shouldUseClientEngineDirectly()) {
+        // 2. External static origin (GitHub Pages) without Gemini API Key
+        if (hasText) {
+          // Parse questions and choices directly from teacher's provided text
+          res = generateClientExam({
+            images: payloadImages,
+            examText: examText.trim(),
+            examTitle,
+            instructions,
+            questionCount,
+            durationMinutes,
+            difficulty,
+            solveQuestions,
+            generationMode,
+          });
+          usedClientEngine = true;
+        } else {
+          // Only images were uploaded on external origin without an API key or backend
+          setIsApiConfigOpen(true);
+          throw new Error(
+            "لاستخراج الأسئلة من الصور عبر الذكاء الاصطناعي على الموقع الخارجي (GitHub Pages)، يرجى إدخال مفتاح Gemini API المجاني الخاص بك، أو كتابة نص الامتحان مباشرة في الحقل المخصص بجوار الصور للتوليد الفوري."
+          );
+        }
       } else {
-        // 2. Try the configured API endpoint with seamless fallback if blocked by CORS or network
+        // 3. Try backend API with fallback
         try {
           const endpoint = API_ROUTES.generateExamCode();
           const response = await fetch(endpoint, {
@@ -338,7 +390,7 @@ export default function App() {
           }
 
           if (!response.ok || !data.success) {
-            throw new Error(data?.error || "فشل استخراج الأسئلة من الصورة عبر محرك الذكاء الاصطناعي.");
+            throw new Error(data?.error || "فشل استخراج الأسئلة من المواد عبر محرك الذكاء الاصطناعي.");
           }
 
           res = {
@@ -347,25 +399,39 @@ export default function App() {
             generationMode,
           };
         } catch (fetchError: any) {
-          console.warn(
-            "Backend unreachable or CORS preflight restricted on external origin. Activating built-in Client Engine:",
-            fetchError?.message || fetchError
-          );
-          // Fail-safe automatic fallback: generate using client engine so generation NEVER fails for the teacher
-          res = generateClientExam({
-            images: images.map((img) => ({
-              mimeType: img.mimeType,
-              data: img.data,
-            })),
-            examTitle,
-            instructions,
-            questionCount,
-            durationMinutes,
-            difficulty,
-            solveQuestions,
-            generationMode,
-          });
-          usedClientEngine = true;
+          console.warn("Backend unreachable, activating smart client engine:", fetchError);
+          if (hasText) {
+            res = generateClientExam({
+              images: payloadImages,
+              examText: examText.trim(),
+              examTitle,
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+          } else if (isExternalOrigin()) {
+            setIsApiConfigOpen(true);
+            throw new Error(
+              "تعذر الاتصال بالخادم. لاستخراج الأسئلة من الصور على الموقع الخارجي (GitHub Pages)، يرجى إدخال مفتاح Gemini API المجاني الخاص بك، أو كتابة نص الامتحان مباشرة بجوار الصور."
+            );
+          } else {
+            res = generateClientExam({
+              images: payloadImages,
+              examText: examText.trim(),
+              examTitle,
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+          }
         }
       }
 
@@ -420,6 +486,7 @@ export default function App() {
   const handleReset = () => {
     if (window.confirm("هل تريد بدء جلسة جديدة وتصفير الملفات الحالية؟")) {
       setImages([]);
+      setExamText("");
       setExamTitle("");
       setInstructions("");
       setCurrentResult(null);
@@ -508,7 +575,7 @@ export default function App() {
     }
   };
 
-  const canGenerate = images.length > 0;
+  const canGenerate = images.length > 0 || examText.trim().length > 0;
 
   // ============================================================
   // INITIALIZING
@@ -642,6 +709,7 @@ export default function App() {
           setIsHistoryOpen(true);
         }}
         onOpenHelp={() => setIsHelpOpen(true)}
+        onOpenApiConfig={() => setIsApiConfigOpen(true)}
         onReset={handleReset}
         historyCount={history.length}
         user={currentUser}
@@ -738,6 +806,9 @@ export default function App() {
             images={images}
             onImagesChange={setImages}
             onOpenCamera={() => setIsCameraOpen(true)}
+            examText={examText}
+            onExamTextChange={setExamText}
+            onOpenApiConfig={() => setIsApiConfigOpen(true)}
           />
         </div>
 
@@ -805,6 +876,12 @@ export default function App() {
       <HelpModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
+      />
+
+      {/* API & Gemini Configuration Modal */}
+      <ApiConfigModal
+        isOpen={isApiConfigOpen}
+        onClose={() => setIsApiConfigOpen(false)}
       />
 
       {/* Floating Quick Install Button */}

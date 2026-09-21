@@ -10,11 +10,44 @@
  */
 
 export const CUSTOM_BACKEND_STORAGE_KEY = "hesham_custom_backend_url";
+export const GEMINI_API_KEY_STORAGE_KEY = "hesham_gemini_api_key";
+
+export function getGeminiApiKey(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const custom = localStorage.getItem(GEMINI_API_KEY_STORAGE_KEY) || "";
+    if (custom.trim()) return custom.trim();
+  } catch {}
+  return (import.meta.env.VITE_GEMINI_API_KEY || "").trim();
+}
+
+export function setGeminiApiKey(key: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (!key || !key.trim()) {
+      localStorage.removeItem(GEMINI_API_KEY_STORAGE_KEY);
+    } else {
+      localStorage.setItem(GEMINI_API_KEY_STORAGE_KEY, key.trim());
+    }
+  } catch (err) {
+    console.warn("Failed to update Gemini API key:", err);
+  }
+}
 
 export function getCustomBackendUrl(): string {
   if (typeof window === "undefined") return "";
   try {
-    return localStorage.getItem(CUSTOM_BACKEND_STORAGE_KEY) || "";
+    const saved = localStorage.getItem(CUSTOM_BACKEND_STORAGE_KEY) || "";
+    // Automatically purge internal dev container URLs which cannot accept external CORS
+    if (
+      saved.includes("ais-dev-") ||
+      saved.includes("-dev-") ||
+      saved.includes("googleusercontent.com")
+    ) {
+      localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
+      return "";
+    }
+    return saved;
   } catch {
     return "";
   }
@@ -26,7 +59,17 @@ export function setCustomBackendUrl(url: string): void {
     if (!url || !url.trim()) {
       localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
     } else {
-      localStorage.setItem(CUSTOM_BACKEND_STORAGE_KEY, url.trim().replace(/\/$/, ""));
+      const clean = url.trim().replace(/\/$/, "");
+      if (
+        clean.includes("ais-dev-") ||
+        clean.includes("-dev-") ||
+        clean.includes("googleusercontent.com")
+      ) {
+        // Do not allow setting internal dev URLs on external origins
+        localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
+      } else {
+        localStorage.setItem(CUSTOM_BACKEND_STORAGE_KEY, clean);
+      }
     }
   } catch (err) {
     console.warn("Failed to update custom backend URL:", err);
@@ -59,23 +102,25 @@ export function getApiBaseUrl(): string {
     return customUrl;
   }
 
-  // 2. Build-time environment variable
+  // 2. Build-time environment variable (ignore if it's an internal dev URL on external origin)
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
-    return envUrl.trim().replace(/\/$/, "");
+    const trimmed = envUrl.trim().replace(/\/$/, "");
+    if (isExternalOrigin() && (trimmed.includes("ais-dev-") || trimmed.includes("run.app"))) {
+      return "";
+    }
+    return trimmed;
   }
 
-  // 3. For GitHub Pages or external static sites without a custom backend,
-  // do NOT point to a private dev container URL that requires internal Google cookies.
-  // Instead, return empty so the client engine or same-origin endpoint is used.
+  // 3. For local dev / AI Studio container, return empty for relative path
   return "";
 }
 
 export const API_ROUTES = {
   shouldUseClientEngineDirectly: (): boolean => {
     const customUrl = getCustomBackendUrl();
-    const envUrl = import.meta.env.VITE_API_URL;
-    // On external sites without a designated backend API, use client engine directly to prevent CORS failures
+    const envUrl = getApiBaseUrl();
+    // On external sites without a working backend API, use client/direct engine
     return (isRunningOnGitHubPages() || isExternalOrigin()) && !customUrl && !envUrl;
   },
   generateExamCode: () => {

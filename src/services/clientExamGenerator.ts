@@ -334,8 +334,156 @@ export function hydrateClientExamTemplate(params: {
   return code;
 }
 
+/**
+ * Parses user provided text directly into structured exam questions.
+ * Supports:
+ * - Questions with choices (أ/ب/ج/د or A/B/C/D or 1/2/3/4)
+ * - Questions with answers (الإجابة: ... or Answer: ...)
+ * - Questions with explanations (التفسير: ... or Explanation: ...)
+ * - Raw lesson text / notes (synthesizes questions directly based on facts and key sentences)
+ */
+export function parseQuestionsFromText(rawText: string, targetCount: number = 7): ExtractedQuestion[] {
+  const text = rawText.trim();
+  if (!text) return [];
+
+  const questions: ExtractedQuestion[] = [];
+
+  // Split by question markers:
+  // e.g. "س1:", "س1-", "سؤال 1", "1.", "1)", "1-", "[1]", "Q1:", "Question 1:"
+  const blocks = text.split(/(?:^|\n+)(?=(?:س(?:ؤال)?\s*\d+[:\-.]|\d+[.\-)]|Q(?:uestion)?\s*\d+[:\-.]))/i);
+
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed || trimmed.length < 5) continue;
+
+    const lines = trimmed.split("\n").map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) continue;
+
+    let qText = lines[0].replace(/^(?:س(?:ؤال)?\s*\d+[\:\-\.]|\d+[\.\-\)]|Q(?:uestion)?\s*\d+[\:\-\.])\s*/i, "").trim();
+    if (!qText && lines.length > 1) {
+      qText = lines[1];
+    }
+
+    const options: string[] = [];
+    let correctIdx = 0;
+    let explanation = "الإجابة الصحيحة المعتمدة";
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Check for answer declaration
+      const ansMatch = line.match(/(?:الإجابة|الجواب|الحل|Answer|Correct)\s*[\:\=]\s*([أ-يa-zA-Z0-9]+)/i);
+      if (ansMatch) {
+        const val = ansMatch[1].trim().toLowerCase();
+        if (val === "أ" || val === "a" || val === "1") correctIdx = 0;
+        else if (val === "ب" || val === "b" || val === "2") correctIdx = 1;
+        else if (val === "ج" || val === "c" || val === "3") correctIdx = 2;
+        else if (val === "د" || val === "d" || val === "4") correctIdx = 3;
+        continue;
+      }
+
+      // Check for explanation
+      const expMatch = line.match(/(?:التفسير|السبب|الشرح|Explanation)\s*[\:\=]\s*(.+)/i);
+      if (expMatch) {
+        explanation = expMatch[1].trim();
+        continue;
+      }
+
+      // Check for options: أ) or A) or 1)
+      const optMatch = line.match(/^(?:[أ-يa-zA-Z]|\d+)[\.\-\)]\s*(.+)/);
+      if (optMatch) {
+        options.push(optMatch[1].trim());
+      } else if (line.startsWith("-") || line.startsWith("•")) {
+        options.push(line.replace(/^[\-•]\s*/, "").trim());
+      }
+    }
+
+    // If options were not found on separate lines, look for inline choices: "أ) ... ب) ... ج) ... د) ..."
+    if (options.length === 0) {
+      const inlineMatches = Array.from(trimmed.matchAll(/(?:[أ-دa-dA-D]|\d+)[\.\-\)]\s*([^أ-دa-dA-D\n]+)/g));
+      if (inlineMatches.length >= 2) {
+        for (const m of inlineMatches) {
+          options.push(m[1].trim());
+        }
+      }
+    }
+
+    // Ensure we have at least 4 options
+    while (options.length < 4) {
+      if (options.length === 0) {
+        options.push("نعم / صحيح (عبارة دقيقة)", "لا / خطأ (عبارة غير دقيقة)", "تحتاج إلى شروط إضافية", "لا يمكن التحديد بدقة");
+      } else {
+        options.push(`خيار تكميلي ${options.length + 1}`);
+      }
+    }
+
+    questions.push({
+      number: questions.length + 1,
+      question: qText || `سؤال ${questions.length + 1}`,
+      questionAr: qText || `سؤال ${questions.length + 1}`,
+      questionEn: qText || `Question ${questions.length + 1}`,
+      type: "mcq",
+      options: options.slice(0, 4),
+      optionsAr: options.slice(0, 4),
+      optionsEn: options.slice(0, 4),
+      correctAnswer: correctIdx,
+      correctIndex: correctIdx,
+      explanation: explanation,
+      explanationAr: explanation,
+      explanationEn: explanation,
+      points: Math.round(100 / Math.max(1, targetCount)),
+    });
+  }
+
+  // If the text was plain paragraphs or notes rather than structured questions:
+  if (questions.length === 0 && text.length > 20) {
+    const sentences = text
+      .split(/[.؟?!\n]+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 15);
+
+    for (let i = 0; i < Math.min(sentences.length, targetCount); i++) {
+      const s = sentences[i];
+      questions.push({
+        number: i + 1,
+        question: `بناءً على المحتوى المعطى: "${s.slice(0, 80)}..." ما هو الاستنتاج الأدق؟`,
+        questionAr: `بناءً على المحتوى المعطى: "${s.slice(0, 80)}..." ما هو الاستنتاج الأدق؟`,
+        questionEn: `Based on the provided content: "${s.slice(0, 80)}..." What is the most accurate conclusion?`,
+        type: "mcq",
+        options: [
+          `صحة وتأكيد ما ورد في النص: (${s.slice(0, 50)}...)`,
+          "يتناقض تماماً مع مضمون النص المذكور",
+          "ينطبق فقط في حالات خاصة واستثنائية",
+          "لا علاقة له بالحقائق والبيانات الموضحة أعلاه",
+        ],
+        optionsAr: [
+          `صحة وتأكيد ما ورد في النص: (${s.slice(0, 50)}...)`,
+          "يتناقض تماماً مع مضمون النص المذكور",
+          "ينطبق فقط في حالات خاصة واستثنائية",
+          "لا علاقة له بالحقائق والبيانات الموضحة أعلاه",
+        ],
+        optionsEn: [
+          `True and confirmed by text: (${s.slice(0, 50)}...)`,
+          "Directly contradicts the provided text",
+          "Applies only in edge cases",
+          "Unrelated to the provided facts",
+        ],
+        correctAnswer: 0,
+        correctIndex: 0,
+        explanation: `مستنتج ومطابق مباشرة للنص المقدم: "${s}"`,
+        explanationAr: `مستنتج ومطابق مباشرة للنص المقدم: "${s}"`,
+        explanationEn: `Directly derived and verified from the provided text: "${s}"`,
+        points: Math.round(100 / Math.max(1, targetCount)),
+      });
+    }
+  }
+
+  return questions;
+}
+
 export function generateClientExam(params: {
   images?: any[];
+  examText?: string;
   examTitle?: string;
   instructions?: string;
   questionCount?: number;
@@ -347,10 +495,21 @@ export function generateClientExam(params: {
 }): ExamGenerationResult {
   const count = params.questionCount || 7;
   const duration = params.durationMinutes || 30;
-  const hint = (params.examTitle || "") + " " + (params.instructions || "");
+  const hint = (params.examTitle || "") + " " + (params.instructions || "") + " " + (params.examText || "");
   const title = params.examTitle || "امتحان تجريبي تفاعلي متكامل";
 
-  const extractedQuestions = selectQuestionsForExam(count, hint);
+  let extractedQuestions: ExtractedQuestion[] = [];
+
+  // Priority 1: If user provided text, parse questions directly from their text!
+  if (params.examText && params.examText.trim().length > 10) {
+    extractedQuestions = parseQuestionsFromText(params.examText, count);
+  }
+
+  // Priority 2: If no text or text was insufficient, use topic bank matching the title/instructions
+  if (extractedQuestions.length === 0) {
+    extractedQuestions = selectQuestionsForExam(count, hint);
+  }
+
   const baseTemplate = params.templateCode && params.templateCode.includes("originalExamData")
     ? params.templateCode
     : OFFICIAL_HESHAM_EXAM_TEMPLATE;
@@ -366,7 +525,9 @@ export function generateClientExam(params: {
     examTitle: title,
     detectedLanguage: "html",
     suggestedFileName: "interactive_exam.html",
-    summary: `تم بنجاح توليد امتحان محاكٍ متكامل (${extractedQuestions.length} أسئلة مهارية وحسابية ورسومات بيانية وجداول وتصحيح آلي) عبر محرك المنصة المباشر.`,
+    summary: params.examText?.trim()
+      ? `تم بنجاح استخراج وبناء ${extractedQuestions.length} أسئلة مباشرة من النص والأسئلة التي أدخلتها مع خياراتها وتصحيحها التفاعلي.`
+      : `تم بنجاح توليد امتحان محاكٍ متكامل (${extractedQuestions.length} أسئلة مهارية وحسابية ورسومات بيانية وجداول وتصحيح آلي) عبر محرك المنصة المباشر.`,
     extractedQuestions,
     generatedCode,
     generatedAt: new Date().toISOString(),
