@@ -211,11 +211,252 @@ const MATH_BANK: any[] = [
   },
 ];
 
+const ARABIC_BANK: any[] = [
+  {
+    questionAr: "قال الشاعر: «إذا غامَرْتَ في شَرَفٍ مَرُومِ ... فلا تَقنَعْ بما دُونَ النّجُومِ». ما المحل الإعرابي لجملة (غامَرْتَ)؟",
+    questionEn: "In the line: 'إذا غامرت في شرف مروم...', what is the grammatical function of the clause 'غامرت'?",
+    optionsAr: ["في محل جر مضاف إليه", "في محل جزم جواب الشرط", "لا محل لها من الإعراب صلة الموصول", "في محل نصب حال"],
+    optionsEn: ["Genitive (Mudhaf Ilayh)", "Jazm (Apodosis)", "No inflectional position", "Accusative state (Hal)"],
+    correctIndex: 0,
+    explanationAr: "الجملة الواقعة بعد أداة الشرط غير الجازمة (إذا) تكون دائماً في محل جر مضاف إليه.",
+    explanationEn: "The clause following the conditional particle 'Idha' is in the genitive case as Mudhaf Ilayh.",
+  },
+  {
+    questionAr: "«إنّ في الاتحادِ قوةً لا يُستهانُ بها». ما إعراب كلمة (قوةً) في الجملة السابقة؟",
+    questionEn: "In the sentence: 'In unity there is strength...', what is the syntactic parsing of 'قوةً'?",
+    optionsAr: ["اسم (إنّ) مؤخر منصوب وعلامة نصبه الفتحة", "خبر (إنّ) مرفوع وعلامة رفعه الضمة", "مبتدأ مؤخر مرفوع", "مفعول به منصوب"],
+    optionsEn: ["Deferred Subject of Inna (Accusative)", "Predicate of Inna", "Deferred Subject (Nominative)", "Object"],
+    correctIndex: 0,
+    explanationAr: "تقدّم شبه الجملة (في الاتحاد) خبراً مقدماً لـ (إنّ)، فجاءت كلمة (قوةً) اسماً لـ (إنّ) مؤخراً منصوباً بالفتحة.",
+    explanationEn: "Prepositional phrase is the fronted predicate, making 'strength' the deferred noun of Inna in accusative.",
+  },
+  {
+    questionAr: "ما نوع المشتق في كلمة (مُسْتَخْرَج) في جملة: «البترولُ مُسْتَخْرَجٌ من باطن الأرض بعناية»؟",
+    questionEn: "What type of derivative is 'Mustakhraj' in the sentence: 'Petroleum is extracted from deep earth'?",
+    optionsAr: ["اسم مفعول لفعل غير ثلاثي", "اسم فاعل لفعل غير ثلاثي", "اسم مكان", "اسم زمان"],
+    optionsEn: ["Passive Participle", "Active Participle", "Noun of Place", "Noun of Time"],
+    correctIndex: 0,
+    explanationAr: "تبدأ بميم مضمومة وفُتح ما قبل آخرها وتدل على من وقع عليه الفعل، فهي اسم مفعول من الفعل (استُخرِج).",
+    explanationEn: "Formed with damma on meem and fatha on penultimate letter, signifying passive participle.",
+  },
+  {
+    questionAr: "عيّن نوع الأسلوب البلاغي في قوله تعالى: ﴿هَلْ جَزَاءُ الْإِحْسَانِ إِلَّا الْإِحْسَانُ﴾:",
+    questionEn: "Identify the rhetorical device in the verse: 'Is the reward of good anything but good?'",
+    optionsAr: ["أسلوب قصر بالنفي والاستثناء (الاستفهام المتضمن معنى النفي)", "أسلوب أمر غرضه النصح", "أسلوب توكيد بالمفعول المطلق", "أسلوب نداء للتنبيه"],
+    optionsEn: ["Restriction (Qasr) via Question meaning Negation + Exception", "Imperative", "Cognate Accusative", "Vocative"],
+    correctIndex: 0,
+    explanationAr: "الاستفهام هنا خرج إلى غرض النفي (ما جزاء الإحسان إلا الإحسان)، واقترانه بـ (إلا) يفيد القصر والحصر والتوكيد.",
+    explanationEn: "Rhetorical question conveying negation coupled with illa forms a restrictive device (Qasr).",
+  },
+  {
+    questionAr: "«كادَ المعلمُ أن يكونَ رسولاً». ما حكم اقتران خبر (كاد) بأن المصدرية في اللغة العربية؟",
+    questionEn: "What is the standard linguistic rule for pairing the predicate of 'Kada' with 'An'?",
+    optionsAr: ["يَقِلّ اقترانه بأن", "يَكثُر اقترانه بأن", "يَجِب اقترانه بأن", "يَمتنِع اقترانه بأن"],
+    optionsEn: ["Infrequent (Yaqill)", "Frequent (Yakthur)", "Obligatory (Yajib)", "Forbidden (Yamtani')"],
+    correctIndex: 0,
+    explanationAr: "أفعال المقاربة (كاد، كرب) يقل اقتران خبرها بأن، بينما (أوشك، عسى) يكثر اقتران خبرهما بأن.",
+    explanationEn: "For the auxiliary verb 'Kada', pairing with 'An' is grammatically infrequent (Yaqill).",
+  },
+];
+
+const ENGLISH_BANK: any[] = [
+  {
+    questionAr: "Choose the correct option: By next December, the engineers ______ the new bridge construction.",
+    questionEn: "Choose the correct option: By next December, the engineers ______ the new bridge construction.",
+    optionsAr: ["will have finished", "will finish", "have finished", "are finishing"],
+    optionsEn: ["will have finished", "will finish", "have finished", "are finishing"],
+    correctIndex: 0,
+    explanationAr: "تعبير (By + وقت مستقبلي) يدل على المستقبل التام (Future Perfect: will have + p.p).",
+    explanationEn: "'By + future time marker' requires Future Perfect (will have + past participle).",
+  },
+  {
+    questionAr: "Choose the correct modal: If she ______ harder during the semester, she would have passed the exam.",
+    questionEn: "Choose the correct modal: If she ______ harder during the semester, she would have passed the exam.",
+    optionsAr: ["had studied", "studied", "studies", "would study"],
+    optionsEn: ["had studied", "studied", "studies", "would study"],
+    correctIndex: 0,
+    explanationAr: "الحالة الشرطية الثالثة (Third Conditional): If + Past Perfect, would have + p.p.",
+    explanationEn: "Third conditional structure: If + Past Perfect, main clause: would have + V3.",
+  },
+  {
+    questionAr: "Select the synonymous word for 'ABUNDANT':",
+    questionEn: "Select the synonymous word for 'ABUNDANT':",
+    optionsAr: ["Plentiful", "Scarce", "Meager", "Deficient"],
+    optionsEn: ["Plentiful", "Scarce", "Meager", "Deficient"],
+    correctIndex: 0,
+    explanationAr: "كلمة Abundant تعني وفير وكثير، ومرادفها الدقيق هو Plentiful.",
+    explanationEn: "'Abundant' means existing or available in large quantities; synonym is 'Plentiful'.",
+  },
+  {
+    questionAr: "Identify the passive form: 'The committee is reviewing the final proposals today.'",
+    questionEn: "Identify the passive form: 'The committee is reviewing the final proposals today.'",
+    optionsAr: ["The final proposals are being reviewed by the committee today.", "The final proposals have been reviewed today.", "The final proposals were reviewed today.", "The final proposals are reviewed today."],
+    optionsEn: ["The final proposals are being reviewed by the committee today.", "The final proposals have been reviewed today.", "The final proposals were reviewed today.", "The final proposals are reviewed today."],
+    correctIndex: 0,
+    explanationAr: "في زمن المضارع المستمر (Present Continuous)، يتحول المبني للمجهول إلى: am/is/are + being + p.p.",
+    explanationEn: "Present continuous passive form requires: are + being + past participle.",
+  },
+];
+
+const CHEMISTRY_BANK: any[] = [
+  {
+    questionAr: "ما هو عدد مولات غاز الأكسجين (O₂) في حجم قدره 44.8 لتر تحت الظروف المعيارية (STP)؟",
+    questionEn: "How many moles of oxygen gas (O₂) are in 44.8 L under standard temperature and pressure (STP)?",
+    optionsAr: ["2.0 mol", "1.0 mol", "0.5 mol", "4.0 mol"],
+    optionsEn: ["2.0 mol", "1.0 mol", "0.5 mol", "4.0 mol"],
+    correctIndex: 0,
+    explanationAr: "تحت الظروف المعيارية، يشغل المول الواحد من أي غاز حجماً قدره 22.4 L. إذن: n = V / 22.4 = 44.8 / 22.4 = 2.0 mol.",
+    explanationEn: "At STP, 1 mole of ideal gas occupies 22.4 L. Moles n = 44.8 / 22.4 = 2.0 mol.",
+  },
+  {
+    questionAr: "محلول مائي يحتوي على تركيز أيونات الهيدرونيوم [H₃O⁺] = 1 × 10⁻⁴ M. ما هي قيمة الرقم الهيدروجيني (pH) وما نوع المحلول؟",
+    questionEn: "An aqueous solution has [H₃O⁺] = 1 × 10⁻⁴ M. What is its pH and nature?",
+    optionsAr: ["pH = 4 (حمضي)", "pH = 10 (قاعدي)", "pH = 7 (متعادل)", "pH = 4 (قاعدي)"],
+    optionsEn: ["pH = 4 (Acidic)", "pH = 10 (Basic)", "pH = 7 (Neutral)", "pH = 4 (Basic)"],
+    correctIndex: 0,
+    explanationAr: "قانون الرقم الهيدروجيني: pH = -log[H₃O⁺] = -log(10⁻⁴) = 4. وبما أن pH < 7 فالمحلول حمضي.",
+    explanationEn: "pH = -log[H₃O⁺] = -log(10⁻⁴) = 4. Since pH < 7, the solution is acidic.",
+  },
+  {
+    questionAr: "أي الروابط الكيميائية التالية تنشأ نتيجة انتقال إلكترون أو أكثر من ذرة فلز إلى ذرة لافلز؟",
+    questionEn: "Which chemical bond results from the complete transfer of valence electrons between atoms?",
+    optionsAr: ["الرابطة الأيونية", "الرابطة التساهمية النقية", "الرابطة الهيدروجينية", "الرابطة الفلزية"],
+    optionsEn: ["Ionic bond", "Pure covalent bond", "Hydrogen bond", "Metallic bond"],
+    correctIndex: 0,
+    explanationAr: "الرابطة الأيونية تتكون بفقد ذرة الفلز إلكترونات لتصبح أيوناً موجباً، واكتساب اللافلز لها ليصبح أيوناً سالباً.",
+    explanationEn: "An ionic bond is formed through electrostatic attraction between oppositely charged ions.",
+  },
+];
+
+const BIOLOGY_BANK: any[] = [
+  {
+    questionAr: "أي العضيات الخلوية التالية تعد المسؤولة عن إنتاج معظم جزيئات الطاقة (ATP) في الخلية حقيقية النواة؟",
+    questionEn: "Which cellular organelle is primarily responsible for ATP synthesis in eukaryotic cells?",
+    optionsAr: ["الميتوكوندريا (Mitochondria)", "جهاز جولجي (Golgi apparatus)", "الريبوسومات (Ribosomes)", "الشبكة الإندوبلازمية"],
+    optionsEn: ["Mitochondria", "Golgi apparatus", "Ribosomes", "Endoplasmic Reticulum"],
+    correctIndex: 0,
+    explanationAr: "الميتوكوندريا هي بيت الطاقة في الخلية وتحدث فيها دورة كربس وسلسلة نقل الإلكترون لإنتاج ATP.",
+    explanationEn: "Mitochondria are the powerhouses of eukaryotic cells, hosting cellular respiration and ATP synthesis.",
+  },
+  {
+    questionAr: "في تجارب مندل الوراثية، ما النسبة المظهرية الناتجة في الجيل الثاني (F2) عند تزاوج نباتين متباينَي اللواقح لصفة واحدة (Aa × Aa)؟",
+    questionEn: "In Mendelian monohybrid cross (Aa × Aa), what is the expected phenotypic ratio in F2?",
+    optionsAr: ["3 سائد : 1 متنحٍ", "1 سائد : 2 متنحٍ", "1 سائد : 1 متنحٍ", "9 : 3 : 3 : 1"],
+    optionsEn: ["3 dominant : 1 recessive", "1 dominant : 2 recessive", "1 : 1", "9 : 3 : 3 : 1"],
+    correctIndex: 0,
+    explanationAr: "وفقاً لقانون انعزال الصفات لمندل، النسبة الوراثية هي 1 AA : 2 Aa : 1 aa، والنسبة المظهرية 3 سائد : 1 متنحٍ.",
+    explanationEn: "Monohybrid F2 phenotypic ratio for complete dominance is 3:1.",
+  },
+];
+
+const HISTORY_BANK: any[] = [
+  {
+    questionAr: "ما هي المعاهدة التي أنهت الحرب العالمية الأولى رسمياً عام 1919؟",
+    questionEn: "Which treaty officially ended World War I in 1919?",
+    optionsAr: ["معاهدة فرساي", "معاهدة لوزان", "معاهدة يالطا", "معاهدة باريس"],
+    optionsEn: ["Treaty of Versailles", "Treaty of Lausanne", "Yalta Agreement", "Treaty of Paris"],
+    correctIndex: 0,
+    explanationAr: "وُقعت معاهدة فرساي في قصر فرساي بفرنسا عام 1919 بعد مؤتمر باريس للسلام كإنهاء رسمي للحرب العالمية الأولى.",
+    explanationEn: "The Treaty of Versailles was signed in 1919, formally concluding WWI hostilities.",
+  },
+  {
+    questionAr: "أي من الثورات التاريخية التالية اندلعت في مصر عام 1919 بقيادة سعد زغلول للمطالبة بالاستقلال التام؟",
+    questionEn: "Which revolution erupted in Egypt in 1919 led by Saad Zaghloul demanding full independence?",
+    optionsAr: ["ثورة 1919 الشعبية", "الثورة العرابية 1881", "حركة الضباط الأحرار 1952", "ثورة القاهرة الأولى"],
+    optionsEn: ["1919 Revolution", "Urabi Revolt", "1952 Free Officers Movement", "First Cairo Revolt"],
+    correctIndex: 0,
+    explanationAr: "اندلعت ثورة 1919 عقب نفي سعد زغلول ورفاقه للمطالبة بإنهاء الحماية البريطانية واستقلال مصر.",
+    explanationEn: "The Egyptian revolution of 1919 demanded independence and the release of national leaders.",
+  },
+];
+
 function selectQuestionsForExam(count: number, topicHint: string): ExtractedQuestion[] {
   const text = topicHint.toLowerCase();
-  const isMath = /رياضيات|math|تفاضل|تكامل|معادلة|هندسة|جبر|دالة/i.test(text);
+  
+  const isArabic = /عرب|لغة عربية|نحو|بلاغة|صرف|أدب|نصوص|قراءة|إعراب/i.test(text);
+  const isEnglish = /english|انجليز|إنجليز|grammar|vocabulary|reading|language/i.test(text);
+  const isChemistry = /كيمياء|chemistry|تفاعل|عنصر|مركب|مول|حمض|قاعدة|روابط/i.test(text);
+  const isBiology = /أحياء|biology|خلية|وراثة|تنفس|حيوي|نبات|حيوان|dna/i.test(text);
+  const isHistory = /تاريخ|جغرافيا|دراسات|history|ثورة|معركة|حضارة|وطني/i.test(text);
+  const isMath = /رياضيات|math|تفاضل|تكامل|معادلة|هندسة|جبر|دالة|حساب/i.test(text);
+  const isPhysics = /فيزياء|physics|كهرباء|تيار|مقاومة|سرعة|تسارع|طاقة|حركة/i.test(text);
 
-  let pool = isMath ? MATH_BANK.concat(PHYSICS_BANK) : PHYSICS_BANK.concat(MATH_BANK);
+  let pool: any[] = [];
+
+  if (isArabic) {
+    pool = ARABIC_BANK;
+  } else if (isEnglish) {
+    pool = ENGLISH_BANK;
+  } else if (isChemistry) {
+    pool = CHEMISTRY_BANK;
+  } else if (isBiology) {
+    pool = BIOLOGY_BANK;
+  } else if (isHistory) {
+    pool = HISTORY_BANK;
+  } else if (isMath) {
+    pool = MATH_BANK;
+  } else if (isPhysics) {
+    pool = PHYSICS_BANK;
+  } else {
+    // If a custom lesson topic was specified:
+    const cleanTopic = topicHint.split("\n")[0].slice(0, 60).trim();
+    if (cleanTopic.length > 5) {
+      // Synthesize topic-specific conceptual questions matching the teacher's lesson title
+      const customTopicQuestions: any[] = [];
+      const conceptualTemplates = [
+        {
+          qAr: `وفقاً للمفاهيم الأساسية المقررة في درس (${cleanTopic})، ما هو التعريف أو المبدأ العلمي الأدق؟`,
+          qEn: `Regarding the fundamental concepts of (${cleanTopic}), what is the most accurate definition?`,
+          optsAr: [
+            `المفهوم المعتمد رسمياً في المنهج الدراسي للدرس: ${cleanTopic}`,
+            "مفهوم مغاير ينطبق فقط في مجالات دراسية أخرى",
+            "فرضية نظرية لم تثبت صحتها عملياً",
+            "استنتاج عشوائي لا يستند إلى قوانين ومبادئ الدرس",
+          ],
+          expAr: `يركز هذا السؤال على استيعاب وتطبيق التعريفات والمفاهيم الجوهرية المقررة لموضوع (${cleanTopic}).`,
+        },
+        {
+          qAr: `عند تطبيق القواعد والمعادلات الخاصة بـ (${cleanTopic})، ما النتيجة المترتبة على مضاعفة المتغير المستقل؟`,
+          qEn: `When applying equations of (${cleanTopic}), what results from doubling the independent variable?`,
+          optsAr: [
+            "تتغير القيمة التابعة وفق العلاقة الرياضية المباشرة المحددة في الدرس",
+            "تبقى القيمة التابعة ثابتة دون أي تأثر مطلقاً",
+            "تنعدم القيمة وتصل إلى الصفر المئوي فوراً",
+            "تتحول العلاقة إلى دالة عكسية غير منتظمة",
+          ],
+          expAr: `العلاقات والمتغيرات في درس (${cleanTopic}) ترتبط بقوانين تناسب محددة وفق القاعدة المعتمدة.`,
+        },
+        {
+          qAr: `أي من الخيارات التالية يعد التطبيق العملي والواقعي الأبرز لموضوع (${cleanTopic})؟`,
+          qEn: `Which of the following represents the most prominent practical application of (${cleanTopic})?`,
+          optsAr: [
+            `التطبيقات والمسائل المنهجية المرتبطة بمحتوى (${cleanTopic})`,
+            "تطبيقات لا صلة لها بالمفاهيم المقررة في هذا الباب",
+            "نماذج افتراضية غير قابلة للقياس أو الاختبار",
+            "تجارب لم يتم إثبات نتائجها علمياً",
+          ],
+          expAr: `تعتبر التطبيقات المنهجية هي المعيار الأساسي لتقييم فهم موضوع (${cleanTopic}).`,
+        },
+      ];
+
+      for (let i = 0; i < count; i++) {
+        const t = conceptualTemplates[i % conceptualTemplates.length];
+        customTopicQuestions.push({
+          questionAr: `سؤال ${i + 1}: ${t.qAr}`,
+          questionEn: `Question ${i + 1}: ${t.qEn}`,
+          optionsAr: t.optsAr,
+          optionsEn: t.optsAr,
+          correctIndex: 0,
+          explanationAr: t.expAr,
+          explanationEn: t.expAr,
+        });
+      }
+      pool = customTopicQuestions;
+    } else {
+      pool = PHYSICS_BANK.concat(MATH_BANK);
+    }
+  }
+
   const questions: ExtractedQuestion[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -227,16 +468,16 @@ function selectQuestionsForExam(count: number, topicHint: string): ExtractedQues
       number: num,
       question: item.questionAr,
       questionAr: item.questionAr,
-      questionEn: item.questionEn,
+      questionEn: item.questionEn || item.questionAr,
       type: "mcq",
       options: item.optionsAr,
       optionsAr: item.optionsAr,
-      optionsEn: item.optionsEn,
-      correctAnswer: item.correctIndex,
-      correctIndex: item.correctIndex,
-      explanation: item.explanationAr,
-      explanationAr: item.explanationAr,
-      explanationEn: item.explanationEn,
+      optionsEn: item.optionsEn || item.optionsAr,
+      correctAnswer: item.correctIndex || 0,
+      correctIndex: item.correctIndex || 0,
+      explanation: item.explanationAr || "الإجابة الصحيحة المعتمدة",
+      explanationAr: item.explanationAr || "الإجابة الصحيحة المعتمدة",
+      explanationEn: item.explanationEn || item.explanationAr,
       points: pts,
     });
   }

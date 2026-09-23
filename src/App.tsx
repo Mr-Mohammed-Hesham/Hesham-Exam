@@ -312,7 +312,7 @@ export default function App() {
       // 1. Direct Client Gemini Engine (Ideal for GitHub Pages with free Gemini API key)
       if (apiKey) {
         try {
-          setGenerationStep("جاري المعالجة المباشرة عبر محرك Gemini 2.5 Flash من المتصفح...");
+          setGenerationStep("جاري قراءة محتوى الصور والملفات المرفوعة واستخراج أسئلة الامتحان بالذكاء الاصطناعي...");
           res = await generateExamWithClientGemini({
             images: payloadImages,
             examText: examText.trim(),
@@ -325,8 +325,35 @@ export default function App() {
             difficulty,
           });
         } catch (geminiError: any) {
-          console.warn("Client Gemini direct call failed, activating seamless smart fallback:", geminiError);
-          // Seamless fallback so the teacher never gets interrupted by Google API spikes
+          console.warn("Client Gemini direct call failed, checking text fallback:", geminiError);
+          // If teacher provided written exam text, generate faithfully from their text
+          if (hasText) {
+            res = generateClientExam({
+              images: payloadImages,
+              examText: examText.trim(),
+              examTitle,
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+            setSuccessNotice(
+              `تم استخراج وتوليد الامتحان بالكامل من النص المكتوب بنجاح (${questionCount} أسئلة).`
+            );
+          } else {
+            // Strictly prevent generating random questions from an unrelated bank
+            throw new Error(
+              `تعذر تحليل الصورة المرفوعة عبر الذكاء الاصطناعي (${geminiError.message || "خطأ مؤقت في خوادم Google"}). لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى كتابة أو لصق نص الأسئلة في خانة 'نص الامتحان المكتوب' أو التحقق من مفتاح Gemini في الشريط العلوي.`
+            );
+          }
+        }
+      } else if (API_ROUTES.shouldUseClientEngineDirectly()) {
+        // 2. External static origin (GitHub Pages) without Gemini API Key
+        if (hasText) {
+          // Parse questions and choices directly from teacher's provided text
           res = generateClientExam({
             images: payloadImages,
             examText: examText.trim(),
@@ -339,24 +366,12 @@ export default function App() {
             generationMode,
           });
           usedClientEngine = true;
-          setSuccessNotice(
-            `تنبيه: نظراً لضغط مؤقت على خوادم Google (High Demand)، تولى المحرك التوليدي الذكي توليد الامتحان المحاكي بالكامل (${questionCount} أسئلة) بنجاح.`
+        } else {
+          // Only images were uploaded on external origin without an API key or text!
+          throw new Error(
+            "لاستخراج الأسئلة من الصور والملفات على الموقع الخارجي بدقة ومنع توليد أي أسئلة عشوائية، يرجى كتابة أو لصق نص الأسئلة في خانة 'نص الامتحان المكتوب' أو إدخال مفتاح Gemini API المجاني عبر زر 'الربط و Gemini' بالشريط العلوي."
           );
         }
-      } else if (API_ROUTES.shouldUseClientEngineDirectly()) {
-        // 2. External static origin (GitHub Pages) without Gemini API Key
-        res = generateClientExam({
-          images: payloadImages,
-          examText: examText.trim(),
-          examTitle,
-          instructions,
-          questionCount,
-          durationMinutes,
-          difficulty,
-          solveQuestions,
-          generationMode,
-        });
-        usedClientEngine = true;
       } else {
         // 3. Try backend API with fallback
         try {
@@ -366,7 +381,10 @@ export default function App() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+              ...payload,
+              apiKey: apiKey || undefined,
+            }),
           });
 
           const contentType = response.headers.get("content-type") || "";
@@ -381,7 +399,7 @@ export default function App() {
           }
 
           if (!response.ok || !data.success) {
-            throw new Error(data?.error || "فشل استخراج الأسئلة من المواد عبر محرك الذكاء الاصطناعي.");
+            throw new Error(data?.error || "فشل استخراج الأسئلة من المواد المرفوعة عبر محرك الذكاء الاصطناعي.");
           }
 
           res = {
@@ -390,7 +408,7 @@ export default function App() {
             generationMode,
           };
         } catch (fetchError: any) {
-          console.warn("Backend unreachable, activating smart client engine:", fetchError);
+          console.warn("Backend call failed, checking text fallback:", fetchError);
           if (hasText) {
             res = generateClientExam({
               images: payloadImages,
@@ -405,18 +423,11 @@ export default function App() {
             });
             usedClientEngine = true;
           } else {
-            res = generateClientExam({
-              images: payloadImages,
-              examText: examText.trim(),
-              examTitle,
-              instructions,
-              questionCount,
-              durationMinutes,
-              difficulty,
-              solveQuestions,
-              generationMode,
-            });
-            usedClientEngine = true;
+            // Strictly avoid random questions when backend fails on images
+            throw new Error(
+              fetchError.message ||
+                "تعذر استخراج الأسئلة من الصور المرفوعة. لضمان عدم توليد أي امتحان عشوائي لا يطابق مادتك، يرجى كتابة أو لصق نص الأسئلة أو إضافة مفتاح Gemini في زر 'الربط و Gemini' بالشريط العلوي."
+            );
           }
         }
       }

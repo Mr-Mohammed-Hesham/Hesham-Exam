@@ -56,6 +56,7 @@ export async function generateExamWithClientGemini(
     if (base64Data.includes(",")) {
       base64Data = base64Data.split(",")[1];
     }
+    base64Data = base64Data.trim().replace(/\s+/g, "");
 
     const mimeType = img.mimeType || "image/jpeg";
 
@@ -175,21 +176,59 @@ Teacher Instructions: ${instructions || "توليد امتحان محاكٍ مت
 Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
-  const modelsToTry = [
-    "gemini-2.5-flash",
-    "gemini-3.8-flash",
-    "gemini-flash-latest",
-    "gemini-3.1-flash-lite",
+  const defaultModelsToTry = [
     "gemini-2.0-flash",
     "gemini-1.5-flash",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+    "gemini-3.1-flash-lite",
+    "gemini-3.8-flash",
   ];
+
+  let modelsToTry = [...defaultModelsToTry];
+
+  // Try to query Google API dynamically to get the exact models active on this API key
+  try {
+    const listRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`
+    );
+    if (listRes.ok) {
+      const listData = await listRes.json();
+      if (Array.isArray(listData.models)) {
+        const supported = listData.models
+          .filter(
+            (m: any) =>
+              Array.isArray(m.supportedGenerationMethods) &&
+              m.supportedGenerationMethods.includes("generateContent")
+          )
+          .map((m: any) => m.name.replace(/^models\//, ""))
+          .filter(
+            (n: string) =>
+              !n.includes("embedding") &&
+              !n.includes("aqa") &&
+              !n.includes("imagen")
+          );
+
+        if (supported.length > 0) {
+          // Prioritize known stable models
+          const matched = defaultModelsToTry.filter((m) => supported.includes(m));
+          const others = supported.filter((m: string) => !defaultModelsToTry.includes(m));
+          modelsToTry = [...matched, ...others];
+          console.log("[Gemini Direct] Active models discovered for this key:", modelsToTry);
+        }
+      }
+    }
+  } catch (discoveryErr) {
+    console.warn("[Gemini Direct] Model discovery skipped, using default priority list:", discoveryErr);
+  }
 
   let lastError: any = null;
   let parsedData: any = null;
 
   for (const modelName of modelsToTry) {
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(
+      const cleanModel = modelName.replace(/^models\//, "");
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${encodeURIComponent(
         apiKey
       )}`;
 
@@ -211,20 +250,20 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
           generationConfig: {
             responseMimeType: "application/json",
             temperature: 0.2,
-            maxOutputTokens: 16384,
+            maxOutputTokens: 8192,
           },
         }),
       });
 
       if (!response.ok) {
         const errText = await response.text();
-        let errMsg = `فشل الاتصال بالنموذج ${modelName}`;
+        let errMsg = `فشل الاتصال بالنموذج ${cleanModel}`;
         try {
           const parsed = JSON.parse(errText);
           errMsg = parsed.error?.message || errMsg;
         } catch {}
         lastError = new Error(errMsg);
-        console.warn(`[Gemini Direct] Model ${modelName} returned error:`, errMsg);
+        console.warn(`[Gemini Direct] Model ${cleanModel} returned error (${response.status}):`, errMsg);
 
         // If high demand or rate limit, brief sleep before trying alternative model
         const isTemporary =
@@ -235,7 +274,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
           errMsg.toLowerCase().includes("resource");
 
         if (isTemporary) {
-          console.warn(`[Gemini Direct] Temporary surge on ${modelName}, waiting 1.2s before trying fallback model...`);
+          console.warn(`[Gemini Direct] Temporary surge on ${cleanModel}, waiting 1.2s before trying fallback model...`);
           await new Promise((r) => setTimeout(r, 1200));
         }
         continue;
@@ -243,17 +282,38 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
 
       const resultData = await response.json();
       const rawContent = resultData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      const candidateData = JSON.parse(rawContent);
+      
+      let cleanJson = rawContent.trim();
+      if (cleanJson.startsWith("```json")) {
+        cleanJson = cleanJson.replace(/^```json\s*/i, "").replace(/\s*```$/i, "");
+      } else if (cleanJson.startsWith("```")) {
+        cleanJson = cleanJson.replace(/^```\s*/i, "").replace(/\s*```$/i, "");
+      }
 
-      if (candidateData && Array.isArray(candidateData.questions) && candidateData.questions.length > 0) {
+      let candidateData: any = null;
+      try {
+        candidateData = JSON.parse(cleanJson);
+      } catch {
+        const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            candidateData = JSON.parse(jsonMatch[0]);
+          } catch {}
+        }
+      }
+
+      const questionsList = candidateData?.questions || candidateData?.extractedQuestions;
+
+      if (candidateData && Array.isArray(questionsList) && questionsList.length > 0) {
+        candidateData.questions = questionsList;
         parsedData = candidateData;
-        console.log(`[Gemini Direct] Successfully generated exam using model: ${modelName}`);
+        console.log(`[Gemini Direct] Successfully extracted exam from source using model: ${cleanModel}`);
         break;
       }
     } catch (err: any) {
       lastError = err;
       console.warn(`[Gemini Direct] Model ${modelName} fetch exception:`, err?.message || err);
-      await new Promise((r) => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 600));
     }
   }
 

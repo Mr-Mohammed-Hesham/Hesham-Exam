@@ -68,8 +68,8 @@ app.use((err: any, _req: express.Request, res: express.Response, next: express.N
 });
 
 // Lazy Gemini client helper
-function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
+function getGeminiClient(customApiKey?: string) {
+  const apiKey = (customApiKey && customApiKey.trim()) || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured in the environment.");
   }
@@ -684,7 +684,8 @@ app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], asy
       ? templateCode
       : (CODE_TEMPLATES[0]?.code || "");
 
-    const ai = getGeminiClient();
+    const userApiKey = (req.body.apiKey as string)?.trim() || (req.headers.authorization?.replace(/^Bearer\s+/i, ""))?.trim() || "";
+    const ai = getGeminiClient(userApiKey);
 
     // Prepare contents: image and document parts + user provided text
     const parts: any[] = [];
@@ -818,7 +819,14 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
 
     parts.push({ text: promptText });
 
-    const modelsToTry = ["gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.8-flash"];
+    const modelsToTry = [
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-2.5-flash",
+      "gemini-3.1-flash-lite",
+      "gemini-flash-latest",
+      "gemini-3.8-flash",
+    ];
     let lastError: any = null;
     let response: any = null;
 
