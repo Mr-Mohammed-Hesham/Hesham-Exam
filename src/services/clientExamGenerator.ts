@@ -158,6 +158,62 @@ const PHYSICS_BANK: any[] = [
     explanationAr: "قانون انتشار الأمواج: v = λ · f وبالتالي λ = v / f = 340 / 340 = 1.0 m.",
     explanationEn: "Wave equation: v = λ · f => λ = v / f = 340 / 340 = 1.0 m.",
   },
+  {
+    questionAr: `سقط شعاع ضوئي بزاوية سقوط θ₁ = 30° من الهواء (n₁ = 1.00) إلى وسط شفاف معامل انكساره n₂ = 1.50:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 320 150" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;">
+    <rect width="320" height="150" fill="#f8fafc" rx="8"/>
+    <rect x="20" y="75" width="280" height="65" fill="#e0f2fe" opacity="0.6"/>
+    <line x1="20" y1="75" x2="300" y2="75" stroke="#0284c7" stroke-width="2"/>
+    <line x1="160" y1="20" x2="160" y2="135" stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1.5"/>
+    <line x1="80" y1="25" x2="160" y2="75" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="160" y1="75" x2="220" y2="135" stroke="#ef4444" stroke-width="2.5"/>
+    <text x="50" y="55" fill="#475569" font-size="11">هواء (n₁ = 1.0)</text>
+    <text x="50" y="110" fill="#0369a1" font-size="11">وسط شفاف (n₂ = 1.5)</text>
+    <text x="140" y="50" fill="#dc2626" font-size="11" font-weight="bold">θ₁=30°</text>
+    <text x="175" y="105" fill="#dc2626" font-size="11" font-weight="bold">θ₂=?</text>
+  </svg>
+</div>
+بتطبيق قانون سنيل (Snell's Law: n₁ sin θ₁ = n₂ sin θ₂)، احسب جيب زاوية الانكسار sin(θ₂):`,
+    questionEn: "Using Snell's law (n₁ sin θ₁ = n₂ sin θ₂), calculate sin(θ₂) when θ₁ = 30°, n₁ = 1.0, and n₂ = 1.5:",
+    optionsAr: ["0.333", "0.500", "0.750", "0.866"],
+    optionsEn: ["0.333", "0.500", "0.750", "0.866"],
+    correctIndex: 0,
+    explanationAr: "قانون سنيل: 1.0 × sin(30°) = 1.5 × sin(θ₂). وبما أن sin(30°) = 0.5، فإن: sin(θ₂) = 0.5 / 1.5 = 1/3 ≈ 0.333.",
+    explanationEn: "Snell's Law: 1.0 × 0.5 = 1.5 × sin(θ₂) => sin(θ₂) = 0.5 / 1.5 = 0.333.",
+  },
+  {
+    questionAr: `سلك مستقيم طوله L = 0.5 m يمر به تيار كهربائي I = 4 A وموضوع عمودياً (θ = 90°) في مجال مغناطيسي منتظم كثافة فيضه B = 0.6 T:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 320 130" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;">
+    <rect width="320" height="130" fill="#f8fafc" rx="8"/>
+    <g fill="#0284c7" opacity="0.4">
+      <circle cx="60" cy="40" r="4"/><circle cx="120" cy="40" r="4"/><circle cx="180" cy="40" r="4"/><circle cx="240" cy="40" r="4"/>
+      <circle cx="60" cy="90" r="4"/><circle cx="120" cy="90" r="4"/><circle cx="180" cy="90" r="4"/><circle cx="240" cy="90" r="4"/>
+    </g>
+    <line x1="70" y1="65" x2="250" y2="65" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="255,65 242,59 242,71" fill="#ef4444"/>
+    <text x="160" y="55" fill="#dc2626" font-weight="bold" font-size="12" text-anchor="middle">I = 4 A (L = 0.5 m)</text>
+    <text x="270" y="35" fill="#0284c7" font-weight="bold" font-size="11">B = 0.6 T ⊙</text>
+  </svg>
+</div>
+احسب مقدار القوة المغناطيسية (F) المؤثرة على السلك:`,
+    questionEn: "Calculate the magnetic force F on a 0.5 m wire carrying 4 A perpendicularly in a 0.6 T field:",
+    optionsAr: ["1.2 N", "2.4 N", "0.6 N", "4.8 N"],
+    optionsEn: ["1.2 N", "2.4 N", "0.6 N", "4.8 N"],
+    correctIndex: 0,
+    explanationAr: "القوة المغناطيسية المؤثرة على سلك: F = B · I · L · sin(θ) = 0.6 × 4 × 0.5 × sin(90°) = 1.2 N.",
+    explanationEn: "F = B · I · L · sin(90°) = 0.6 × 4 × 0.5 × 1 = 1.2 N.",
+  },
+  {
+    questionAr: "مكثف كهربائي سعته C = 10 μF شُحن حتى أصبح فرق الجهد بين لوحيه V = 200 V. ما مقدار الطاقة الكلية (U) المختزنة في مجاله الكهربائي؟",
+    questionEn: "A capacitor with capacitance C = 10 μF is charged to V = 200 V. What is the stored electrical energy U?",
+    optionsAr: ["0.2 J", "2.0 J", "0.02 J", "4.0 J"],
+    optionsEn: ["0.2 J", "2.0 J", "0.02 J", "4.0 J"],
+    correctIndex: 0,
+    explanationAr: "طاقة المكثف: U = 0.5 · C · V² = 0.5 × (10 × 10⁻⁶ F) × (200 V)² = 5 × 10⁻⁶ × 40000 = 0.2 J.",
+    explanationEn: "Stored energy: U = 0.5 · C · V² = 0.5 × (10 × 10⁻⁶) × 40000 = 0.2 J.",
+  },
 ];
 
 const MATH_BANK: any[] = [
@@ -208,6 +264,33 @@ const MATH_BANK: any[] = [
     correctIndex: 0,
     explanationAr: "log₂(x(x - 2)) = 3 => x² - 2x = 2³ = 8 => x² - 2x - 8 = 0 => (x - 4)(x + 2) = 0. بما أن مجال اللوغاريتم x > 2 فإن الحل المقبول هو x = 4 فقط ويهمل الحل السالب.",
     explanationEn: "x(x - 2) = 8 => x = 4 (positive domain required).",
+  },
+  {
+    questionAr: "أوجد القيمة العظمى المطلقة للدالة f(x) = -x² + 6x - 5 على الفترة [0, 5]:",
+    questionEn: "Find the absolute maximum value of f(x) = -x² + 6x - 5 on [0, 5]:",
+    optionsAr: ["4", "5", "0", "9"],
+    optionsEn: ["4", "5", "0", "9"],
+    correctIndex: 0,
+    explanationAr: "المشتقة الأولى: f'(x) = -2x + 6 = 0 => x = 3. النقطة الحرجة تنتمي للفترة. التعويض: f(3) = -(9) + 18 - 5 = 4. وعند الأطراف: f(0) = -5, f(5) = 0. إذن القيمة العظمى المطلقة هي 4.",
+    explanationEn: "f'(x) = -2x + 6 = 0 => x = 3. f(3) = 4, f(0) = -5, f(5) = 0. Absolute max is 4.",
+  },
+  {
+    questionAr: "أوجد معادلة الخط المستقيم المار بالنقطتين A(1, 3) و B(4, 9):",
+    questionEn: "Find the equation of the straight line passing through A(1, 3) and B(4, 9):",
+    optionsAr: ["y = 2x + 1", "y = 3x - 1", "y = 2x - 1", "y = 3x + 1"],
+    optionsEn: ["y = 2x + 1", "y = 3x - 1", "y = 2x - 1", "y = 3x + 1"],
+    correctIndex: 0,
+    explanationAr: "ميل المستقيم: m = (9 - 3) / (4 - 1) = 6 / 3 = 2. معادلة المستقيم: y - 3 = 2(x - 1) => y = 2x + 1.",
+    explanationEn: "Slope m = 6 / 3 = 2. Line equation: y - 3 = 2(x - 1) => y = 2x + 1.",
+  },
+  {
+    questionAr: "احسب نهاية الدالة الآتية: lim (x → 2) للكسر [(x² - 4) / (x - 2)]:",
+    questionEn: "Evaluate the limit lim (x → 2) [(x² - 4) / (x - 2)]:",
+    optionsAr: ["4", "2", "0", "غير معرفة (Undefined)"],
+    optionsEn: ["4", "2", "0", "Undefined"],
+    correctIndex: 0,
+    explanationAr: "تحليل البسط كفرق بين مربعين: (x - 2)(x + 2) / (x - 2) = x + 2. بالتعويض المباشر بـ x = 2: 2 + 2 = 4.",
+    explanationEn: "Factoring numerator: (x - 2)(x + 2)/(x - 2) = x + 2. Limit as x->2 is 2 + 2 = 4.",
   },
 ];
 
@@ -400,50 +483,50 @@ function selectQuestionsForExam(count: number, topicHint: string): ExtractedQues
   } else {
     // If a custom lesson topic was specified:
     const cleanTopic = topicHint.split("\n")[0].slice(0, 60).trim();
-    if (cleanTopic.length > 5) {
-      // Synthesize topic-specific conceptual questions matching the teacher's lesson title
+    if (cleanTopic.length > 5 && !/رياضيات|فيزياء|physics|math|علوم|علمي/i.test(cleanTopic)) {
+      // Synthesize quantitative and calculation problems for the specific topic
       const customTopicQuestions: any[] = [];
-      const conceptualTemplates = [
+      const problemTemplates = [
         {
-          qAr: `وفقاً للمفاهيم الأساسية المقررة في درس (${cleanTopic})، ما هو التعريف أو المبدأ العلمي الأدق؟`,
-          qEn: `Regarding the fundamental concepts of (${cleanTopic}), what is the most accurate definition?`,
+          qAr: `مسألة حسابية وتطبيق مباشر على موضوع (${cleanTopic}): إذا كانت القيمة الابتدائية x₁ = 4 والقيمة المضافة x₂ = 12 بتطبيق معادلة التناسب، احسب الناتج النهائي:`,
+          qEn: `Calculation problem on (${cleanTopic}): Given initial value x₁ = 4 and addition x₂ = 12, calculate the result:`,
           optsAr: [
-            `المفهوم المعتمد رسمياً في المنهج الدراسي للدرس: ${cleanTopic}`,
-            "مفهوم مغاير ينطبق فقط في مجالات دراسية أخرى",
-            "فرضية نظرية لم تثبت صحتها عملياً",
-            "استنتاج عشوائي لا يستند إلى قوانين ومبادئ الدرس",
+            "16 وحدة قياس معتمدة",
+            "8 وحدات قياس",
+            "48 وحدة قياس",
+            "3 وحدات قياس",
           ],
-          expAr: `يركز هذا السؤال على استيعاب وتطبيق التعريفات والمفاهيم الجوهرية المقررة لموضوع (${cleanTopic}).`,
+          expAr: `خطوات الحل: بالتعويض المباشر في القانون: 4 + 12 = 16 وحدة قياس.`,
         },
         {
-          qAr: `عند تطبيق القواعد والمعادلات الخاصة بـ (${cleanTopic})، ما النتيجة المترتبة على مضاعفة المتغير المستقل؟`,
-          qEn: `When applying equations of (${cleanTopic}), what results from doubling the independent variable?`,
+          qAr: `في معادلة التغير لموضوع (${cleanTopic})، عند مضاعفة المتغير المستقل بمقدار الضعف (2×) مع ثبات باقي العوامل، فما التأثير على القيمة التابعة في التناسب الطردي؟`,
+          qEn: `In (${cleanTopic}), if the independent variable is doubled (2×) with other factors held constant, what happens in a direct proportional relation?`,
           optsAr: [
-            "تتغير القيمة التابعة وفق العلاقة الرياضية المباشرة المحددة في الدرس",
-            "تبقى القيمة التابعة ثابتة دون أي تأثر مطلقاً",
-            "تنعدم القيمة وتصل إلى الصفر المئوي فوراً",
-            "تتحول العلاقة إلى دالة عكسية غير منتظمة",
+            "تتضاعف قيمتها للضعف (تزداد بنسبة 100%)",
+            "تقل قيمتها إلى النصف (1/2)",
+            "تظل ثابتة تماماً دون أي تغيير",
+            "تنعدم القيمة لتصل إلى الصفر",
           ],
-          expAr: `العلاقات والمتغيرات في درس (${cleanTopic}) ترتبط بقوانين تناسب محددة وفق القاعدة المعتمدة.`,
+          expAr: `وفقاً لعلاقة التناسب الطردي المباشر y = k · x، فإن مضاعفة x تؤدي لمضاعفة y بنفس النسبة.`,
         },
         {
-          qAr: `أي من الخيارات التالية يعد التطبيق العملي والواقعي الأبرز لموضوع (${cleanTopic})؟`,
-          qEn: `Which of the following represents the most prominent practical application of (${cleanTopic})?`,
+          qAr: `من خلال التمثيل البياني للعلاقة في درس (${cleanTopic})، ما المدلول الفيزيائي أو الرياضي لميل المماس (Slope = Δy / Δx)؟`,
+          qEn: `From the graph in (${cleanTopic}), what does the slope (Δy / Δx) represent?`,
           optsAr: [
-            `التطبيقات والمسائل المنهجية المرتبطة بمحتوى (${cleanTopic})`,
-            "تطبيقات لا صلة لها بالمفاهيم المقررة في هذا الباب",
-            "نماذج افتراضية غير قابلة للقياس أو الاختبار",
-            "تجارب لم يتم إثبات نتائجها علمياً",
+            "معدل التغير اللحظي وثابت التناسب للعلاقة الرياضية",
+            "المساحة الكلية أسفل المنحنى",
+            "نقطة الأصل (0, 0) فقط",
+            "نسبة الخطأ العشوائي في القياس",
           ],
-          expAr: `تعتبر التطبيقات المنهجية هي المعيار الأساسي لتقييم فهم موضوع (${cleanTopic}).`,
+          expAr: `ميل المماس يعبر رياضياً وفيزيائياً عن المشتقة الأولى ومعدل التغير اللحظي Δy / Δx.`,
         },
       ];
 
       for (let i = 0; i < count; i++) {
-        const t = conceptualTemplates[i % conceptualTemplates.length];
+        const t = problemTemplates[i % problemTemplates.length];
         customTopicQuestions.push({
-          questionAr: `سؤال ${i + 1}: ${t.qAr}`,
-          questionEn: `Question ${i + 1}: ${t.qEn}`,
+          questionAr: t.qAr,
+          questionEn: t.qEn,
           optionsAr: t.optsAr,
           optionsEn: t.optsAr,
           correctIndex: 0,

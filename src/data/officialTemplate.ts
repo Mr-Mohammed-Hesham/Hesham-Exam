@@ -140,12 +140,12 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
         <button onclick="clearProgress()" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl font-medium transition shadow cursor-pointer" data-ar="🗑️ مسح التقدم" data-en="🗑️ Clear Progress">🗑️ مسح التقدم</button>
     </div>
 
-    <!-- 📝 غيّر عناوين الامتحان والوصف هنا -->
+    <!-- 📝 عناوين الامتحان والوصف المعتمد لمادتي الفيزياء والرياضيات -->
     <header class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg mb-8 border-4 border-teal-400">
         <div class="text-center">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" data-ar="📐 عنوان الامتحان الرئيسي" data-en="📐 Main Exam Title">📐 عنوان الامتحان الرئيسي</h1>
-            <h2 class="text-lg text-teal-600 font-semibold" data-ar="الصف والمادة (مثال: الصف التاسع - رياضيات)" data-en="Grade & Subject (e.g., Grade 9 - Math)">الصف والمادة (مثال: الصف التاسع - رياضيات)</h2>
-            <p class="text-sm text-gray-600 mt-2" data-ar="وصف مختصر لمحتوى الامتحان والمواضيع المغطاة" data-en="Brief description of exam content and covered topics">وصف مختصر لمحتوى الامتحان والمواضيع المغطاة</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" data-ar="📐 امتحان الفيزياء والرياضيات التفاعلي المتكامل" data-en="📐 Interactive Physics & Mathematics Integrated Exam">📐 امتحان الفيزياء والرياضيات التفاعلي المتكامل</h1>
+            <h2 class="text-lg text-teal-600 font-semibold" data-ar="الصف الثاني عشر / المرحلة الثانوية - فيزياء ورياضيات" data-en="Grade 12 / Secondary - Physics & Mathematics">الصف الثاني عشر / المرحلة الثانوية - فيزياء ورياضيات</h2>
+            <p class="text-sm text-gray-600 mt-2" data-ar="امتحان تفاعلي تطبيقي: مسائل حسابية دقيقة، معادلات وقوانين، رسوم بيانية SVG، ودوائر كهربية مع تصحيح فوري" data-en="Interactive STEM exam: Quantitative problems, formulas, SVG diagrams, circuits, and instant grading">امتحان تفاعلي تطبيقي: مسائل حسابية دقيقة، معادلات وقوانين، رسوم بيانية SVG، ودوائر كهربية مع تصحيح فوري</p>
             <p class="text-xs text-green-600 mt-2 font-semibold" data-ar="💾 يتم حفظ تقدمك تلقائياً" data-en="💾 Your progress is saved automatically">💾 يتم حفظ تقدمك تلقائياً</p>
         </div>
         <div class="mt-4 flex flex-wrap justify-center gap-4 text-sm text-gray-600">
@@ -157,12 +157,12 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
         </div>
     </header>
 
-    <!-- 📝 يمكنك إضافة صيغ أو ملاحظات هامة هنا، أو حذف هذا القسم إذا لم يكن بحاجة إليه -->
+    <!-- 📝 صيغ وقوانين أساسية للامتحان -->
     <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-teal-200 no-print" id="notes-formula-box">
-        <h3 class="font-bold text-lg mb-3 text-teal-700 text-center" data-ar="📐 ملاحظات أو صيغ هامة" data-en="📐 Important Notes or Formulae">📐 ملاحظات أو صيغ هامة</h3>
+        <h3 class="font-bold text-lg mb-3 text-teal-700 text-center" data-ar="📐 القوانين والصيغ الرياضية والفيزيائية الهامة" data-en="📐 Key Mathematical & Physical Formulas">📐 القوانين والصيغ الرياضية والفيزيائية الهامة</h3>
         <div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">
-            <div class="formula-box"><strong>ملاحظة 1:</strong> اقرأ السؤال بدقة واختر الإجابة الصحيحة</div>
-            <div class="formula-box"><strong>ملاحظة 2:</strong> يتم حفظ إجاباتك تلقائياً وتصحيحها فوراً</div>
+            <div class="formula-box"><strong>قوانين الحركة والقدرة:</strong> $F = m \cdot a \quad , \quad v = v_0 + a t \quad , \quad P = \frac{V^2}{R}$</div>
+            <div class="formula-box"><strong>قوانين الكهرباء والتفاضل:</strong> $V = I \cdot R \quad , \quad \frac{d}{dx}(x^n) = n x^{n-1} \quad , \quad \int x^n dx = \frac{x^{n+1}}{n+1}$</div>
         </div>
     </div>
 
@@ -327,24 +327,457 @@ function setupInputListeners() {
 }
 
 // =====================================================================
-// 📝 منطقة تعديل الأسئلة: قم بتعديل هذا الجزء فقط لإضافة امتحانك الجديد
+// 📝 بنك الأسئلة التفاعلية لمادتي الفيزياء والرياضيات (20 مسألة عبر 5 أقسام)
 // =====================================================================
 const originalExamData = {
     sections: [
         {
             id: 'sec1',
-            title: { ar: '🔹 الجزء 1: عنوان القسم الأول', en: '🔹 Part 1: Section One Title' },
+            title: { ar: '🔹 الجزء 1: الحركة الميكانيكية وقوانين نيوتن والتسارع', en: '🔹 Part 1: Mechanics, Kinematics & Newton Laws' },
             questions: [
                 {
-                    q: { ar: 'اكتب نص السؤال الأول هنا بالعربية', en: 'Write the first question text here in English' },
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill q-type-graph">دالة وعلاقة بيانية وتناسب</span><span class="q-law-pill">📐 d = Area under v-t graph</span></div>يوضح الرسم البياني المقابل منحنى (السرعة - الزمن) لسيارة تتحرك في خط مستقيم انطلاقاً من السكون:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 360 140" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;">
+    <rect width="360" height="140" fill="#f8fafc" rx="8"/>
+    <line x1="45" y1="110" x2="330" y2="110" stroke="#334155" stroke-width="2"/>
+    <line x1="45" y1="110" x2="45" y2="20" stroke="#334155" stroke-width="2"/>
+    <line x1="45" y1="35" x2="300" y2="35" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <line x1="150" y1="110" x2="150" y2="35" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <line x1="300" y1="110" x2="300" y2="35" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+    <polyline points="45,110 150,35 300,35" fill="none" stroke="#0d9488" stroke-width="3"/>
+    <circle cx="45" cy="110" r="3" fill="#0d9488"/>
+    <circle cx="150" cy="35" r="3" fill="#0d9488"/>
+    <circle cx="300" cy="35" r="3" fill="#0d9488"/>
+    <text x="35" y="40" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="end">20</text>
+    <text x="35" y="114" fill="#64748b" font-size="11" text-anchor="end">0</text>
+    <text x="150" y="126" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">4 s</text>
+    <text x="300" y="126" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">10 s</text>
+    <text x="45" y="15" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">v (m/s)</text>
+    <text x="340" y="114" fill="#0f766e" font-size="11" font-weight="bold">t (s)</text>
+  </svg>
+</div>
+احسب الإزاحة الكلية (d) التي قطعتها السيارة خلال الفترة الزمنية من t = 0 إلى t = 10 s:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill q-type-graph">Graph & Kinematics</span><span class="q-law-pill">📐 d = Area under curve</span></div>From the velocity-time graph, calculate the total displacement covered by the car from t = 0 to t = 10 s:\`
+                    },
                     options: [
-                        { ar: 'الخيار الأول', en: 'Option 1' },
-                        { ar: 'الخيار الثاني', en: 'Option 2' },
-                        { ar: 'الخيار الثالث', en: 'Option 3' },
-                        { ar: 'الخيار الرابع', en: 'Option 4' }
+                        { ar: "160 m", en: "160 m" },
+                        { ar: "200 m", en: "200 m" },
+                        { ar: "120 m", en: "120 m" },
+                        { ar: "140 m", en: "140 m" }
                     ],
                     correct: 0,
-                    answer: { ar: 'اكتب شرح الإجابة الصحيحة هنا بالعربية', en: 'Write the explanation of the correct answer here in English' }
+                    answer: {
+                        ar: "الإزاحة في منحنى السرعة-الزمن تساوي المساحة الكلية تحت المنحنى: مساحة المثلث (0 إلى 4 ثوانٍ) = 0.5 × 4 × 20 = 40 m. مساحة المستطيل (4 إلى 10 ثوانٍ) = (10 - 4) × 20 = 120 m. الإزاحة الكلية d = 40 + 120 = 160 m.",
+                        en: "Displacement is the area under the v-t curve: Triangle (0 to 4s) = 0.5 × 4 × 20 = 40 m. Rectangle (4 to 10s) = 6 × 20 = 120 m. Total displacement = 40 + 120 = 160 m."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 d = v₀t + 0.5at²</span></div>تتحرك سيارة بسرعة ابتدائية $v_0 = 10\\text{ m/s}$ في خط مستقيم بتسارع منتظم $a = 3\\text{ m/s}^2$. ما المسافة التي تقطعها خلال زمن $t = 4\\text{ s}$؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 d = v₀t + 0.5at²</span></div>A car moves with initial velocity v₀ = 10 m/s with constant acceleration a = 3 m/s². What distance does it cover in t = 4 s?\`
+                    },
+                    options: [
+                        { ar: "64 m", en: "64 m" },
+                        { ar: "52 m", en: "52 m" },
+                        { ar: "40 m", en: "40 m" },
+                        { ar: "24 m", en: "24 m" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "من معادلة الحركة الثانية: $d = v_0 t + \\frac{1}{2} a t^2 = 10(4) + 0.5(3)(4^2) = 40 + 0.5(3)(16) = 40 + 24 = 64\\text{ m}$.",
+                        en: "From the second kinematic equation: d = v₀t + 0.5at² = 10(4) + 0.5(3)(16) = 40 + 24 = 64 m."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 F = m · a , v² = 2ad</span></div>تؤثر قوة أفقية ثابتة مقدارها $F = 40\\text{ N}$ على جسم كتلته $m = 5\\text{ kg}$ موضوع على سطح أفقي أملس عديم الاحتكاك. احسب سرعة الجسم ($v$) بعد قطعه مسافة $d = 4\\text{ m}$ بدءاً من السكون:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 F = m · a , v² = 2ad</span></div>A horizontal force F = 40 N acts on a 5 kg mass on a frictionless surface. What is its velocity after moving d = 4 m from rest?\`
+                    },
+                    options: [
+                        { ar: "8 m/s", en: "8 m/s" },
+                        { ar: "4 m/s", en: "4 m/s" },
+                        { ar: "16 m/s", en: "16 m/s" },
+                        { ar: "6.4 m/s", en: "6.4 m/s" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "أولاً نحسب التسارع: $a = F / m = 40 / 5 = 8\\text{ m/s}^2$. ثانياً من معادلة الحركة: $v^2 = v_0^2 + 2ad = 0 + 2(8)(4) = 64 \\implies v = \\sqrt{64} = 8\\text{ m/s}$.",
+                        en: "Acceleration a = F / m = 40 / 5 = 8 m/s². From kinematics: v² = 0 + 2(8)(4) = 64 => v = 8 m/s."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 F = Δp / Δt = m(v₂ - v₁) / t</span></div>جسم كتلته $m = 8\\text{ kg}$ يتحرك بسرعة $v_1 = 5\\text{ m/s}$. أثرت عليه قوة محصلة لمدة $t = 2\\text{ s}$ فأصبحت سرعته $v_2 = 15\\text{ m/s}$. احسب مقدار القوة المحصلة المؤثرة:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 F = Δp / Δt</span></div>An 8 kg mass accelerates from 5 m/s to 15 m/s in 2 seconds. What net force was applied?\`
+                    },
+                    options: [
+                        { ar: "40 N", en: "40 N" },
+                        { ar: "80 N", en: "80 N" },
+                        { ar: "20 N", en: "20 N" },
+                        { ar: "10 N", en: "10 N" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "التسارع: $a = \\Delta v / \\Delta t = (15 - 5) / 2 = 5\\text{ m/s}^2$. القوة المحصلة: $F = m \\cdot a = 8 \\times 5 = 40\\text{ N}$.",
+                        en: "Acceleration a = (15 - 5) / 2 = 5 m/s². Net force F = m · a = 8 × 5 = 40 N."
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sec2',
+            title: { ar: '🔹 الجزء 2: الدوائر الكهربائية وقانون أوم وتوصيل المقاومات', en: '🔹 Part 2: Electric Circuits & Ohm Law' },
+            questions: [
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill q-type-interactive">دائرة كهربائية وتطبيق تفاعلي</span><span class="q-law-pill">📐 I = V / R_eq</span></div>في الدائرة الكهربائية الموضحة بالرسم أدناه، وصلت مقاومتان متوازيتان ($R_1 = 6\\ \\Omega, R_2 = 3\\ \\Omega$) على التوالي مع مقاومة ثالثة ($R_3 = 2\\ \\Omega$) وبطارية فرق جهدها $V = 16\\text{ V}$. ما مقدار شدة التيار الكلي ($I$) المار في الدائرة؟
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 380 120" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:380px;">
+    <rect width="380" height="120" fill="#f8fafc" rx="8"/>
+    <rect x="30" y="20" width="320" height="80" fill="none" stroke="#0f766e" stroke-width="2.5" rx="4"/>
+    <line x1="30" y1="45" x2="30" y2="75" stroke="#f8fafc" stroke-width="5"/>
+    <line x1="20" y1="52" x2="40" y2="52" stroke="#0f766e" stroke-width="3"/>
+    <line x1="25" y1="62" x2="35" y2="62" stroke="#0f766e" stroke-width="1.5"/>
+    <text x="50" y="60" fill="#0f766e" font-weight="bold" font-size="12">V = 16V</text>
+    <rect x="90" y="12" width="55" height="16" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="117" y="24" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₃ = 2Ω</text>
+    <line x1="180" y1="20" x2="180" y2="6" stroke="#0f766e" stroke-width="2"/>
+    <line x1="180" y1="20" x2="180" y2="34" stroke="#0f766e" stroke-width="2"/>
+    <rect x="205" y="-1" width="55" height="15" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="232" y="11" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₁ = 6Ω</text>
+    <rect x="205" y="27" width="55" height="15" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+    <text x="232" y="39" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₂ = 3Ω</text>
+    <line x1="180" y1="6" x2="205" y2="6" stroke="#0f766e" stroke-width="2"/>
+    <line x1="180" y1="34" x2="205" y2="34" stroke="#0f766e" stroke-width="2"/>
+    <line x1="260" y1="6" x2="285" y2="6" stroke="#0f766e" stroke-width="2"/>
+    <line x1="260" y1="34" x2="285" y2="34" stroke="#0f766e" stroke-width="2"/>
+    <line x1="285" y1="6" x2="285" y2="34" stroke="#0f766e" stroke-width="2"/>
+    <line x1="285" y1="20" x2="350" y2="20" stroke="#0f766e" stroke-width="2"/>
+  </svg>
+</div>\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill q-type-interactive">Circuit Diagram</span><span class="q-law-pill">📐 I = V / R_eq</span></div>In the circuit shown, two parallel resistors (R₁ = 6 Ω, R₂ = 3 Ω) connect in series with R₃ = 2 Ω and a 16 V source. What is the total current I?\`
+                    },
+                    options: [
+                        { ar: "4 A", en: "4 A" },
+                        { ar: "2.67 A", en: "2.67 A" },
+                        { ar: "8 A", en: "8 A" },
+                        { ar: "1.6 A", en: "1.6 A" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "المقاومة المكافئة للتوازي: $R_p = (6 \\times 3) / (6 + 3) = 18 / 9 = 2\\ \\Omega$. المقاومة الكلية: $R_{eq} = R_p + R_3 = 2 + 2 = 4\\ \\Omega$. شدة التيار الكلي: $I = V / R_{eq} = 16 / 4 = 4\\text{ A}$.",
+                        en: "R_parallel = (6 × 3)/(6 + 3) = 2 Ω. R_total = 2 + 2 = 4 Ω. Current I = 16 / 4 = 4 A."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">تجربة عملية وجدول قياسات</span><span class="q-law-pill">📐 R = ΔV / ΔI</span></div>يوضح الجدول أدناه نتائج تجربة عملية لقياس فرق الجهد ($V$) وشدة التيار ($I$) المار في موصل فلزي أومي:
+<div class="exam-table-container">
+  <table class="exam-table">
+    <thead>
+      <tr>
+        <th>فرق الجهد V (فولت)</th>
+        <td>2.0</td>
+        <td>4.0</td>
+        <td>6.0</td>
+        <td>8.0</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>شدة التيار I (أمبير)</th>
+        <td>0.5</td>
+        <td>1.0</td>
+        <td>1.5</td>
+        <td>2.0</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+طبق قانون أوم لحساب المقاومة الكهربائية ($R$) لهذا الموصل:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Experimental Data</span><span class="q-law-pill">📐 R = ΔV / ΔI</span></div>Based on the experimental measurements table for V and I across an ohmic conductor, calculate the electrical resistance R:\`
+                    },
+                    options: [
+                        { ar: "4.0 Ω", en: "4.0 Ω" },
+                        { ar: "0.25 Ω", en: "0.25 Ω" },
+                        { ar: "8.0 Ω", en: "8.0 Ω" },
+                        { ar: "2.0 Ω", en: "2.0 Ω" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "وفقاً لقانون أوم: $R = \\Delta V / \\Delta I$. بأخذ أي زوج من القيم: $R = (8.0 - 2.0) / (2.0 - 0.5) = 6.0 / 1.5 = 4.0\\ \\Omega$.",
+                        en: "According to Ohm's law: R = ΔV / ΔI = (8.0 - 2.0) / (2.0 - 0.5) = 4.0 Ω."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 P = V² / R ⟹ R = V² / P</span></div>مصباح كهربي كُتب عليه ($100\\text{ W} , 220\\text{ V}$). ما هي قيمة مقاومة فتيلة هذا المصباح أثناء تشغيله بالجهد الاسمي؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 R = V² / P</span></div>An electric lamp is rated (100 W, 220 V). What is the resistance of its filament when operating at rated voltage?\`
+                    },
+                    options: [
+                        { ar: "484 Ω", en: "484 Ω" },
+                        { ar: "220 Ω", en: "220 Ω" },
+                        { ar: "2.2 Ω", en: "2.2 Ω" },
+                        { ar: "48.4 Ω", en: "48.4 Ω" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "من قانون القدرة الكهربية: $P = V^2 / R \\implies R = V^2 / P = (220)^2 / 100 = 48400 / 100 = 484\\ \\Omega$.",
+                        en: "From the power formula: P = V² / R => R = (220)² / 100 = 48400 / 100 = 484 Ω."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 R = ρ · (L / A)</span></div>سلك نحاسي طوله $L = 20\\text{ m}$ ومساحة مقطعه العرضي $A = 2\\times 10^{-6}\\text{ m}^2$ ومقاومته النوعية $\\rho = 1.7\\times 10^{-8}\\ \\Omega\\cdot\\text{m}$. احسب المقاومة الكهربائية ($R$) للسلك:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 R = ρ · (L / A)</span></div>A copper wire of length 20 m has cross-section 2 × 10⁻⁶ m² and resistivity ρ = 1.7 × 10⁻⁸ Ω·m. Calculate its resistance: \`
+                    },
+                    options: [
+                        { ar: "0.17 Ω", en: "0.17 Ω" },
+                        { ar: "1.7 Ω", en: "1.7 Ω" },
+                        { ar: "0.017 Ω", en: "0.017 Ω" },
+                        { ar: "17 Ω", en: "17 Ω" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "تطبيق قانون المقاومة النوعية: $R = \\rho \\cdot (L / A) = (1.7\\times 10^{-8} \\times 20) / (2\\times 10^{-6}) = 34\\times 10^{-8} / 2\\times 10^{-6} = 17\\times 10^{-2} = 0.17\\ \\Omega$.",
+                        en: "R = ρ(L / A) = (1.7 × 10⁻⁸ × 20) / (2 × 10⁻⁶) = 0.17 Ω."
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sec3',
+            title: { ar: '🔹 الجزء 3: التفاضل والتكامل والتحليل الرياضي', en: '🔹 Part 3: Calculus & Mathematical Analysis' },
+            questions: [
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 f'(x) = d/dx(ax² + bx + c)</span></div>أوجد ميل المماس لمنحنى الدالة $f(x) = 2x^2 - 5x + 4$ عند النقطة التي إحداثيها السيني $x = 3$:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 f'(x) = d/dx</span></div>Find the slope of the tangent line to f(x) = 2x² - 5x + 4 at x = 3:\`
+                    },
+                    options: [
+                        { ar: "7", en: "7" },
+                        { ar: "11", en: "11" },
+                        { ar: "5", en: "5" },
+                        { ar: "9", en: "9" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "المشتقة الأولى تمثل ميل المماس: $f'(x) = 4x - 5$. بالتعويض بقيمة $x = 3$: $f'(3) = 4(3) - 5 = 12 - 5 = 7$.",
+                        en: "Slope of the tangent is f'(x) = 4x - 5. At x = 3: f'(3) = 4(3) - 5 = 7."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 ∫ x^n dx = x^(n+1)/(n+1)</span></div>احسب قيمة التكامل المحدود التالي: $\\int_{1}^{4} (3x^2 - 2x)\\ dx$:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Definite Integration</span></div>Evaluate the definite integral ∫ from 1 to 4 of (3x² - 2x) dx:\`
+                    },
+                    options: [
+                        { ar: "48", en: "48" },
+                        { ar: "63", en: "63" },
+                        { ar: "45", en: "45" },
+                        { ar: "52", en: "52" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "دالة التكامل الأصلية: $F(x) = [x^3 - x^2]$. بالتعويض بحدود التكامل: $F(4) - F(1) = (4^3 - 4^2) - (1^3 - 1^2) = (64 - 16) - (1 - 1) = 48 - 0 = 48$.",
+                        en: "Antiderivative: [x³ - x²]. From 1 to 4: (64 - 16) - (1 - 1) = 48."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">دالة وعلاقة بيانية وتناسب</span><span class="q-law-pill">📐 a(t) = s''(t)</span></div>إذا كانت دالة الموضع لجسم متحرك تُعطى بالعلاقة $s(t) = 2t^3 - 6t^2 + 10$ حيث $s$ بالأمتار و $t$ بالثواني، فما هو تسارع الجسم اللحظي عند $t = 2\\text{ s}$؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Second Derivative</span><span class="q-law-pill">📐 a(t) = s''(t)</span></div>Given position function s(t) = 2t³ - 6t² + 10, find instantaneous acceleration at t = 2 s:\`
+                    },
+                    options: [
+                        { ar: "12 m/s²", en: "12 m/s²" },
+                        { ar: "24 m/s²", en: "24 m/s²" },
+                        { ar: "0 m/s²", en: "0 m/s²" },
+                        { ar: "6 m/s²", en: "6 m/s²" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "السرعة هي المشتقة الأولى: $v(t) = s'(t) = 6t^2 - 12t$. التسارع هو المشتقة الثانية: $a(t) = v'(t) = 12t - 12$. عند $t = 2\\text{ s}$: $a(2) = 12(2) - 12 = 24 - 12 = 12\\text{ m/s}^2$.",
+                        en: "Velocity v(t) = 6t² - 12t. Acceleration a(t) = 12t - 12. At t = 2s: a(2) = 24 - 12 = 12 m/s²."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 log_b(x · y) = log_b(x) + log_b(y)</span></div>حل المعادلة اللوغاريتمية التالية في مجموعة الأعداد الحقيقية $\\mathbb{R}$: $\\log_2(x) + \\log_2(x - 2) = 3$:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Logarithmic Equations</span></div>Solve the equation in ℝ: log₂(x) + log₂(x - 2) = 3:\`
+                    },
+                    options: [
+                        { ar: "x = 4", en: "x = 4" },
+                        { ar: "x = -2, x = 4", en: "x = -2, x = 4" },
+                        { ar: "x = 8", en: "x = 8" },
+                        { ar: "x = 3", en: "x = 3" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "$\\log_2(x(x - 2)) = 3 \\implies x^2 - 2x = 2^3 = 8 \\implies x^2 - 2x - 8 = 0 \\implies (x - 4)(x + 2) = 0$. بما أن مجال اللوغاريتم يشترط $x > 2$، فإن الحل المقبول هو $x = 4$ فقط ويهمل الحل السالب.",
+                        en: "log₂(x(x - 2)) = 3 => x² - 2x = 8 => (x - 4)(x + 2) = 0. Since domain requires x > 2, x = 4 is the only valid solution."
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sec4',
+            title: { ar: '🔹 الجزء 4: المتجهات وحساب المثلثات والهندسة', en: '🔹 Part 4: Vectors, Trigonometry & Geometry' },
+            questions: [
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill q-type-graph">هندسة وحساب مثلثات</span><span class="q-law-pill">📐 c = √(a² + b²) , sin(θ) = b / c</span></div>في المثلث القائم الزاوية الموضح بالشكل أدناه، طول الضلع المجاور $a = 6\\text{ cm}$، وطول الضلع المقابل $b = 8\\text{ cm}$:
+<div class="exam-diagram-container">
+  <svg viewBox="0 0 320 140" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;">
+    <rect width="320" height="140" fill="#f8fafc" rx="8"/>
+    <polygon points="50,115 230,115 50,25" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+    <rect x="50" y="102" width="13" height="13" fill="none" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="140" y="132" fill="#0369a1" font-weight="bold" font-size="12" text-anchor="middle">a = 6 cm</text>
+    <text x="35" y="75" fill="#0369a1" font-weight="bold" font-size="12" text-anchor="end">b = 8 cm</text>
+    <text x="155" y="65" fill="#dc2626" font-weight="bold" font-size="13">c = ?</text>
+    <text x="195" y="108" fill="#0369a1" font-weight="bold" font-size="12">θ</text>
+  </svg>
+</div>
+احسب طول الوتر ($c$) ثم أوجد قيمة الجيب $\\sin(\\theta)$ للزاوية الموضحة:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill q-type-graph">Geometry</span><span class="q-law-pill">📐 Pythagoras & Trig</span></div>In the right triangle shown with adjacent side a = 6 cm and opposite side b = 8 cm, find the hypotenuse c and sin(θ):\`
+                    },
+                    options: [
+                        { ar: "c = 10 cm, sin(θ) = 0.8", en: "c = 10 cm, sin(θ) = 0.8" },
+                        { ar: "c = 10 cm, sin(θ) = 0.6", en: "c = 10 cm, sin(θ) = 0.6" },
+                        { ar: "c = 14 cm, sin(θ) = 0.8", en: "c = 14 cm, sin(θ) = 0.8" },
+                        { ar: "c = 12 cm, sin(θ) = 0.5", en: "c = 12 cm, sin(θ) = 0.5" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "من مبرهنة فيثاغورس: $c = \\sqrt{6^2 + 8^2} = \\sqrt{36 + 64} = \\sqrt{100} = 10\\text{ cm}$. جيب الزاوية: $\\sin(\\theta) = \\text{المقابل} / \\text{الوتر} = 8 / 10 = 0.8$.",
+                        en: "c = √(6² + 8²) = 10 cm. sin(θ) = opposite / hypotenuse = 8 / 10 = 0.8."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 A · B = AxBx + AyBy</span></div>إذا كان المتجهان $\\vec{A} = (3\\hat{i} + 4\\hat{j})$ و $\\vec{B} = (2\\hat{i} - 1\\hat{j})$، فما هي قيمة حاصل الضرب القياسي (العددي) $\\vec{A} \\cdot \\vec{B}$؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Vector Dot Product</span></div>Given vectors A = 3i + 4j and B = 2i - 1j, what is the scalar dot product A · B?\`
+                    },
+                    options: [
+                        { ar: "2", en: "2" },
+                        { ar: "10", en: "10" },
+                        { ar: "14", en: "14" },
+                        { ar: "-2", en: "-2" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "الضرب القياسي: $\\vec{A} \\cdot \\vec{B} = A_x B_x + A_y B_y = (3)(2) + (4)(-1) = 6 - 4 = 2$.",
+                        en: "A · B = AxBx + AyBy = (3)(2) + (4)(-1) = 6 - 4 = 2."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 cos(2θ) = 1 - 2sin²(θ)</span></div>إذا كانت $\\sin(\\theta) = 0.6$ حيث $\\theta$ زاوية حادة في الربع الأول، فما هي القيمة الدقيقة لـ $\\cos(2\\theta)$؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Double Angle Identity</span></div>If sin(θ) = 0.6 in the first quadrant, what is the exact value of cos(2θ)?\`
+                    },
+                    options: [
+                        { ar: "0.28", en: "0.28" },
+                        { ar: "0.64", en: "0.64" },
+                        { ar: "0.80", en: "0.80" },
+                        { ar: "0.36", en: "0.36" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "باستخدام متطابقة ضعف الزاوية: $\\cos(2\\theta) = 1 - 2\\sin^2(\\theta) = 1 - 2(0.6)^2 = 1 - 2(0.36) = 1 - 0.72 = 0.28$.",
+                        en: "Using the double-angle identity: cos(2θ) = 1 - 2sin²(θ) = 1 - 2(0.36) = 0.28."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 F = B · I · L · sin(θ)</span></div>سلك مستقيم طوله $L = 0.5\\text{ m}$ يمر به تيار $I = 4\\text{ A}$ موضوع عمودياً في مجال مغناطيسي منتظم شدته $B = 0.6\\text{ T}$. احسب القوة المغناطيسية المؤثرة على السلك:\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 F = B · I · L · sin(θ)</span></div>A straight wire of length 0.5 m carrying 4 A is placed perpendicular in a 0.6 T magnetic field. Calculate the magnetic force:\`
+                    },
+                    options: [
+                        { ar: "1.2 N", en: "1.2 N" },
+                        { ar: "2.4 N", en: "2.4 N" },
+                        { ar: "0.6 N", en: "0.6 N" },
+                        { ar: "4.8 N", en: "4.8 N" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "قانون القوة المغناطيسية: $F = B \\cdot I \\cdot L \\cdot \\sin(90^\\circ) = 0.6 \\times 4 \\times 0.5 \\times 1 = 1.2\\text{ N}$.",
+                        en: "Magnetic force: F = B · I · L · sin(90°) = 0.6 × 4 × 0.5 = 1.2 N."
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sec5',
+            title: { ar: '🔹 الجزء 5: الشغل والطاقة والموجات والفيزياء الحديثة', en: '🔹 Part 5: Energy, Waves & Modern Physics' },
+            questions: [
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 W = ΔKE = -0.5 m v²</span></div>سيارة كتلتها $m = 1200\\text{ kg}$ تسير بسرعة $v = 20\\text{ m/s}$. ضغط السائق على المكابح حتى توقفت تماماً. ما مقدار الشغل الكلي المبذول بواسطة قوة الاحتكاك لإيقاف السيارة؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 W = ΔKE</span></div>A 1200 kg car moving at 20 m/s comes to a complete stop. What is the work done by the braking friction force?\`
+                    },
+                    options: [
+                        { ar: "-240 kJ", en: "-240 kJ" },
+                        { ar: "-120 kJ", en: "-120 kJ" },
+                        { ar: "-480 kJ", en: "-480 kJ" },
+                        { ar: "240 kJ", en: "240 kJ" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "نظرية الشغل والطاقة: $W = \\Delta KE = 0 - \\frac{1}{2} m v^2 = -0.5 \\times 1200 \\times (20)^2 = -600 \\times 400 = -240,000\\text{ J} = -240\\text{ kJ}$.",
+                        en: "Work-energy theorem: W = ΔKE = -0.5 × 1200 × (20)² = -240,000 J = -240 kJ."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 v = λ · f ⟹ λ = 2d</span></div>موجة مستعرضة ترددها $f = 50\\text{ Hz}$ والمسافة الأفقية بين قمة وقاع متتاليين تساوي $0.4\\text{ m}$. ما هي سرعة انتشار هذه الموجة؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 v = λ · f</span></div>A transverse wave has frequency f = 50 Hz and crest-to-trough horizontal distance is 0.4 m. What is its propagation speed?\`
+                    },
+                    options: [
+                        { ar: "40 m/s", en: "40 m/s" },
+                        { ar: "20 m/s", en: "20 m/s" },
+                        { ar: "80 m/s", en: "80 m/s" },
+                        { ar: "10 m/s", en: "10 m/s" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "المسافة بين قمة وقاع متتاليين تمثل نصف طول موجي ($\\lambda / 2 = 0.4\\text{ m} \\implies \\lambda = 0.8\\text{ m}$). سرعة انتشار الموجة: $v = \\lambda \\cdot f = 0.8 \\times 50 = 40\\text{ m/s}$.",
+                        en: "Distance between crest and trough is λ/2 = 0.4 m => λ = 0.8 m. Speed v = λ · f = 0.8 × 50 = 40 m/s."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 KE_max = E - W₀</span></div>سقط فوتون طاقته $E = 4.5\\text{ eV}$ على سطح فلز دالة الشغل له $W_0 = 2.5\\text{ eV}$. ما هي أقصى طاقة حركة ($KE_{max}$) للإلكترون الكهروضوئي المنبعث؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Photoelectric Effect</span></div>A photon with energy E = 4.5 eV strikes a metal surface with work function W₀ = 2.5 eV. What is the maximum kinetic energy KE_max?\`
+                    },
+                    options: [
+                        { ar: "2.0 eV", en: "2.0 eV" },
+                        { ar: "7.0 eV", en: "7.0 eV" },
+                        { ar: "1.8 eV", en: "1.8 eV" },
+                        { ar: "0 eV (لا ينبعث)", en: "0 eV (No emission)" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "معادلة أينشتاين للظاهرة الكهروضوئية: $KE_{max} = E - W_0 = 4.5\\text{ eV} - 2.5\\text{ eV} = 2.0\\text{ eV}$. بما أن طاقة الفوتون أكبر من دالة الشغل تنبعث إلكترونات فوراً.",
+                        en: "Einstein's photoelectric equation: KE_max = E - W₀ = 4.5 - 2.5 = 2.0 eV."
+                    }
+                },
+                {
+                    q: {
+                        ar: \`<div class="q-meta-badges"><span class="q-category-pill">مسألة حسابية وتطبيق قانون</span><span class="q-law-pill">📐 C_eq = (C1·C2)/(C1+C2) , Q = C_eq · V</span></div>مكثفان سعة الأول $C_1 = 6\\ \\mu\\text{F}$ وسعة الثاني $C_2 = 3\\ \\mu\\text{F}$ متصلان على التوالي مع مصدر جهد $V = 18\\text{ V}$. ما مقدار الشحنة الكلية ($Q$) المتراكمة على المجموعة؟\`,
+                        en: \`<div class="q-meta-badges"><span class="q-category-pill">Applied Problem</span><span class="q-law-pill">📐 Capacitors in Series</span></div>Two capacitors C₁ = 6 μF and C₂ = 3 μF are connected in series with an 18 V source. Find total accumulated charge Q:\`
+                    },
+                    options: [
+                        { ar: "36 μC", en: "36 μC" },
+                        { ar: "162 μC", en: "162 μC" },
+                        { ar: "54 μC", en: "54 μC" },
+                        { ar: "18 μC", en: "18 μC" }
+                    ],
+                    correct: 0,
+                    answer: {
+                        ar: "السعة المكافئة للتوالي: $C_{eq} = (6 \\times 3) / (6 + 3) = 18 / 9 = 2\\ \\mu\\text{F}$. الشحنة الكلية: $Q = C_{eq} \\cdot V = 2\\ \\mu\\text{F} \\times 18\\text{ V} = 36\\ \\mu\\text{C}$.",
+                        en: "C_eq = (6 × 3) / (6 + 3) = 2 μF. Total charge Q = C_eq · V = 2 μF × 18 V = 36 μC."
+                    }
                 }
             ]
         }

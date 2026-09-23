@@ -50,6 +50,14 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({
   if (!isOpen) return null;
 
   const handleSave = () => {
+    if (backendUrl.trim().includes("github.io")) {
+      setTestStatus("error");
+      setTestMessage(
+        "تنبيه: GitHub Pages هي استضافة صفحات ثابتة وليست خادماً برمجياً (Backend). لاستخدام الذكاء الاصطناعي على GitHub Pages، اترك خانة الخادم فارغة وضع مفتاح Gemini API في الخانة الأولى بالأعلى."
+      );
+      return;
+    }
+
     setGeminiApiKey(apiKey);
     setCustomBackendUrl(backendUrl);
     setIsSaved(true);

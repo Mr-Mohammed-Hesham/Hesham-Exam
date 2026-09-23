@@ -395,7 +395,22 @@ export default function App() {
           } else {
             const textResp = await response.text();
             console.warn("Non-JSON response from server:", textResp.slice(0, 300));
-            throw new Error(`استجاب الخادم برمز غير متوقع (${response.status})`);
+            try {
+              data = JSON.parse(textResp);
+            } catch {
+              if (
+                textResp.includes("<!DOCTYPE") ||
+                textResp.includes("<html") ||
+                textResp.includes("<body")
+              ) {
+                throw new Error(
+                  "استجاب الخادم بصفحة ويب (HTML) بدلاً من واجهة برمجة التطبيقات (API). تأكد من صحة اتصال الخادم أو استخدم مفتاح Gemini المجاني في زر 'الربط و Gemini'."
+                );
+              }
+              throw new Error(
+                `استجاب الخادم برد غير متوقع (${response.status})`
+              );
+            }
           }
 
           if (!response.ok || !data.success) {
@@ -408,7 +423,7 @@ export default function App() {
             generationMode,
           };
         } catch (fetchError: any) {
-          console.warn("Backend call failed, checking text fallback:", fetchError);
+          console.warn("Backend call failed, checking fallback:", fetchError);
           if (hasText) {
             res = generateClientExam({
               images: payloadImages,
@@ -424,9 +439,16 @@ export default function App() {
             usedClientEngine = true;
           } else {
             // Strictly avoid random questions when backend fails on images
+            const errStr = fetchError?.message || "";
+            const isHtmlOrUnexpected =
+              errStr.includes("HTML") ||
+              errStr.includes("غير متوقع") ||
+              errStr.includes("Failed to fetch");
+
             throw new Error(
-              fetchError.message ||
-                "تعذر استخراج الأسئلة من الصور المرفوعة. لضمان عدم توليد أي امتحان عشوائي لا يطابق مادتك، يرجى كتابة أو لصق نص الأسئلة أو إضافة مفتاح Gemini في زر 'الربط و Gemini' بالشريط العلوي."
+              isHtmlOrUnexpected
+                ? "تعذر الاتصال بخادم الذكاء الاصطناعي لاستخراج أسئلة الصور. لتشغيل الذكاء الاصطناعي مباشرة من متصفحك، يرجى إضافة مفتاح Gemini API المجاني عبر زر 'الربط و Gemini' في الشريط العلوي، أو كتابة نص الأسئلة في خانة 'نص الامتحان المكتوب'."
+                : errStr || "تعذر استخراج الأسئلة من الصور المرفوعة."
             );
           }
         }

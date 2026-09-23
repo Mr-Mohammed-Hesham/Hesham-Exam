@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
@@ -11,8 +10,7 @@ import { ensureExactQuestionCount } from "./src/utils/questionCountHelper";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 
 const app = express();
 const PORT = 3000;
@@ -649,12 +647,22 @@ function hydrateExamCodeWithQuestions({
 }
 
 // Health check (supports both /api/health and /Hesham-Exam/api/health)
-app.get(["/api/health", "/Hesham-Exam/api/health"], (_req, res) => {
-  res.json({ status: "ok", service: "Hesham Exam API", timestamp: new Date().toISOString() });
-});
+app.get(
+  ["/api/health", "/api/health/", "/Hesham-Exam/api/health", "/Hesham-Exam/api/health/"],
+  (_req, res) => {
+    res.json({ status: "ok", service: "Hesham Exam API", timestamp: new Date().toISOString() });
+  }
+);
 
 // Main endpoint: Generate exam code from image(s) + template code
-app.post(["/api/generate-exam-code", "/Hesham-Exam/api/generate-exam-code"], async (req, res) => {
+app.post(
+  [
+    "/api/generate-exam-code",
+    "/api/generate-exam-code/",
+    "/Hesham-Exam/api/generate-exam-code",
+    "/Hesham-Exam/api/generate-exam-code/",
+  ],
+  async (req, res) => {
   try {
     const {
       images = [], // array of { mimeType: string, data: string (base64) }
@@ -820,123 +828,111 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     parts.push({ text: promptText });
 
     const modelsToTry = [
-      "gemini-2.0-flash",
-      "gemini-1.5-flash",
-      "gemini-2.5-flash",
+      "gemini-3.6-flash",
+      "gemini-flash-lite-latest",
+      "gemini-3.5-flash-lite",
       "gemini-3.1-flash-lite",
-      "gemini-flash-latest",
       "gemini-3.8-flash",
+      "gemini-flash-latest",
     ];
     let lastError: any = null;
     let response: any = null;
 
     for (const modelName of modelsToTry) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          console.log(`[Hesham Exam AI] Analyzing image/file with model: ${modelName} (attempt ${attempt + 1})...`);
-          response = await ai.models.generateContent({
-            model: modelName,
-            contents: parts,
-            config: {
-              systemInstruction: systemPrompt,
-              responseMimeType: "application/json",
-              maxOutputTokens: 16384,
-              responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                  examTitle: {
-                    type: Type.STRING,
-                    description: "Title of the exam detected from the image/file topic",
-                  },
-                  detectedSubject: {
-                    type: Type.STRING,
-                    description: "Detected subject (e.g. Mathematics, Chemistry, Physics, English, Arabic, History)",
-                  },
-                  detectedLanguage: {
-                    type: Type.STRING,
-                    description: "The code language, e.g., html, python, javascript, json",
-                  },
-                  suggestedFileName: {
-                    type: Type.STRING,
-                    description: "Suggested file name with extension, e.g. exam_quiz.html or exam.py",
-                  },
-                  summary: {
-                    type: Type.STRING,
-                    description: "A friendly Arabic summary explaining that questions were generated 100% from the image/file only, highlighting the variety of problems, functions, and laws",
-                  },
-                  extractedQuestions: {
-                    type: Type.ARRAY,
-                    description: "Comprehensive list of questions covering quantitative problems, functions, graphs, tables, and laws",
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        number: { type: Type.INTEGER },
-                        question: { type: Type.STRING },
-                        questionAr: { type: Type.STRING },
-                        questionEn: { type: Type.STRING },
-                        type: { type: Type.STRING, description: "mcq, true_false, essay, or coding" },
-                        category: {
-                          type: Type.STRING,
-                          description: "Category: 'problem_and_law' (مسألة حسابية وتطبيق قانون), 'function_and_graph' (دالة وعلاقة بيانية وتناسب), 'practical_and_table' (تجربة عملية وجدول قياسات), or 'interactive_reasoning' (استنتاج وتطبيق تفاعلي)",
-                        },
-                        lawOrFormula: {
-                          type: Type.STRING,
-                          description: "The mathematical formula, function, or scientific law applied (e.g. 'V = I × R' or 'f(x) = ax² + bx + c' or 'F = m × a')",
-                        },
-                        diagramSvg: {
-                          type: Type.STRING,
-                          description: "If the question tests a graph, function curve, circuit, geometric figure, or mechanism, provide a clean inline SVG (<svg viewBox='0 0 360 160' class='exam-diagram' xmlns='http://www.w3.org/2000/svg'>...</svg>) with axes, arrows, and labels.",
-                        },
-                        tableHtml: {
-                          type: Type.STRING,
-                          description: "If the question is based on experimental data, measurements, truth tables, or coordinates, provide a clean HTML table (<table class='exam-table'>...</table>) with header and data rows.",
-                        },
-                        options: {
-                          type: Type.ARRAY,
-                          items: { type: Type.STRING },
-                        },
-                        optionsAr: {
-                          type: Type.ARRAY,
-                          items: { type: Type.STRING },
-                        },
-                        optionsEn: {
-                          type: Type.ARRAY,
-                          items: { type: Type.STRING },
-                        },
-                        correctAnswer: { type: Type.STRING },
-                        correctIndex: { type: Type.INTEGER },
-                        explanation: { type: Type.STRING },
-                        explanationAr: { type: Type.STRING },
-                        explanationEn: { type: Type.STRING },
-                        points: { type: Type.NUMBER },
+      try {
+        console.log(`[Hesham Exam AI] Analyzing image/file with model: ${modelName}...`);
+        response = await ai.models.generateContent({
+          model: modelName,
+          contents: parts,
+          config: {
+            systemInstruction: systemPrompt,
+            responseMimeType: "application/json",
+            maxOutputTokens: 16384,
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                examTitle: {
+                  type: Type.STRING,
+                  description: "Title of the exam detected from the image/file topic",
+                },
+                detectedSubject: {
+                  type: Type.STRING,
+                  description: "Detected subject (e.g. Mathematics, Chemistry, Physics, English, Arabic, History)",
+                },
+                detectedLanguage: {
+                  type: Type.STRING,
+                  description: "The code language, e.g., html, python, javascript, json",
+                },
+                suggestedFileName: {
+                  type: Type.STRING,
+                  description: "Suggested file name with extension, e.g. exam_quiz.html or exam.py",
+                },
+                summary: {
+                  type: Type.STRING,
+                  description: "A friendly Arabic summary explaining that questions were generated 100% from the image/file only, highlighting the variety of problems, functions, and laws",
+                },
+                extractedQuestions: {
+                  type: Type.ARRAY,
+                  description: "Comprehensive list of questions covering quantitative problems, functions, graphs, tables, and laws",
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      number: { type: Type.INTEGER },
+                      question: { type: Type.STRING },
+                      questionAr: { type: Type.STRING },
+                      questionEn: { type: Type.STRING },
+                      type: { type: Type.STRING, description: "mcq, true_false, essay, or coding" },
+                      category: {
+                        type: Type.STRING,
+                        description: "Category: 'problem_and_law' (مسألة حسابية وتطبيق قانون), 'function_and_graph' (دالة وعلاقة بيانية وتناسب), 'practical_and_table' (تجربة عملية وجدول قياسات), or 'interactive_reasoning' (استنتاج وتطبيق تفاعلي)",
                       },
-                      required: ["number", "question", "options"],
+                      lawOrFormula: {
+                        type: Type.STRING,
+                        description: "The mathematical formula, function, or scientific law applied (e.g. 'V = I × R' or 'f(x) = ax² + bx + c' or 'F = m × a')",
+                      },
+                      diagramSvg: {
+                        type: Type.STRING,
+                        description: "If the question tests a graph, function curve, circuit, geometric figure, or mechanism, provide a clean inline SVG (<svg viewBox='0 0 360 160' class='exam-diagram' xmlns='http://www.w3.org/2000/svg'>...</svg>) with axes, arrows, and labels.",
+                      },
+                      tableHtml: {
+                        type: Type.STRING,
+                        description: "If the question is based on experimental data, measurements, truth tables, or coordinates, provide a clean HTML table (<table class='exam-table'>...</table>) with header and data rows.",
+                      },
+                      options: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      optionsAr: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      optionsEn: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      correctAnswer: { type: Type.STRING },
+                      correctIndex: { type: Type.INTEGER },
+                      explanation: { type: Type.STRING },
+                      explanationAr: { type: Type.STRING },
+                      explanationEn: { type: Type.STRING },
+                      points: { type: Type.NUMBER },
                     },
+                    required: ["number", "question", "options"],
                   },
                 },
-                required: ["examTitle", "extractedQuestions", "summary"],
               },
+              required: ["examTitle", "extractedQuestions", "summary"],
             },
-          });
-          if (response && response.text) {
-            console.log(`[Hesham Exam AI] Question extraction successful with model: ${modelName}`);
-            break;
-          }
-        } catch (err: any) {
-          lastError = err;
-          const isTransient = isTransientModelError(err);
-          if (isTransient && attempt === 0) {
-            console.log(`[Hesham Exam AI] Model ${modelName} hit transient capacity, waiting 1500ms before retry...`);
-            await new Promise((r) => setTimeout(r, 1500));
-            continue;
-          }
-          console.warn(`[Hesham Exam AI] Model ${modelName} issue:`, err?.message || err);
+          },
+        });
+        if (response && response.text) {
+          console.log(`[Hesham Exam AI] Question extraction successful with model: ${modelName}`);
           break;
         }
-      }
-
-      if (response && response.text) {
-        break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[Hesham Exam AI] Model ${modelName} issue:`, err?.status, err?.message || err);
+        // Instant cascade to the next available model
       }
     }
 

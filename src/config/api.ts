@@ -37,17 +37,24 @@ export function setGeminiApiKey(key: string): void {
 export function getCustomBackendUrl(): string {
   if (typeof window === "undefined") return "";
   try {
-    const saved = localStorage.getItem(CUSTOM_BACKEND_STORAGE_KEY) || "";
-    // Automatically purge internal dev container URLs which cannot accept external CORS
+    const saved = (localStorage.getItem(CUSTOM_BACKEND_STORAGE_KEY) || "").trim();
+    if (!saved) return "";
+
+    // Automatically purge internal dev container URLs which cannot accept external CORS,
+    // and purge GitHub Pages URLs (GitHub Pages is static hosting with NO backend API)
     if (
       saved.includes("ais-dev-") ||
       saved.includes("-dev-") ||
-      saved.includes("googleusercontent.com")
+      saved.includes("googleusercontent.com") ||
+      saved.includes("github.io") ||
+      saved === window.location.origin ||
+      saved === window.location.href ||
+      saved.includes(window.location.hostname)
     ) {
       localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
       return "";
     }
-    return saved;
+    return saved.replace(/\/$/, "");
   } catch {
     return "";
   }
@@ -63,9 +70,11 @@ export function setCustomBackendUrl(url: string): void {
       if (
         clean.includes("ais-dev-") ||
         clean.includes("-dev-") ||
-        clean.includes("googleusercontent.com")
+        clean.includes("googleusercontent.com") ||
+        clean.includes("github.io") ||
+        clean === window.location.origin
       ) {
-        // Do not allow setting internal dev URLs on external origins
+        // Do not allow setting internal dev URLs or static frontend hosts as backend
         localStorage.removeItem(CUSTOM_BACKEND_STORAGE_KEY);
       } else {
         localStorage.setItem(CUSTOM_BACKEND_STORAGE_KEY, clean);
@@ -124,11 +133,28 @@ export const API_ROUTES = {
     return (isRunningOnGitHubPages() || isExternalOrigin()) && !customUrl && !envUrl;
   },
   generateExamCode: () => {
-    const base = getApiBaseUrl();
-    return base ? `${base}/api/generate-exam-code` : "/api/generate-exam-code";
+    const customUrl = getCustomBackendUrl();
+    if (customUrl) {
+      return `${customUrl}/api/generate-exam-code`;
+    }
+    const envUrl = getApiBaseUrl();
+    if (envUrl) {
+      return `${envUrl}/api/generate-exam-code`;
+    }
+    // Respect Vite app base (e.g. /Hesham-Exam/)
+    const appBase = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+    return appBase ? `${appBase}/api/generate-exam-code` : "/api/generate-exam-code";
   },
   health: () => {
-    const base = getApiBaseUrl();
-    return base ? `${base}/api/health` : "/api/health";
+    const customUrl = getCustomBackendUrl();
+    if (customUrl) {
+      return `${customUrl}/api/health`;
+    }
+    const envUrl = getApiBaseUrl();
+    if (envUrl) {
+      return `${envUrl}/api/health`;
+    }
+    const appBase = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+    return appBase ? `${appBase}/api/health` : "/api/health";
   },
 };

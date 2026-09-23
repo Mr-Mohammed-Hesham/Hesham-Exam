@@ -154,31 +154,31 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
         <div class="flex items-start justify-between gap-3 mb-3">
           <h3 class="font-bold text-slate-800 text-sm md:text-base leading-relaxed">
             <span class="text-teal-600 font-extrabold ml-1">(1)</span>
-            <span id="q-text-0">ما هي الوحدة الدولية الأساسية لقياس شدة التيار الكهربائي؟</span>
+            <span id="q-text-0">في دائرة كهربائية موصل بها مقاومتان متوازيتان (R₁ = 6 Ω, R₂ = 3 Ω) على التوالي مع R₃ = 2 Ω وبطارية V = 16 V، ما شدة التيار الكلي (I) المار في الدائرة؟</span>
           </h3>
-          <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-bold shrink-0 border border-teal-200">20 درجات</span>
+          <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-bold shrink-0 border border-teal-200">20 درجة</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3" id="q-options-0">
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_0" value="0" onchange="selectAnswer(0, 0)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">الفولت (V)</span>
+            <span class="font-medium text-slate-800">4 A</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_0" value="1" onchange="selectAnswer(0, 1)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">الأمبير (A)</span>
+            <span class="font-medium text-slate-800">2.67 A</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_0" value="2" onchange="selectAnswer(0, 2)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">الأوم (Ω)</span>
+            <span class="font-medium text-slate-800">8 A</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_0" value="3" onchange="selectAnswer(0, 3)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">الكولوم (C)</span>
+            <span class="font-medium text-slate-800">1.6 A</span>
           </label>
         </div>
         <div id="explanation-0" class="hidden p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 font-medium">
-          💡 <strong>الإجابة الصحيحة:</strong> الأمبير (A)<br>
-          <span class="text-slate-600 mt-1 block">الأمبير (Ampere) هو الوحدة الدولية الأساسية المعتمدة في النظام الدولي (SI) لقياس شدة التيار.</span>
+          💡 <strong>الإجابة الصحيحة:</strong> 4 A<br>
+          <span class="text-slate-600 mt-1 block">مقاومة التوازي R_p = (6 × 3)/(6 + 3) = 2 Ω. المقاومة الكلية R_eq = 2 + 2 = 4 Ω. التيار I = V / R_eq = 16 / 4 = 4 A.</span>
         </div>
       </div>
 
@@ -187,31 +187,31 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
         <div class="flex items-start justify-between gap-3 mb-3">
           <h3 class="font-bold text-slate-800 text-sm md:text-base leading-relaxed">
             <span class="text-teal-600 font-extrabold ml-1">(2)</span>
-            <span id="q-text-1">النانومتر (1 nm) يعادل بالمتر:</span>
+            <span id="q-text-1">تحرك جسم من السكون بعجلة منتظمة a = 4 m/s² لمدة 5 ثوانٍ، احسب المسافة المقطوعة (d):</span>
           </h3>
-          <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-bold shrink-0 border border-teal-200">20 درجات</span>
+          <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-bold shrink-0 border border-teal-200">20 درجة</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3" id="q-options-1">
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_1" value="0" onchange="selectAnswer(1, 0)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">10^-6 m</span>
+            <span class="font-medium text-slate-800">50 m</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_1" value="1" onchange="selectAnswer(1, 1)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">10^-9 m</span>
+            <span class="font-medium text-slate-800">20 m</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_1" value="2" onchange="selectAnswer(1, 2)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">10^-12 m</span>
+            <span class="font-medium text-slate-800">100 m</span>
           </label>
           <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 cursor-pointer transition text-xs md:text-sm bg-white">
             <input type="radio" name="q_1" value="3" onchange="selectAnswer(1, 3)" class="w-4 h-4 text-teal-600 focus:ring-teal-500">
-            <span class="font-medium text-slate-800">10^9 m</span>
+            <span class="font-medium text-slate-800">40 m</span>
           </label>
         </div>
         <div id="explanation-1" class="hidden p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 font-medium">
-          💡 <strong>الإجابة الصحيحة:</strong> 10^-9 m<br>
-          <span class="text-slate-600 mt-1 block">البادئة نانو (nano) تعني الضرب في المعامل 10 أس سالب تسعة (10^-9).</span>
+          💡 <strong>الإجابة الصحيحة:</strong> 50 m<br>
+          <span class="text-slate-600 mt-1 block">من قانون الحركة: d = v₀t + 0.5 a t² = 0 + 0.5(4)(5²) = 2 × 25 = 50 m.</span>
         </div>
       </div>
     </div>
@@ -283,53 +283,53 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
     const questions = [
       {
         id: 1,
-        questionAr: "ما هي الوحدة الدولية الأساسية لقياس شدة التيار الكهربائي؟",
-        questionEn: "What is the SI base unit for measuring electric current intensity?",
-        optionsAr: ["الفولت (V)", "الأمبير (A)", "الأوم (Ω)", "الكولوم (C)"],
-        optionsEn: ["Volt (V)", "Ampere (A)", "Ohm (Ω)", "Coulomb (C)"],
-        correctAnswer: 1,
-        explanationAr: "الأمبير (Ampere) هو الوحدة الدولية الأساسية المعتمدة في النظام الدولي (SI) لقياس شدة التيار.",
-        explanationEn: "Ampere (A) is the SI base unit officially adopted for electric current."
+        questionAr: "في دائرة كهربائية موصل بها مقاومتان متوازيتان (R₁ = 6 Ω, R₂ = 3 Ω) على التوالي مع R₃ = 2 Ω وبطارية V = 16 V، ما شدة التيار الكلي (I) المار في الدائرة؟",
+        questionEn: "In a circuit with two parallel resistors (R₁ = 6 Ω, R₂ = 3 Ω) in series with R₃ = 2 Ω and a 16 V source, what is the total current (I)?",
+        optionsAr: ["4 A", "2.67 A", "8 A", "1.6 A"],
+        optionsEn: ["4 A", "2.67 A", "8 A", "1.6 A"],
+        correctAnswer: 0,
+        explanationAr: "مقاومة التوازي: R_p = (6 × 3)/(6 + 3) = 2 Ω. المقاومة الكلية: R_eq = 2 + 2 = 4 Ω. شدة التيار الكلي: I = V / R_eq = 16 / 4 = 4 A.",
+        explanationEn: "Parallel equivalent: R_p = 2 Ω. Total R_eq = 4 Ω. Total current I = V / R_eq = 16 / 4 = 4 A."
       },
       {
         id: 2,
-        questionAr: "النانومتر (1 nm) يعادل بالمتر:",
-        questionEn: "One nanometer (1 nm) in meters equals:",
-        optionsAr: ["10^-6 m", "10^-9 m", "10^-12 m", "10^9 m"],
-        optionsEn: ["10^-6 m", "10^-9 m", "10^-12 m", "10^9 m"],
-        correctAnswer: 1,
-        explanationAr: "البادئة نانو (nano) تعني الضرب في المعامل 10 أس سالب تسعة (10^-9).",
-        explanationEn: "The prefix nano represents a factor of 10^-9."
+        questionAr: "تحرك جسم من السكون بعجلة منتظمة a = 4 m/s² لمدة 5 ثوانٍ، احسب المسافة المقطوعة (d):",
+        questionEn: "A body starts from rest with uniform acceleration a = 4 m/s² for 5 seconds. Calculate displacement (d):",
+        optionsAr: ["50 m", "20 m", "100 m", "40 m"],
+        optionsEn: ["50 m", "20 m", "100 m", "40 m"],
+        correctAnswer: 0,
+        explanationAr: "من معادلة الحركة: d = v₀t + 0.5 a t² = 0 + 0.5(4)(25) = 50 m.",
+        explanationEn: "From kinematics: d = v₀t + 0.5 a t² = 0 + 0.5(4)(25) = 50 m."
       },
       {
         id: 3,
-        questionAr: "أي من الكميات الفيزيائية التالية تُعد كمية أساسية وليست مشتقة؟",
-        questionEn: "Which of the following physical quantities is a fundamental base quantity?",
-        optionsAr: ["السرعة", "القوة", "درجة الحرارة المطلقة", "الطاقة الحركية"],
-        optionsEn: ["Velocity", "Force", "Thermodynamic Temperature", "Kinetic Energy"],
-        correctAnswer: 2,
-        explanationAr: "درجة الحرارة بالكلفن من الكميات الأساسية السبع في النظام الدولي.",
-        explanationEn: "Thermodynamic temperature (in Kelvin) is one of the seven SI base quantities."
+        questionAr: "أوجد ميل المماس لمنحنى الدالة الرياضية f(x) = 2x² - 5x + 4 عند النقطة x = 3:",
+        questionEn: "Find the slope of the tangent line to the curve f(x) = 2x² - 5x + 4 at x = 3:",
+        optionsAr: ["7", "11", "5", "9"],
+        optionsEn: ["7", "11", "5", "9"],
+        correctAnswer: 0,
+        explanationAr: "المشتقة تمثل ميل المماس: f'(x) = 4x - 5. بالتعويض بـ x = 3: f'(3) = 4(3) - 5 = 12 - 5 = 7.",
+        explanationEn: "Derivative gives slope: f'(x) = 4x - 5. At x = 3: f'(3) = 7."
       },
       {
         id: 4,
-        questionAr: "البادئة ميجا (Mega) تعادل المعامل العددي:",
-        questionEn: "The prefix Mega corresponds to the numerical factor:",
-        optionsAr: ["10^3", "10^6", "10^9", "10^-6"],
-        optionsEn: ["10^3", "10^6", "10^9", "10^-6"],
-        correctAnswer: 1,
-        explanationAr: "الميجا تعادل مليون أو 10^6.",
-        explanationEn: "Mega denotes 1,000,000 or 10^6."
+        questionAr: "تؤثر قوة أفقية ثابتة F = 40 N على جسم كتلته m = 5 kg موضوع على سطح أملس. احسب سرعة الجسم (v) بعد قطع مسافة d = 4 m من السكون:",
+        questionEn: "A constant force F = 40 N acts on a 5 kg mass from rest on a frictionless surface. What is its velocity after d = 4 m?",
+        optionsAr: ["8 m/s", "4 m/s", "16 m/s", "6.4 m/s"],
+        optionsEn: ["8 m/s", "4 m/s", "16 m/s", "6.4 m/s"],
+        correctAnswer: 0,
+        explanationAr: "التسارع a = F / m = 40 / 5 = 8 m/s². السرعة: v² = 2ad = 2(8)(4) = 64 => v = √64 = 8 m/s.",
+        explanationEn: "Acceleration a = 40 / 5 = 8 m/s². v² = 2ad = 64 => v = 8 m/s."
       },
       {
         id: 5,
-        questionAr: "إذا كانت سرعة الضوء تساوي 300,000 km/s، فإنها تعادل بوحدة m/s:",
-        questionEn: "If the speed of light is 300,000 km/s, it equals in m/s:",
-        optionsAr: ["3 × 10^5 m/s", "3 × 10^8 m/s", "3 × 10^6 m/s", "3 × 10^11 m/s"],
-        optionsEn: ["3 × 10^5 m/s", "3 × 10^8 m/s", "3 × 10^6 m/s", "3 × 10^11 m/s"],
-        correctAnswer: 1,
-        explanationAr: "التحويل من كيلومتر إلى متر بالضرب في 10^3: (3 × 10^5) × 10^3 = 3 × 10^8 m/s.",
-        explanationEn: "Converting km to m by multiplying by 10^3 yields: 3 × 10^8 m/s."
+        questionAr: "احسب قيمة التكامل المحدود التالي: ∫ من 1 إلى 4 للدالة (3x² - 2x) dx:",
+        questionEn: "Evaluate the definite integral ∫ from 1 to 4 of (3x² - 2x) dx:",
+        optionsAr: ["48", "63", "45", "52"],
+        optionsEn: ["48", "63", "45", "52"],
+        correctAnswer: 0,
+        explanationAr: "دالة التكامل الأصلية [x³ - x²]. بالتعويض: (4³ - 4²) - (1³ - 1²) = (64 - 16) - 0 = 48.",
+        explanationEn: "Antiderivative: [x³ - x²]. (64 - 16) - 0 = 48."
       }
     ];
 
@@ -582,11 +582,12 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>امتحان تجريبي قديم - نموذج كود</title>
+  <title>امتحان تفاعلي للفيزياء والرياضيات - نموذج كود</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Cairo', sans-serif; }
+    .math-font { font-family: 'Times New Roman', serif; direction: ltr; display: inline-block; }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen py-10 px-4">
@@ -594,11 +595,11 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
       <div>
-        <h1 id="exam-title" class="text-2xl font-bold text-indigo-400">امتحان مادة البرمجة القديم</h1>
-        <p class="text-xs text-slate-400 mt-1">أجب عن جميع الأسئلة بدقة</p>
+        <h1 id="exam-title" class="text-2xl font-bold text-teal-400">امتحان الفيزياء والرياضيات التفاعلي</h1>
+        <p class="text-xs text-slate-400 mt-1">مسائل حسابية وقوانين ومعادلات مع تصحيح فوري</p>
       </div>
       <div class="text-left bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-sm font-mono text-emerald-400">
-        الوقت: <span id="timer">15:00</span>
+        الوقت: <span id="timer">30:00</span>
       </div>
     </div>
 
@@ -609,13 +610,13 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
         <span id="score-counter">الدرجة: 0</span>
       </div>
       <div class="w-full bg-slate-700 rounded-full h-2">
-        <div id="progress-bar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 33%"></div>
+        <div id="progress-bar" class="bg-teal-500 h-2 rounded-full transition-all duration-300" style="width: 33%"></div>
       </div>
     </div>
 
     <!-- Question Container -->
     <div id="quiz-container">
-      <h2 id="question-text" class="text-lg font-semibold text-white mb-4">ما هو ناتج 2 + 2 في بايثون؟</h2>
+      <h2 id="question-text" class="text-lg font-semibold text-white mb-4">تحرك جسم من السكون بعجلة منتظمة a = 4 m/s² لمدة 5 ثوانٍ، احسب سرعته النهائية (v) والمسافة (d):</h2>
       <div id="options-container" class="space-y-3">
         <!-- Options generated dynamically -->
       </div>
@@ -624,38 +625,38 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
     <!-- Actions -->
     <div class="mt-8 flex justify-between items-center pt-4 border-t border-slate-700">
       <button id="prev-btn" onclick="prevQuestion()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-40" disabled>السابق</button>
-      <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold text-white">التالي</button>
+      <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-sm font-semibold text-white">التالي</button>
     </div>
 
     <!-- Results Modal -->
     <div id="result-view" class="hidden text-center py-8">
       <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-bold">✓</div>
       <h2 class="text-2xl font-bold text-white mb-2">تم إنهاء الامتحان بنجاح!</h2>
-      <p id="final-score" class="text-xl text-indigo-300 font-semibold mb-6">درجتك: 3 / 3</p>
-      <button onclick="restartQuiz()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">إعادة الامتحان</button>
+      <p id="final-score" class="text-xl text-teal-300 font-semibold mb-6">درجتك: 3 / 3</p>
+      <button onclick="restartQuiz()" class="px-6 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">إعادة الامتحان</button>
     </div>
   </div>
 
   <script>
-    // بيانات الأسئلة القديمة (ستقوم المنصة باستبدالها بأسئلة الامتحان الجديد من الصورة)
+    // بنك مسائل الفيزياء والرياضيات التفاعلية
     const questions = [
       {
-        text: "ما هي لغة البرمجة الأكثر استخداماً في تطوير واجهات الويب التفاعلية؟",
-        options: ["Python", "JavaScript", "C++", "Ruby"],
-        correct: 1,
-        explanation: "جافاسكريبت هي اللغة الأساسية في المتصفح."
+        text: "تحرك جسم من السكون بعجلة منتظمة a = 4 m/s² لمدة 5 ثوانٍ، احسب سرعته النهائية (v) والمسافة المقطوعة (d):",
+        options: ["v = 20 m/s , d = 50 m", "v = 20 m/s , d = 100 m", "v = 10 m/s , d = 25 m", "v = 15 m/s , d = 40 m"],
+        correct: 0,
+        explanation: "السرعة: v = at = 4 × 5 = 20 m/s. المسافة: d = 0.5 a t² = 0.5 × 4 × 25 = 50 m."
       },
       {
-        text: "ما هو الوسم الصحيح لإنشاء رابط تشعبي في HTML؟",
-        options: ["<link>", "<a>", "<href>", "<route>"],
-        correct: 1,
-        explanation: "الوسم <a> (Anchor) يستخدم لإنشاء الروابط."
+        text: "في دائرة كهربائية موصل بها مقاومتان (6 Ω, 3 Ω) على التوازي مع بطارية 12 V، ما مقدار شدة التيار الكلي I؟",
+        options: ["6 A", "2 A", "4 A", "1.5 A"],
+        correct: 0,
+        explanation: "المقاومة المكافئة R_p = (6 × 3)/(6 + 3) = 2 Ω. التيار الكلي I = V / R = 12 / 2 = 6 A."
       },
       {
-        text: "أي من التالي ليس نوع بيانات أساسي (Primitive) في جافاسكريبت؟",
-        options: ["Number", "String", "Array", "Boolean"],
-        correct: 2,
-        explanation: "المصفوفات Array تعتبر كائنات Object وليست نوعاً أولياً."
+        text: "أوجد ميل المماس لمنحنى الدالة f(x) = 3x² - 5x + 7 عند النقطة التي إحداثيها x = 2:",
+        options: ["7", "12", "6", "1"],
+        correct: 0,
+        explanation: "المشتقة f'(x) = 6x - 5. بالتعويض بـ x = 2: f'(2) = 6(2) - 5 = 12 - 5 = 7."
       }
     ];
 
@@ -746,8 +747,8 @@ export const CODE_TEMPLATES: CodeTemplatePreset[] = [
     extension: "py",
     description: "كود بايثون متكامل يطرح الأسئلة في سطر الأوامر، يحسب النقاط، يعرض شريط تقدم وتقرير نهائي.",
     code: `"""
-نموذج كود قديم - سكربت امتحان بايثون
-Old Exam Template - Python CLI Quiz Runner
+امتحان تفاعلي للفيزياء والرياضيات - سكربت بايثون
+Interactive Physics & Mathematics Exam - Python CLI Runner
 """
 import sys
 import time
@@ -759,40 +760,40 @@ class Question:
         self.correct_index = correct_index
         self.explanation = explanation
 
-# مصفوفة الأسئلة القديمة التي سيتم استبدالها بأسئلة الامتحان الجديد
+# مصفوفة مسائل وقوانين الفيزياء والرياضيات التفاعلية
 QUESTIONS = [
     Question(
-        text="ما هي الدالة المستخدمة لطباعة النصوص في بايثون؟",
-        options=["echo()", "print()", "System.out.println()", "console.log()"],
-        correct_index=1,
-        explanation="الدالة print() هي الدالة القياسية للطباعة في Python."
+        text="تتحرك سيارة بسرعة ابتدائية v₀ = 10 m/s وبتسارع منتظم a = 3 m/s² لمدة t = 4 s. ما المسافة المقطوعة (d)؟",
+        options=["64 m", "52 m", "40 m", "24 m"],
+        correct_index=0,
+        explanation="القانون: d = v₀t + 0.5 a t² = 10(4) + 0.5(3)(16) = 40 + 24 = 64 m."
     ),
     Question(
-        text="أي من الهياكل التالية في بايثون غير قابلة للتعديل (Immutable)؟",
-        options=["List", "Dictionary", "Tuple", "Set"],
-        correct_index=2,
-        explanation="الـ Tuple هي بنية بيانات ثابتة لا يمكن تغيير عناصرها بعد إنشائها."
+        text="ما مقدار القوة المحصلة F المؤثرة على كتلة m = 5 kg لتكسبها تسارعاً a = 8 m/s²؟",
+        options=["40 N", "13 N", "1.6 N", "200 N"],
+        correct_index=0,
+        explanation="قانون نيوتن الثاني: F = m · a = 5 × 8 = 40 N."
     ),
     Question(
-        text="كيف تبدأ دالة (Function) في لغة بايثون؟",
-        options=["function myFunc():", "def myFunc():", "func myFunc():", "define myFunc():"],
-        correct_index=1,
-        explanation="تُستخدم الكلمة المحجوزة def لتعريف الدوال في Python."
+        text="أوجد المشتقة الأولى للدالة f(x) = 3x² - 5x + 4 عند النقطة x = 2:",
+        options=["7", "12", "6", "1"],
+        correct_index=0,
+        explanation="المشتقة: f'(x) = 6x - 5. بالتعويض بـ x = 2: f'(2) = 6(2) - 5 = 7."
     )
 ]
 
-def run_exam(exam_title="امتحان مادة البرمجة"):
+def run_exam(exam_title="امتحان الفيزياء والرياضيات"):
     print("=" * 60)
-    print(f"       📚 {exam_title}")
+    print(f"       📐 {exam_title}")
     print("=" * 60)
     print(f"عدد الأسئلة: {len(QUESTIONS)}")
-    print("أدخل رقم الخيار (1-4) واضغط Enter لكل سؤال.\\n")
+    print("أدخل رقم الخيار (1-4) واضغط Enter لكل مسألة.\\n")
 
     score = 0
     start_time = time.time()
 
     for idx, q in enumerate(QUESTIONS, 1):
-        print(f"\\n[سؤال {idx}/{len(QUESTIONS)}] {q.text}")
+        print(f"\\n[مسألة {idx}/{len(QUESTIONS)}] {q.text}")
         for opt_idx, opt in enumerate(q.options, 1):
             print(f"   {opt_idx}. {opt}")
 
@@ -807,19 +808,19 @@ def run_exam(exam_title="امتحان مادة البرمجة"):
                 print("⚠️ إدخال غير صالح، يرجى إدخال رقم.")
 
         if (choice - 1) == q.correct_index:
-            print("✅ إجابة صحيحة!")
+            print("✅ إجابة صحيحة ومحسوبة بدقة!")
             score += 1
         else:
             correct_opt = q.options[q.correct_index]
             print(f"❌ إجابة خاطئة. الإجابة الصحيحة هي: {correct_opt}")
             if q.explanation:
-                print(f"💡 توضيح: {q.explanation}")
+                print(f"💡 خطوات الحل: {q.explanation}")
 
     elapsed = round(time.time() - start_time, 1)
     percentage = round((score / len(QUESTIONS)) * 100, 1)
 
     print("\\n" + "=" * 60)
-    print("               🏁 نتيجة الامتحان")
+    print("               🏁 نتيجة امتحان الفيزياء والرياضيات")
     print("=" * 60)
     print(f"الدرجة النهائية: {score} من {len(QUESTIONS)} ({percentage}%)")
     print(f"الوقت المستغرق: {elapsed} ثانية")
@@ -831,7 +832,7 @@ def run_exam(exam_title="امتحان مادة البرمجة"):
     elif percentage >= 50:
         print("التقدير: ناجح ✔️")
     else:
-        print("التقدير: تحتاج للمزيد من المراجعة 📚")
+        print("التقدير: تحتاج للمزيد من التدريب على المسائل 📚")
     print("=" * 60)
 
 if __name__ == "__main__":
@@ -844,32 +845,35 @@ if __name__ == "__main__":
     category: "React / Frontend",
     language: "typescript",
     extension: "tsx",
-    description: "مكون ريأكت كامل مع State، عداد نقاط، خيارات تفاعلية وتصميم Tailwind عصري.",
+    description: "مكون ريأكت كامل مع State، عداد نقاط، خيارات تفاعلية وتصميم Tailwind عصري لمسائل الفيزياء والرياضيات.",
     code: `import React, { useState } from 'react';
 
 interface QuestionItem {
   id: number;
   question: string;
+  formula: string;
   options: string[];
   correctAnswer: number;
   explanation: string;
 }
 
-// بيانات الأسئلة القديمة
+// بنك مسائل الفيزياء والرياضيات التفاعلية
 const EXAM_QUESTIONS: QuestionItem[] = [
   {
     id: 1,
-    question: "ما هي الخاصية المسؤولة عن تمرير البيانات من المكون الأب إلى المكون الابن في React؟",
-    options: ["State", "Props", "Context", "Redux"],
-    correctAnswer: 1,
-    explanation: "تستخدم الـ Props لتمرير البيانات من المكونات الأب إلى الأبناء."
+    question: "في دائرة كهربائية موصل بها مقاومتان متوازيتان (6 Ω, 3 Ω) على التوالي مع مقاومة 2 Ω ومصدر جهد 16 V، ما شدة التيار الكلي I؟",
+    formula: "I = V / R_eq",
+    options: ["4 A", "2.67 A", "8 A", "1.6 A"],
+    correctAnswer: 0,
+    explanation: "المقاومة المكافئة: R_p = (6 × 3) / 9 = 2 Ω. المقاومة الكلية: R_eq = 2 + 2 = 4 Ω. التيار I = 16 / 4 = 4 A."
   },
   {
     id: 2,
-    question: "أي Hook يستخدم لإدارة التأثيرات الجانبية (Side Effects) في مكونات React؟",
-    options: ["useState", "useMemo", "useEffect", "useCallback"],
-    correctAnswer: 2,
-    explanation: "الـ useEffect هو الـ Hook القياسي لتنفيذ الـ Side Effects."
+    question: "أوجد ميل المماس لمنحنى الدالة f(x) = 2x² - 5x + 4 عند النقطة التي إحداثيها x = 3:",
+    formula: "f'(x) = 4x - 5",
+    options: ["7", "11", "5", "9"],
+    correctAnswer: 0,
+    explanation: "المشتقة الأولى تمثل الميل: f'(x) = 4x - 5. بالتعويض بـ x = 3: f'(3) = 4(3) - 5 = 7."
   }
 ];
 
@@ -897,12 +901,12 @@ export const ExamQuizComponent: React.FC = () => {
     return (
       <div className="max-w-lg mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center text-white">
         <h2 className="text-2xl font-bold mb-4">نتيجة الامتحان</h2>
-        <div className="text-4xl font-black text-indigo-400 mb-2">
+        <div className="text-4xl font-black text-teal-400 mb-2">
           {score} / {EXAM_QUESTIONS.length}
         </div>
         <button
           onClick={() => { setSelectedAnswers({}); setIsSubmitted(false); setCurrentIndex(0); }}
-          className="mt-6 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-medium"
+          className="mt-6 px-6 py-2.5 bg-teal-600 hover:bg-teal-500 rounded-xl font-medium"
         >
           إعادة المحاولة
         </button>
@@ -913,9 +917,9 @@ export const ExamQuizComponent: React.FC = () => {
   return (
     <div className="max-w-xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 text-white shadow-xl">
       <div className="flex justify-between items-center mb-6">
-        <span className="text-sm text-slate-400">سؤال {currentIndex + 1} من {EXAM_QUESTIONS.length}</span>
-        <span className="px-3 py-1 bg-indigo-950 text-indigo-400 border border-indigo-800 rounded-full text-xs font-mono">
-          React Exam
+        <span className="text-sm text-slate-400">مسألة {currentIndex + 1} من {EXAM_QUESTIONS.length}</span>
+        <span className="px-3 py-1 bg-teal-950 text-teal-400 border border-teal-800 rounded-full text-xs font-mono">
+          {currentQ.formula}
         </span>
       </div>
 
@@ -930,12 +934,12 @@ export const ExamQuizComponent: React.FC = () => {
               onClick={() => handleSelect(idx)}
               className={\`w-full text-right p-4 rounded-xl border transition-all text-sm flex items-center justify-between \${
                 isSelected
-                  ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200'
+                  ? 'bg-teal-600/30 border-teal-500 text-teal-200'
                   : 'bg-slate-800/60 border-slate-700 hover:bg-slate-800 text-slate-300'
               }\`}
             >
               <span>{option}</span>
-              <div className={\`w-4 h-4 rounded-full border \${isSelected ? 'bg-indigo-500 border-indigo-400' : 'border-slate-600'}\`} />
+              <div className={\`w-4 h-4 rounded-full border \${isSelected ? 'bg-teal-500 border-teal-400' : 'border-slate-600'}\`} />
             </button>
           );
         })}
@@ -959,7 +963,7 @@ export const ExamQuizComponent: React.FC = () => {
         ) : (
           <button
             onClick={() => setCurrentIndex(prev => prev + 1)}
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold"
+            className="px-6 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-sm font-semibold"
           >
             التالي
           </button>
@@ -976,45 +980,50 @@ export const ExamQuizComponent: React.FC = () => {
     category: "Data & Schema",
     language: "json",
     extension: "json",
-    description: "تنسيق JSON قياسي وموثق مناسب لمنصات التعليم الإلكتروني مثل Moodle، Google Forms، أو قواعد البيانات.",
+    description: "تنسيق JSON قياسي وموثق لمسائل الفيزياء والرياضيات مع القوانين والحلول النموذجية.",
     code: `{
   "examMetadata": {
-    "title": "امتحان البرمجة والذكاء الاصطناعي - نموذج قديم",
-    "courseCode": "CS201",
-    "totalMarks": 30,
-    "durationMinutes": 45,
-    "instructions": "اختر الإجابة الصحيحة لكل سؤال."
+    "title": "بنك مسائل الفيزياء والرياضيات التفاعلي",
+    "subject": "Physics & Mathematics",
+    "courseCode": "PHY-MATH-301",
+    "totalMarks": 100,
+    "durationMinutes": 60,
+    "instructions": "اختر الإجابة الصحيحة لكل مسألة بناءً على القوانين العلمية والخطوات الحسابية."
   },
   "questions": [
     {
       "id": "q1",
       "number": 1,
       "type": "multiple_choice",
-      "questionText": "ما هي الخوارزمية الأكثر شهرة في تدريب الشبكات العصبية العميقة؟",
+      "topic": "الدوائر الكهربائية وقانون أوم",
+      "lawOrFormula": "I = V / R_eq",
+      "questionText": "في دائرة موصل بها مقاومتان متوازيتان (6 Ω, 3 Ω) على التوالي مع 2 Ω ومصدر 16 V، ما شدة التيار الكلي؟",
       "choices": [
-        { "key": "A", "text": "Binary Search" },
-        { "key": "B", "text": "Backpropagation (الانتشار العكسي)" },
-        { "key": "C", "text": "Dijkstra" },
-        { "key": "D", "text": "K-Means" }
+        { "key": "A", "text": "4 A" },
+        { "key": "B", "text": "2.67 A" },
+        { "key": "C", "text": "8 A" },
+        { "key": "D", "text": "1.6 A" }
       ],
-      "correctAnswer": "B",
-      "points": 10,
-      "explanation": "خوارزمية Backpropagation مع Gradient Descent هي الأساس لتدريب الشبكات العصبية."
+      "correctAnswer": "A",
+      "points": 25,
+      "explanation": "المقاومة المكافئة R_p = (6 × 3) / 9 = 2 Ω. المقاومة الكلية R_eq = 2 + 2 = 4 Ω. شدة التيار I = 16 / 4 = 4 A."
     },
     {
       "id": "q2",
       "number": 2,
       "type": "multiple_choice",
-      "questionText": "أي من هذه المكتبات مخصصة لتعلم الآلة والشبكات العصبية في بايثون؟",
+      "topic": "حساب التفاضل وميل المماس",
+      "lawOrFormula": "f'(x) = dy/dx",
+      "questionText": "أوجد ميل المماس لمنحنى الدالة f(x) = 2x² - 5x + 4 عند النقطة x = 3:",
       "choices": [
-        { "key": "A", "text": "PyTorch" },
-        { "key": "B", "text": "Flask" },
-        { "key": "C", "text": "Django" },
-        { "key": "D", "text": "Requests" }
+        { "key": "A", "text": "7" },
+        { "key": "B", "text": "11" },
+        { "key": "C", "text": "5" },
+        { "key": "D", "text": "9" }
       ],
       "correctAnswer": "A",
-      "points": 10,
-      "explanation": "PyTorch و TensorFlow هما أشهر أطر العمل لتعلم الآلة والذكاء الاصطناعي."
+      "points": 25,
+      "explanation": "المشتقة f'(x) = 4x - 5. بالتعويض بـ x = 3: f'(3) = 4(3) - 5 = 7."
     }
   ]
 }`
@@ -1026,37 +1035,38 @@ export const ExamQuizComponent: React.FC = () => {
     category: "Academic & Print",
     language: "markdown",
     extension: "md",
-    description: "تنسيق أكاديمي فائق الدقة مناسب للطباعة الورقية أو التصدير كـ PDF مع ترويسة وسلالم الدرجات.",
-    code: `# جامعة العلوم والتقنية
-## كلية الحاسبات والمعلومات | الفصل الدراسي الأول
-### اسم المقرر: هندسة البرمجيات | الرمز: CS310
-**زمن الامتحان: ساعتان | الدرجة الكلية: 50 درجة**
+    description: "تنسيق أكاديمي فائق الدقة مناسب لمادتي الفيزياء والرياضيات مع المعادلات والرموز العلمية وسلالم الدرجات.",
+    code: `# ثانوية المتفوقين للعلوم والتكنولوجيا
+## قسم العلوم الدقيقة | امتحان الفيزياء والرياضيات الموحد
+### الصف الثالث الثانوي / الثاني عشر | نموذج امتحاني تفاعلي
+**زمن الامتحان: 60 دقيقة | الدرجة الكلية: 100 درجة**
 
 ---
 
-### تعليمات هامة:
-1. تأكد من كتابة اسمك ورقم جلوسك في ورقة الإجابة.
-2. أجب عن جميع الأسئلة التالية بوضع علامة (✓) أمام الإجابة الصحيحة.
+### القوانين والصيغ المرجعية:
+$$\\vec{F} = m \\cdot \\vec{a} \\quad , \\quad v^2 = v_0^2 + 2ad \\quad , \\quad V = I \\cdot R \\quad , \\quad \\frac{d}{dx}[x^n] = n x^{n-1} \\quad , \\quad \\int x^n dx = \\frac{x^{n+1}}{n+1}$$
 
 ---
 
-### السؤال الأول: اختر الإجابة الصحيحة (10 درجات لكل سؤال)
+### الأسئلة والمسائل الحسابية (اختر الإجابة الصحيحة):
 
-**1. أي من المراحل التالية هي الأولى في دورة حياة تطوير البرمجيات (SDLC)؟**
-- [ ] أ) كتابة الكود البرمجي (Implementation)
-- [x] ب) جمع وتحليل المتطلبات (Requirements Analysis)
-- [ ] ج) اختبار النظام (Testing)
-- [ ] د) الصيانة (Maintenance)
+**1. تؤثر قوة أفقية ثابتة مقدارها $F = 40\\text{ N}$ على كتلة $m = 5\\text{ kg}$ ساكنة على سطح أملس، فما سرعتها بعد قطع $d = 4\\text{ m}$؟**
+- [x] أ) $8\\text{ m/s}$
+- [ ] ب) $4\\text{ m/s}$
+- [ ] ج) $16\\text{ m/s}$
+- [ ] د) $6.4\\text{ m/s}$
 
-*نموذج الإجابة والتعليل:* جمع وتحليل المتطلبات هي حجر الأساس لأي مشروع برمجي.
+*خطوات الحل النموذجية:* التسارع $a = F/m = 40/5 = 8\\text{ m/s}^2$. من معادلة الحركة: $v = \\sqrt{2ad} = \\sqrt{2 \\times 8 \\times 4} = \\sqrt{64} = 8\\text{ m/s}$.
 
-**2. ما هو المبدأ الأساسي في منهجية أجايل (Agile)؟**
-- [ ] أ) التوثيق الشامل قبل البدء
-- [x] ب) التطوير التكراري والتكيف مع التغيير (Iterative & Flexible)
-- [ ] ج) الالتزام الصارم بالخطة دون تعديل
-- [ ] د) عزل الفريق عن العميل حتى التسليم النهائي
+---
 
-*نموذج الإجابة والتعليل:* تركز أجايل على التسليم المستمر والتجاوب السريع مع المتطلبات.
+**2. احسب قيمة التكامل المحدود: $\\int_{1}^{4} (3x^2 - 2x) dx$:**
+- [x] أ) $48$
+- [ ] ب) $63$
+- [ ] ج) $45$
+- [ ] د) $52$
+
+*خطوات الحل النموذجية:* الدالة الأصلية $F(x) = [x^3 - x^2]_1^4 = (4^3 - 4^2) - (1^3 - 1^2) = (64 - 16) - 0 = 48$.
 `
   }
 ];
