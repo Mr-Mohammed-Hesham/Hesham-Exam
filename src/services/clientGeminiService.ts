@@ -176,10 +176,12 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
   const modelsToTry = [
-    "gemini-3.6-flash",
+    "gemini-2.5-flash",
     "gemini-3.8-flash",
     "gemini-flash-latest",
     "gemini-3.1-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
   ];
 
   let lastError: any = null;
@@ -223,6 +225,19 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
         } catch {}
         lastError = new Error(errMsg);
         console.warn(`[Gemini Direct] Model ${modelName} returned error:`, errMsg);
+
+        // If high demand or rate limit, brief sleep before trying alternative model
+        const isTemporary =
+          response.status === 503 ||
+          response.status === 429 ||
+          errMsg.toLowerCase().includes("high demand") ||
+          errMsg.toLowerCase().includes("overloaded") ||
+          errMsg.toLowerCase().includes("resource");
+
+        if (isTemporary) {
+          console.warn(`[Gemini Direct] Temporary surge on ${modelName}, waiting 1.2s before trying fallback model...`);
+          await new Promise((r) => setTimeout(r, 1200));
+        }
         continue;
       }
 
@@ -238,6 +253,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
     } catch (err: any) {
       lastError = err;
       console.warn(`[Gemini Direct] Model ${modelName} fetch exception:`, err?.message || err);
+      await new Promise((r) => setTimeout(r, 800));
     }
   }
 
