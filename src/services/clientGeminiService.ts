@@ -138,9 +138,13 @@ Question Structure:
   * questionAr & questionEn (or bilingual).
   * 4 distinct options (optionsAr & optionsEn).
   * correctIndex (0, 1, 2, or 3).
-  * explanationAr & explanationEn with clear step-by-step reasoning.
+  * explanationAr & explanationEn with clear step-by-step reasoning and mathematical derivation.
   * points: integer score.
   * type: "mcq".
+  * category: "problem_and_law" (مسألة حسابية وتطبيق قانون) | "function_and_graph" (دالة وعلاقة بيانية وتناسب) | "practical_and_table" (تجربة عملية وجدول قياسات) | "interactive_reasoning" (استنتاج وتطبيق تفاعلي).
+  * lawOrFormula: The specific mathematical law, formula, or relationship tested (e.g. "V = I · R" or "d = v₀t + 0.5at²" or "f(x) = ax² + bx + c").
+  * diagramSvg: (Optional) If the question involves a graph, circuit, ray optics diagram, geometric triangle, or curve, provide a clean, complete, standalone inline SVG with responsive viewBox, axes, and labels.
+  * tableHtml: (Optional) If the question involves experimental data, coordinates, or measurement readings, provide an HTML <table> with headers.
 
 Return ONLY valid JSON matching this schema:
 {
@@ -153,6 +157,10 @@ Return ONLY valid JSON matching this schema:
       "questionAr": "string",
       "questionEn": "string",
       "type": "mcq",
+      "category": "problem_and_law",
+      "lawOrFormula": "string",
+      "diagramSvg": "string",
+      "tableHtml": "string",
       "options": ["string", "string", "string", "string"],
       "optionsAr": ["string", "string", "string", "string"],
       "optionsEn": ["string", "string", "string", "string"],
@@ -177,10 +185,12 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
   const defaultModelsToTry = [
+    "gemini-3.7-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-flash-lite-latest",
     "gemini-3.8-flash",
     "gemini-flash-latest",
-    "gemini-3.1-flash-lite",
-    "gemini-2.5-flash-preview-12-2025",
   ];
 
   let modelsToTry = [...defaultModelsToTry];
@@ -217,7 +227,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
       }
     }
   } catch (discoveryErr) {
-    console.warn("[Gemini Direct] Model discovery skipped, using default priority list:", discoveryErr);
+    console.log("[Gemini Direct] Model discovery skipped, using default priority list:", discoveryErr);
   }
 
   let lastError: any = null;
@@ -261,7 +271,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
           errMsg = parsed.error?.message || errMsg;
         } catch {}
         lastError = new Error(errMsg);
-        console.warn(`[Gemini Direct] Model ${cleanModel} returned error (${response.status}):`, errMsg);
+        console.log(`[Gemini Direct] Model ${cleanModel} returned (${response.status}):`, errMsg);
 
         // If high demand or rate limit, brief sleep before trying alternative model
         const isTemporary =
@@ -272,7 +282,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
           errMsg.toLowerCase().includes("resource");
 
         if (isTemporary) {
-          console.warn(`[Gemini Direct] Temporary surge on ${cleanModel}, waiting 1.2s before trying fallback model...`);
+          console.log(`[Gemini Direct] Temporary surge on ${cleanModel}, waiting 1.2s before trying fallback model...`);
           await new Promise((r) => setTimeout(r, 1200));
         }
         continue;
@@ -320,22 +330,43 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   }
 
   const rawQuestions: any[] = parsedData.questions || [];
-  const normalizedQuestions: ExtractedQuestion[] = rawQuestions.map((q, idx) => ({
-    number: q.number || idx + 1,
-    question: q.questionAr || q.question || `سؤال ${idx + 1}`,
-    questionAr: q.questionAr || q.question || `سؤال ${idx + 1}`,
-    questionEn: q.questionEn || q.question || `Question ${idx + 1}`,
-    type: "mcq",
-    options: q.optionsAr || q.options || ["أ", "ب", "ج", "د"],
-    optionsAr: q.optionsAr || q.options || ["أ", "ب", "ج", "د"],
-    optionsEn: q.optionsEn || q.options || ["A", "B", "C", "D"],
-    correctAnswer: typeof q.correctIndex === "number" ? q.correctIndex : q.correctAnswer || 0,
-    correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : q.correctAnswer || 0,
-    explanation: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
-    explanationAr: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
-    explanationEn: q.explanationEn || q.explanation || "Standard verified solution",
-    points: q.points || Math.round(100 / Math.max(1, questionCount)),
-  }));
+  const normalizedQuestions: ExtractedQuestion[] = rawQuestions.map((q, idx) => {
+    let cat = q.category || "problem_and_law";
+    let catLabel = "مسألة حسابية وتطبيق قانون";
+
+    if (cat === "function_and_graph" || (q.diagramSvg && typeof q.diagramSvg === "string" && q.diagramSvg.includes("<svg"))) {
+      cat = "function_and_graph";
+      catLabel = "دالة وعلاقة بيانية وتناسب";
+    } else if (cat === "practical_and_table" || (q.tableHtml && typeof q.tableHtml === "string" && q.tableHtml.includes("<table"))) {
+      cat = "practical_and_table";
+      catLabel = "تجربة عملية وجدول قياسات";
+    } else if (cat === "interactive_reasoning") {
+      cat = "interactive_reasoning";
+      catLabel = "استنتاج وتطبيق تفاعلي";
+    }
+
+    return {
+      number: q.number || idx + 1,
+      question: q.questionAr || q.question || `سؤال ${idx + 1}`,
+      questionAr: q.questionAr || q.question || `سؤال ${idx + 1}`,
+      questionEn: q.questionEn || q.question || `Question ${idx + 1}`,
+      type: "mcq",
+      category: cat,
+      categoryLabel: catLabel,
+      lawOrFormula: q.lawOrFormula || q.formula || "",
+      diagramSvg: q.diagramSvg || undefined,
+      tableHtml: q.tableHtml || undefined,
+      options: q.optionsAr || q.options || ["أ", "ب", "ج", "د"],
+      optionsAr: q.optionsAr || q.options || ["أ", "ب", "ج", "د"],
+      optionsEn: q.optionsEn || q.options || ["A", "B", "C", "D"],
+      correctAnswer: typeof q.correctIndex === "number" ? q.correctIndex : q.correctAnswer || 0,
+      correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : q.correctAnswer || 0,
+      explanation: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
+      explanationAr: q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة",
+      explanationEn: q.explanationEn || q.explanation || "Standard verified solution",
+      points: q.points || Math.round(100 / Math.max(1, questionCount)),
+    };
+  });
 
   const finalMeta = resolveExamTitleAndGrade({
     examTitle: parsedData.examTitle || resolvedMeta.title,

@@ -553,6 +553,11 @@ function selectQuestionsForExam(count: number, topicHint: string): ExtractedQues
       questionAr: item.questionAr,
       questionEn: item.questionEn || item.questionAr,
       type: "mcq",
+      category: item.category,
+      categoryLabel: item.categoryLabel,
+      lawOrFormula: item.lawOrFormula,
+      diagramSvg: item.diagramSvg,
+      tableHtml: item.tableHtml,
       options: item.optionsAr,
       optionsAr: item.optionsAr,
       optionsEn: item.optionsEn || item.optionsAr,
@@ -611,10 +616,71 @@ export function hydrateClientExamTemplate(params: {
         const optsAr = q.optionsAr || q.options || ["أ", "ب", "ج", "د"];
         const optsEn = q.optionsEn || q.options || ["A", "B", "C", "D"];
 
+        // Construct question content with category and law badges, plus SVG diagrams or data tables
+        let qAr = q.questionAr || q.question || "";
+        let qEn = q.questionEn || q.question || "";
+
+        // Remove any unwanted references to external uploaded pictures
+        qAr = qAr
+          .replace(/بالرجوع إلى الصورة المرفقة\s*،?/g, "")
+          .replace(/بالرجوع للصورة المرفقة\s*،?/g, "")
+          .replace(/في الصورة المرفقة\s*،?/g, "")
+          .replace(/كما في الصورة المرفقة\s*،?/g, "")
+          .replace(/وفقاً للملف المرفق\s*،?/g, "");
+
+        qEn = qEn
+          .replace(/referring to the attached image\s*,?/gi, "")
+          .replace(/as shown in the attached image\s*,?/gi, "")
+          .replace(/according to the attached file\s*,?/gi, "");
+
+        // Category & Law metadata badges
+        const catLabel = q.categoryLabel || (
+          q.category === "function_and_graph" ? "دالة وعلاقة بيانية وتناسب" :
+          q.category === "practical_and_table" ? "تجربة عملية وجدول قياسات" :
+          q.category === "interactive_reasoning" ? "استنتاج وتطبيق تفاعلي" :
+          "مسألة حسابية وتطبيق قانون"
+        );
+        const catLabelEn = (
+          q.category === "function_and_graph" ? "Function & Graph" :
+          q.category === "practical_and_table" ? "Experiment & Table" :
+          q.category === "interactive_reasoning" ? "Interactive Reasoning" :
+          "Applied Problem & Law"
+        );
+
+        const lawBadgeAr = q.lawOrFormula ? `<span class="q-law-pill">📐 ${q.lawOrFormula}</span>` : "";
+        const lawBadgeEn = q.lawOrFormula ? `<span class="q-law-pill">📐 ${q.lawOrFormula}</span>` : "";
+
+        const badgesAr = `<div class="q-meta-badges"><span class="q-category-pill">${catLabel}</span>${lawBadgeAr}</div>`;
+        const badgesEn = `<div class="q-meta-badges"><span class="q-category-pill">${catLabelEn}</span>${lawBadgeEn}</div>`;
+
+        // Check and inject diagramSvg
+        if (q.diagramSvg && typeof q.diagramSvg === "string" && q.diagramSvg.includes("<svg")) {
+          if (!qAr.includes("<svg")) {
+            qAr = `${qAr}\n<div class="exam-diagram-container">${q.diagramSvg}</div>`;
+          }
+          if (!qEn.includes("<svg")) {
+            qEn = `${qEn}\n<div class="exam-diagram-container">${q.diagramSvg}</div>`;
+          }
+        }
+
+        // Check and inject tableHtml
+        if (q.tableHtml && typeof q.tableHtml === "string" && q.tableHtml.includes("<table")) {
+          if (!qAr.includes("<table")) {
+            qAr = `${qAr}\n<div class="exam-table-container">${q.tableHtml}</div>`;
+          }
+          if (!qEn.includes("<table")) {
+            qEn = `${qEn}\n<div class="exam-table-container">${q.tableHtml}</div>`;
+          }
+        }
+
+        // Wrap badges only if not already present
+        const fullQAr = qAr.includes("q-meta-badges") ? formatMathInText(qAr) : `${badgesAr}${formatMathInText(qAr)}`;
+        const fullQEn = qEn.includes("q-meta-badges") ? formatMathInText(qEn) : `${badgesEn}${formatMathInText(qEn)}`;
+
         return {
           q: {
-            ar: formatMathInText(q.questionAr || q.question || ""),
-            en: formatMathInText(q.questionEn || q.question || ""),
+            ar: fullQAr,
+            en: fullQEn,
           },
           options: optsAr.slice(0, 4).map((opt: string, oIdx: number) => ({
             ar: formatMathInText(opt || ""),
@@ -622,8 +688,8 @@ export function hydrateClientExamTemplate(params: {
           })),
           correct: typeof q.correctIndex === "number" ? q.correctIndex : 0,
           answer: {
-            ar: formatMathInText(q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة طبقاً للخطوات"),
-            en: formatMathInText(q.explanationEn || q.explanation || "Standard verified solution with steps"),
+            ar: formatMathInText(q.explanationAr || q.explanation || "الإجابة النموذجية المعتمدة طبقاً للخطوات والقوانين"),
+            en: formatMathInText(q.explanationEn || q.explanation || "Standard verified solution with steps and laws"),
           },
         };
       }),
@@ -674,6 +740,33 @@ export function hydrateClientExamTemplate(params: {
   code = code.replace(
     /(©\s*<span\s+data-ar=["'])[^"']*(["']\s+data-en=["'])[^"']*(["']>)[^<]*(<\/span>)/i,
     `$1${escapeHtml(titleAr)}$2${escapeHtml(titleEn)}$3${escapeHtml(titleAr)}$4`
+  );
+
+  // Dynamically update Notes / Key Formulas box at the top with verified subject laws
+  const combinedContext = `${titleAr} ${subAr} ${detectedSubject || ""}`.toLowerCase();
+  let formulaBox1 = "";
+  let formulaBox2 = "";
+
+  if (/كهرب|أوم|كيرشوف|مقاوم|جهد|دائرة|circuit|ohm/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين الدوائر والأومية:</strong> $V = I \\cdot R \\quad , \\quad R_s = \\sum R_i \\quad , \\quad \\frac{1}{R_p} = \\sum \\frac{1}{R_i}$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>القدرة والطاقة الكهربية:</strong> $P = V \\cdot I = I^2 \\cdot R = \\frac{V^2}{R} \\quad , \\quad E = P \\cdot t$</div>`;
+  } else if (/حرك|سرع|تسارع|نيوتن|قوة|مقذوف|kinematics|motion|force/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>معادلات الحركة الخطية بعجلة منتظمة:</strong> $v = v_0 + a t \\quad , \\quad d = v_0 t + \\frac{1}{2} a t^2 \\quad , \\quad v^2 = v_0^2 + 2 a d$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين نيوتن والشغل والطاقة:</strong> $F = m \\cdot a \\quad , \\quad W = F \\cdot d \\cos(\\theta) \\quad , \\quad KE = \\frac{1}{2} m v^2$</div>`;
+  } else if (/تفاضل|تكامل|مشتق|دالة|حساب مثلثات|calculus|derivative|integral/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قواعد الاشتقاق والتفاضل:</strong> $\\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\frac{d}{dx}(\\sin x) = \\cos x \\quad , \\quad [u \\cdot v]' = u' v + u v'$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>التكامل وحساب المثلثات:</strong> $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad , \\quad \\sin^2(\\theta) + \\cos^2(\\theta) = 1$</div>`;
+  } else if (/كيمياء|مول|معادل|غاز|تركيز|ph|chemistry|mole/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين كمية المادة والكتلة:</strong> $n = \\frac{m}{M_w} \\quad , \\quad M = \\frac{n}{V_{(L)}} \\quad , \\quad P V = n R T$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين التخفيف والأس الهيدروجيني:</strong> $M_1 V_1 = M_2 V_2 \\quad , \\quad pH = -\\log[H^+] \\quad , \\quad pH + pOH = 14$</div>`;
+  } else {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين الحركة والقدرة:</strong> $F = m \\cdot a \\quad , \\quad v = v_0 + a t \\quad , \\quad P = \\frac{V^2}{R}$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين الكهرباء والتفاضل:</strong> $V = I \\cdot R \\quad , \\quad \\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\int x^n dx = \\frac{x^{n+1}}{n+1}$</div>`;
+  }
+
+  code = code.replace(
+    /<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">[\s\S]*?<\/div>/i,
+    `<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">\n            ${formulaBox1}\n            ${formulaBox2}\n        </div>`
   );
 
   return code;

@@ -482,20 +482,32 @@ function hydrateOfficialExamTemplate({
     `$1${escapeHtml(titleAr)}$2${escapeHtml(titleEn)}$3${escapeHtml(titleAr)}$4`
   );
 
-  // Populate Notes/Formulas if available in questions
-  const mathSnippets = questions
-    .map(q => q.explanationAr || q.explanation || "")
-    .filter(txt => txt.includes('=') || txt.includes('/') || txt.includes('^'))
-    .slice(0, 2);
+  // Populate Notes/Formulas box at the top with verified formulas and laws
+  const combinedContext = `${titleAr} ${subjectAr}`.toLowerCase();
+  let formulaBox1 = "";
+  let formulaBox2 = "";
 
-  if (mathSnippets.length >= 2) {
-    const note1 = escapeHtml(mathSnippets[0].slice(0, 70));
-    const note2 = escapeHtml(mathSnippets[1].slice(0, 70));
-    code = code.replace(
-      /<div class="formula-box"><strong>ملاحظة 1:<\/strong>[^<]*<\/div>\s*<div class="formula-box"><strong>ملاحظة 2:<\/strong>[^<]*<\/div>/i,
-      `<div class="formula-box"><strong>ملاحظة 1:</strong> ${note1}</div>\n            <div class="formula-box"><strong>ملاحظة 2:</strong> ${note2}</div>`
-    );
+  if (/كهرب|أوم|كيرشوف|مقاوم|جهد|دائرة|circuit|ohm/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين الدوائر والأومية:</strong> $V = I \\cdot R \\quad , \\quad R_s = \\sum R_i \\quad , \\quad \\frac{1}{R_p} = \\sum \\frac{1}{R_i}$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>القدرة والطاقة الكهربية:</strong> $P = V \\cdot I = I^2 \\cdot R = \\frac{V^2}{R} \\quad , \\quad E = P \\cdot t$</div>`;
+  } else if (/حرك|سرع|تسارع|نيوتن|قوة|مقذوف|kinematics|motion|force/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>معادلات الحركة الخطية بعجلة منتظمة:</strong> $v = v_0 + a t \\quad , \\quad d = v_0 t + \\frac{1}{2} a t^2 \\quad , \\quad v^2 = v_0^2 + 2 a d$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين نيوتن والشغل والطاقة:</strong> $F = m \\cdot a \\quad , \\quad W = F \\cdot d \\cos(\\theta) \\quad , \\quad KE = \\frac{1}{2} m v^2$</div>`;
+  } else if (/تفاضل|تكامل|مشتق|دالة|حساب مثلثات|calculus|derivative|integral/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قواعد الاشتقاق والتفاضل:</strong> $\\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\frac{d}{dx}(\\sin x) = \\cos x \\quad , \\quad [u \\cdot v]' = u' v + u v'$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>التكامل وحساب المثلثات:</strong> $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad , \\quad \\sin^2(\\theta) + \\cos^2(\\theta) = 1$</div>`;
+  } else if (/كيمياء|مول|معادل|غاز|تركيز|ph|chemistry|mole/i.test(combinedContext)) {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين كمية المادة والكتلة:</strong> $n = \\frac{m}{M_w} \\quad , \\quad M = \\frac{n}{V_{(L)}} \\quad , \\quad P V = n R T$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين التخفيف والأس الهيدروجيني:</strong> $M_1 V_1 = M_2 V_2 \\quad , \\quad pH = -\\log[H^+] \\quad , \\quad pH + pOH = 14$</div>`;
+  } else {
+    formulaBox1 = `<div class="formula-box"><strong>قوانين الحركة والقدرة:</strong> $F = m \\cdot a \\quad , \\quad v = v_0 + a t \\quad , \\quad P = \\frac{V^2}{R}$</div>`;
+    formulaBox2 = `<div class="formula-box"><strong>قوانين الكهرباء والتفاضل:</strong> $V = I \\cdot R \\quad , \\quad \\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\int x^n dx = \\frac{x^{n+1}}{n+1}$</div>`;
   }
+
+  code = code.replace(
+    /<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">[\s\S]*?<\/div>/i,
+    `<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">\n            ${formulaBox1}\n            ${formulaBox2}\n        </div>`
+  );
 
   return code;
 }
@@ -828,10 +840,12 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     parts.push({ text: promptText });
 
     const modelsToTry = [
+      "gemini-3.7-flash",
+      "gemini-3.1-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-flash-lite-latest",
       "gemini-3.8-flash",
       "gemini-flash-latest",
-      "gemini-3.1-flash-lite",
-      "gemini-2.5-flash-preview-12-2025",
     ];
     let lastError: any = null;
     let response: any = null;
@@ -929,8 +943,11 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
         }
       } catch (err: any) {
         lastError = err;
-        console.warn(`[Hesham Exam AI] Model ${modelName} issue:`, err?.status || err?.code, err?.message || err);
-        // Instant cascade to the next available model
+        const statusCode = err?.status || err?.code || 0;
+        console.log(`[Hesham Exam AI] Model ${modelName} status (${statusCode}), switching to fallback model...`);
+        if (statusCode === 503 || statusCode === 429) {
+          await new Promise((resolve) => setTimeout(resolve, 600));
+        }
       }
     }
 
@@ -950,7 +967,7 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     }
 
     if (!parsedData || !parsedData.extractedQuestions || parsedData.extractedQuestions.length === 0) {
-      console.warn("[Hesham Exam AI] Models exhausted or quota limit reached. Generating high-quality simulated exam fallback.", lastError?.message || lastError);
+      console.log("[Hesham Exam AI] Models exhausted or quota limit reached. Generating high-quality simulated exam fallback.");
       
       const fallbackMeta = resolveExamTitleAndGrade({
         examTitle,

@@ -18,6 +18,31 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: `في دائرة كهربية تحتوي على بطارية قوتها الدافعة الكهربية $V = 24\\text{ V}$ ومقاومة داخلية مهملة، تتصل على التوالي بمقاومة $R_1 = 4\\ \\Omega$ ومجموعة توازي مكونة من مقاومتين متساويتين قيمة كل منهما $R = 8\\ \\Omega$. احسب شدة التيار الكلي المار في الدائرة:`,
     questionEn: "In a circuit with a 24 V battery connected in series with R₁ = 4 Ω and two parallel resistors of 8 Ω each, find the total current:",
     type: "mcq",
+    category: "interactive_reasoning",
+    categoryLabel: "دائرة كهربائية وتطبيق تفاعلي",
+    lawOrFormula: "I = V / R_eq",
+    diagramSvg: `<svg viewBox="0 0 380 130" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:380px;">
+  <rect width="380" height="130" fill="#f8fafc" rx="8"/>
+  <rect x="30" y="20" width="320" height="90" fill="none" stroke="#0f766e" stroke-width="2.5" rx="4"/>
+  <line x1="30" y1="50" x2="30" y2="80" stroke="#f8fafc" stroke-width="5"/>
+  <line x1="20" y1="58" x2="40" y2="58" stroke="#0f766e" stroke-width="3"/>
+  <line x1="25" y1="68" x2="35" y2="68" stroke="#0f766e" stroke-width="1.5"/>
+  <text x="50" y="66" fill="#0f766e" font-weight="bold" font-size="12">V = 24V</text>
+  <rect x="85" y="12" width="55" height="16" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+  <text x="112" y="24" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R₁ = 4Ω</text>
+  <line x1="180" y1="20" x2="180" y2="6" stroke="#0f766e" stroke-width="2"/>
+  <line x1="180" y1="20" x2="180" y2="34" stroke="#0f766e" stroke-width="2"/>
+  <rect x="205" y="-1" width="55" height="15" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+  <text x="232" y="11" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R = 8Ω</text>
+  <rect x="205" y="27" width="55" height="15" fill="#e2e8f0" stroke="#0f766e" stroke-width="2" rx="3"/>
+  <text x="232" y="39" fill="#0f766e" font-weight="bold" font-size="11" text-anchor="middle">R = 8Ω</text>
+  <line x1="180" y1="6" x2="205" y2="6" stroke="#0f766e" stroke-width="2"/>
+  <line x1="180" y1="34" x2="205" y2="34" stroke="#0f766e" stroke-width="2"/>
+  <line x1="260" y1="6" x2="285" y2="6" stroke="#0f766e" stroke-width="2"/>
+  <line x1="260" y1="34" x2="285" y2="34" stroke="#0f766e" stroke-width="2"/>
+  <line x1="285" y1="6" x2="285" y2="34" stroke="#0f766e" stroke-width="2"/>
+  <line x1="285" y1="20" x2="350" y2="20" stroke="#0f766e" stroke-width="2"/>
+</svg>`,
     options: ["3 A", "2 A", "4 A", "6 A"],
     optionsAr: ["3 A", "2 A", "4 A", "6 A"],
     optionsEn: ["3 A", "2 A", "4 A", "6 A"],
@@ -66,6 +91,25 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: "تتحرك سيارة بسرعة ابتدائية $v_0 = 10\\text{ m/s}$ في خط مستقيم بتسارع منتظم $a = 3\\text{ m/s}^2$. ما المسافة التي تقطعها خلال زمن $t = 4\\text{ s}$؟",
     questionEn: "A car moves with initial velocity v₀ = 10 m/s with constant acceleration a = 3 m/s². What distance does it cover in t = 4 s?",
     type: "mcq",
+    category: "function_and_graph",
+    categoryLabel: "دالة وعلاقة بيانية وتناسب",
+    lawOrFormula: "d = v₀ · t + ½ a · t²",
+    diagramSvg: `<svg viewBox="0 0 350 140" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:350px;">
+  <rect width="350" height="140" fill="#f8fafc" rx="8"/>
+  <line x1="45" y1="110" x2="310" y2="110" stroke="#334155" stroke-width="2"/>
+  <line x1="45" y1="110" x2="45" y2="15" stroke="#334155" stroke-width="2"/>
+  <line x1="45" y1="75" x2="250" y2="75" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+  <line x1="45" y1="25" x2="250" y2="25" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+  <line x1="250" y1="110" x2="250" y2="25" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+  <line x1="45" y1="75" x2="250" y2="25" stroke="#0d9488" stroke-width="3"/>
+  <circle cx="45" cy="75" r="3.5" fill="#0d9488"/>
+  <circle cx="250" cy="25" r="3.5" fill="#0d9488"/>
+  <text x="38" y="78" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="end">v₀=10</text>
+  <text x="38" y="28" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="end">v=22</text>
+  <text x="45" y="10" fill="#0f766e" font-size="11" font-weight="bold">v (m/s)</text>
+  <text x="250" y="125" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">t = 4 s</text>
+  <text x="320" y="114" fill="#0f766e" font-size="11" font-weight="bold">t (s)</text>
+</svg>`,
     options: ["64 m", "52 m", "40 m", "24 m"],
     optionsAr: ["64 m", "52 m", "40 m", "24 m"],
     optionsEn: ["64 m", "52 m", "40 m", "24 m"],
@@ -114,6 +158,22 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: "موجة مستعرضة ترددها $f = 50\\text{ Hz}$ والمسافة بين قمة وقاع متتاليين تساوي $0.4\\text{ m}$. ما هي سرعة انتشار هذه الموجة؟",
     questionEn: "A transverse wave has frequency f = 50 Hz and the distance between a crest and consecutive trough is 0.4 m. What is its speed?",
     type: "mcq",
+    category: "function_and_graph",
+    categoryLabel: "دالة وعلاقة بيانية وتناسب",
+    lawOrFormula: "v = λ · f",
+    diagramSvg: `<svg viewBox="0 0 360 130" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;">
+  <rect width="360" height="130" fill="#f8fafc" rx="8"/>
+  <line x1="30" y1="65" x2="330" y2="65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <path d="M 40 65 Q 85 10 130 65 T 220 65 T 310 65" fill="none" stroke="#0f766e" stroke-width="2.5"/>
+  <line x1="85" y1="20" x2="85" y2="110" stroke="#cbd5e1" stroke-dasharray="2,2"/>
+  <line x1="175" y1="20" x2="175" y2="110" stroke="#cbd5e1" stroke-dasharray="2,2"/>
+  <line x1="85" y1="105" x2="175" y2="105" stroke="#0d9488" stroke-width="1.5"/>
+  <polygon points="85,105 91,102 91,108" fill="#0d9488"/>
+  <polygon points="175,105 169,102 169,108" fill="#0d9488"/>
+  <text x="130" y="120" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">λ/2 = 0.4 m</text>
+  <text x="85" y="15" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">قمة (Crest)</text>
+  <text x="175" y="125" fill="#e11d48" font-size="10" font-weight="bold" text-anchor="middle">قاع (Trough)</text>
+</svg>`,
     options: ["40 m/s", "20 m/s", "80 m/s", "10 m/s"],
     optionsAr: ["40 m/s", "20 m/s", "80 m/s", "10 m/s"],
     optionsEn: ["40 m/s", "20 m/s", "80 m/s", "10 m/s"],
@@ -130,6 +190,22 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: "سقط شعاع ضوئي من الهواء ($n_1 = 1.0$) على سطح زجاجي بزاوية سقوط $\\theta_1 = 30^\\circ$. إذا كان معامل انكسار الزجاج $n_2 = 1.5$، فما قيمة جيب زاوية الانكسار $\\sin(\\theta_2)$؟",
     questionEn: "A light ray in air (n = 1.0) enters glass (n = 1.5) at an incidence angle of 30°. What is sin(θ_refraction)?",
     type: "mcq",
+    category: "problem_and_law",
+    categoryLabel: "مسألة حسابية وتطبيق قانون",
+    lawOrFormula: "n₁ · sin(θ₁) = n₂ · sin(θ₂)",
+    diagramSvg: `<svg viewBox="0 0 320 140" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;">
+  <rect width="320" height="140" fill="#f8fafc" rx="8"/>
+  <rect x="20" y="70" width="280" height="60" fill="#e0f2fe" opacity="0.6"/>
+  <line x1="20" y1="70" x2="300" y2="70" stroke="#0284c7" stroke-width="2"/>
+  <line x1="160" y1="15" x2="160" y2="125" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="90" y1="20" x2="160" y2="70" stroke="#f59e0b" stroke-width="2.5"/>
+  <polygon points="125,45 130,40 128,48" fill="#f59e0b"/>
+  <line x1="160" y1="70" x2="210" y2="125" stroke="#f59e0b" stroke-width="2.5"/>
+  <text x="35" y="45" fill="#475569" font-size="11" font-weight="bold">هواء (n₁ = 1.0)</text>
+  <text x="35" y="100" fill="#0369a1" font-size="11" font-weight="bold">زجاج (n₂ = 1.5)</text>
+  <text x="135" y="45" fill="#d97706" font-size="11" font-weight="bold">θ₁ = 30°</text>
+  <text x="175" y="95" fill="#d97706" font-size="11" font-weight="bold">θ₂</text>
+</svg>`,
     options: ["1/3 (حوالي 0.333)", "1/2 (0.500)", "0.750", "0.600"],
     optionsAr: ["1/3 (حوالي 0.333)", "1/2 (0.500)", "0.750", "0.600"],
     optionsEn: ["1/3 (about 0.333)", "1/2 (0.500)", "0.750", "0.600"],
@@ -210,6 +286,25 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: "مكثفان سعة الأول $C_1 = 6\\ \\mu\\text{F}$ وسعة الثاني $C_2 = 3\\ \\mu\\text{F}$ متصلان على التوالي مع مصدر جهد $V = 18\\text{ V}$. ما مقدار الشحنة الكلية $Q$ على المجموعة؟",
     questionEn: "Two capacitors C₁ = 6 μF and C₂ = 3 μF are in series with 18 V. Find the total charge Q:",
     type: "mcq",
+    category: "problem_and_law",
+    categoryLabel: "مسألة حسابية وتطبيق قانون",
+    lawOrFormula: "1/C_eq = 1/C₁ + 1/C₂ , Q = C_eq · V",
+    diagramSvg: `<svg viewBox="0 0 340 120" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;">
+  <rect width="340" height="120" fill="#f8fafc" rx="8"/>
+  <rect x="30" y="20" width="280" height="80" fill="none" stroke="#0f766e" stroke-width="2" rx="4"/>
+  <line x1="30" y1="50" x2="30" y2="70" stroke="#f8fafc" stroke-width="4"/>
+  <line x1="22" y1="55" x2="38" y2="55" stroke="#0f766e" stroke-width="2.5"/>
+  <line x1="25" y1="65" x2="35" y2="65" stroke="#0f766e" stroke-width="1.5"/>
+  <text x="45" y="64" fill="#0f766e" font-size="11" font-weight="bold">18V</text>
+  <line x1="110" y1="20" x2="150" y2="20" stroke="#f8fafc" stroke-width="4"/>
+  <line x1="120" y1="12" x2="120" y2="28" stroke="#0f766e" stroke-width="2.5"/>
+  <line x1="128" y1="12" x2="128" y2="28" stroke="#0f766e" stroke-width="2.5"/>
+  <text x="124" y="42" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">C₁ = 6μF</text>
+  <line x1="200" y1="20" x2="240" y2="20" stroke="#f8fafc" stroke-width="4"/>
+  <line x1="210" y1="12" x2="210" y2="28" stroke="#0f766e" stroke-width="2.5"/>
+  <line x1="218" y1="12" x2="218" y2="28" stroke="#0f766e" stroke-width="2.5"/>
+  <text x="214" y="42" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle">C₂ = 3μF</text>
+</svg>`,
     options: ["36 μC", "162 μC", "54 μC", "18 μC"],
     optionsAr: ["36 μC", "162 μC", "54 μC", "18 μC"],
     optionsEn: ["36 μC", "162 μC", "54 μC", "18 μC"],
@@ -447,6 +542,28 @@ const STEM_CURRICULUM_BANK: Omit<ExtractedQuestion, "number">[] = [
     questionAr: "وُضع جسم على بعد $d_o = 30\\text{ cm}$ من عدسة محدبة لامة بعدها البؤري $f = 20\\text{ cm}$. احسب بعد الصورة المتكونة ($d_i$) عن العدسة:",
     questionEn: "An object is placed at distance d_o = 30 cm from a convex lens with focal length f = 20 cm. What is the image distance d_i?",
     type: "mcq",
+    category: "problem_and_law",
+    categoryLabel: "مسألة حسابية وتطبيق قانون",
+    lawOrFormula: "1/f = 1/d_o + 1/d_i",
+    diagramSvg: `<svg viewBox="0 0 360 130" class="exam-diagram" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;">
+  <rect width="360" height="130" fill="#f8fafc" rx="8"/>
+  <line x1="20" y1="65" x2="340" y2="65" stroke="#334155" stroke-width="1.5"/>
+  <!-- Convex lens -->
+  <path d="M 180 15 Q 192 65 180 115 Q 168 65 180 15 Z" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+  <!-- Focal points -->
+  <circle cx="120" cy="65" r="2.5" fill="#0f766e"/>
+  <text x="120" y="80" fill="#0f766e" font-size="10" font-weight="bold" text-anchor="middle">F (20cm)</text>
+  <circle cx="240" cy="65" r="2.5" fill="#0f766e"/>
+  <text x="240" y="80" fill="#0f766e" font-size="10" font-weight="bold" text-anchor="middle">F' (20cm)</text>
+  <!-- Object -->
+  <line x1="90" y1="65" x2="90" y2="35" stroke="#ef4444" stroke-width="2.5"/>
+  <polygon points="90,30 86,37 94,37" fill="#ef4444"/>
+  <text x="90" y="25" fill="#ef4444" font-size="10" font-weight="bold" text-anchor="middle">جسم (d_o=30)</text>
+  <!-- Image -->
+  <line x1="300" y1="65" x2="300" y2="105" stroke="#3b82f6" stroke-width="2.5"/>
+  <polygon points="300,110 296,103 304,103" fill="#3b82f6"/>
+  <text x="300" y="122" fill="#3b82f6" font-size="10" font-weight="bold" text-anchor="middle">صورة (d_i=60)</text>
+</svg>`,
     options: ["60 cm", "50 cm", "12 cm", "40 cm"],
     optionsAr: ["60 cm", "50 cm", "12 cm", "40 cm"],
     optionsEn: ["60 cm", "50 cm", "12 cm", "40 cm"],
@@ -532,6 +649,11 @@ export function ensureExactQuestionCount(
         questionAr: bankItem.questionAr,
         questionEn: bankItem.questionEn,
         type: bankItem.type || "mcq",
+        category: bankItem.category,
+        categoryLabel: bankItem.categoryLabel,
+        lawOrFormula: bankItem.lawOrFormula,
+        diagramSvg: bankItem.diagramSvg,
+        tableHtml: bankItem.tableHtml,
         options: [...bankItem.options],
         optionsAr: [...bankItem.optionsAr],
         optionsEn: [...bankItem.optionsEn],
