@@ -150,6 +150,12 @@ Return ONLY valid JSON matching this schema:
 {
   "examTitle": "${resolvedMeta.title}",
   "summary": "string",
+  "keyFormulas": [
+    {
+      "titleAr": "string",
+      "formula": "string"
+    }
+  ],
   "questions": [
     {
       "number": 1,
@@ -175,8 +181,11 @@ Return ONLY valid JSON matching this schema:
 }`;
 
   parts.push({
-    text: `CRITICAL MANDATORY INSTRUCTION: Generate EXACTLY ${questionCount} parallel simulated questions in the 'questions' array.
-Do NOT generate 3 questions or stop early. You MUST output all ${questionCount} questions completely.
+    text: `CRITICAL MANDATORY INSTRUCTIONS:
+1. Generate EXACTLY ${questionCount} parallel simulated questions in the 'questions' array.
+2. In 'keyFormulas': provide 2-4 core laws or equations strictly relevant to this lesson. If the subject has no formulas (e.g. languages, humanities, history), provide an empty array [].
+3. For questions testing circuits, graphs, or geometric figures, provide standalone inline SVG in 'diagramSvg'.
+4. Do NOT make questions only dry theoretical statements; focus on computational problems, equations, and interactive laws.
 Exam Title: ${resolvedMeta.title}
 Grade / Stage: ${resolvedMeta.grade || "محدد بالملاحظات"}
 Difficulty: ${difficulty}
@@ -185,12 +194,10 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
   const defaultModelsToTry = [
-    "gemini-3.7-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-3.5-flash",
-    "gemini-flash-lite-latest",
     "gemini-3.8-flash",
     "gemini-flash-latest",
+    "gemini-3.1-flash-lite",
+    "gemini-3.1-pro-preview",
   ];
 
   let modelsToTry = [...defaultModelsToTry];
@@ -395,6 +402,7 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
     subheading: finalMeta.subheading,
     detectedSubject: finalMeta.subject,
     durationMinutes: durationMinutes,
+    keyFormulas: parsedData?.keyFormulas,
   });
 
   return {

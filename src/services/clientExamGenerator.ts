@@ -2,6 +2,9 @@ import { ExamGenerationResult, ExtractedQuestion, GenerationMode } from "../type
 import { OFFICIAL_HESHAM_EXAM_TEMPLATE } from "../data/officialTemplate";
 import { resolveExamTitleAndGrade } from "../utils/examMetaHelper";
 import { ensureExactQuestionCount } from "../utils/questionCountHelper";
+import { cleanLatexSymbols, formatMathInText } from "../utils/mathFormatter";
+
+export { cleanLatexSymbols, formatMathInText };
 
 function escapeHtml(str: any): string {
   if (str === null || str === undefined) return "";
@@ -11,14 +14,6 @@ function escapeHtml(str: any): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-}
-
-export function formatMathInText(text: string): string {
-  if (!text) return "";
-  if (text.includes('class="math-display"')) return text;
-  let res = text.replace(/\$([^$]+)\$/g, '<span class="math-display">$1</span>');
-  res = res.replace(/`([^`]+)`/g, '<span class="math-display">$1</span>');
-  return res;
 }
 
 export function renderQuestionContent(text: string): string {
@@ -581,8 +576,9 @@ export function hydrateClientExamTemplate(params: {
   grade?: string;
   subheading?: string;
   detectedSubject?: string;
+  keyFormulas?: { titleAr?: string; formula: string; titleEn?: string }[];
 }): string {
-  let { code, questions, examTitle, durationMinutes, grade, subheading, detectedSubject } = params;
+  let { code, questions, examTitle, durationMinutes, grade, subheading, detectedSubject, keyFormulas } = params;
   const totalQ = questions.length;
   const durationSecs = durationMinutes * 60;
 
@@ -743,31 +739,57 @@ export function hydrateClientExamTemplate(params: {
   );
 
   // Dynamically update Notes / Key Formulas box at the top with verified subject laws
-  const combinedContext = `${titleAr} ${subAr} ${detectedSubject || ""}`.toLowerCase();
-  let formulaBox1 = "";
-  let formulaBox2 = "";
+  let formulaBoxesHtml = "";
+  const providedFormulas = Array.isArray(keyFormulas) ? keyFormulas : [];
 
-  if (/كهرب|أوم|كيرشوف|مقاوم|جهد|دائرة|circuit|ohm/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين الدوائر والأومية:</strong> $V = I \\cdot R \\quad , \\quad R_s = \\sum R_i \\quad , \\quad \\frac{1}{R_p} = \\sum \\frac{1}{R_i}$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>القدرة والطاقة الكهربية:</strong> $P = V \\cdot I = I^2 \\cdot R = \\frac{V^2}{R} \\quad , \\quad E = P \\cdot t$</div>`;
-  } else if (/حرك|سرع|تسارع|نيوتن|قوة|مقذوف|kinematics|motion|force/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>معادلات الحركة الخطية بعجلة منتظمة:</strong> $v = v_0 + a t \\quad , \\quad d = v_0 t + \\frac{1}{2} a t^2 \\quad , \\quad v^2 = v_0^2 + 2 a d$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين نيوتن والشغل والطاقة:</strong> $F = m \\cdot a \\quad , \\quad W = F \\cdot d \\cos(\\theta) \\quad , \\quad KE = \\frac{1}{2} m v^2$</div>`;
-  } else if (/تفاضل|تكامل|مشتق|دالة|حساب مثلثات|calculus|derivative|integral/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قواعد الاشتقاق والتفاضل:</strong> $\\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\frac{d}{dx}(\\sin x) = \\cos x \\quad , \\quad [u \\cdot v]' = u' v + u v'$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>التكامل وحساب المثلثات:</strong> $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad , \\quad \\sin^2(\\theta) + \\cos^2(\\theta) = 1$</div>`;
-  } else if (/كيمياء|مول|معادل|غاز|تركيز|ph|chemistry|mole/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين كمية المادة والكتلة:</strong> $n = \\frac{m}{M_w} \\quad , \\quad M = \\frac{n}{V_{(L)}} \\quad , \\quad P V = n R T$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين التخفيف والأس الهيدروجيني:</strong> $M_1 V_1 = M_2 V_2 \\quad , \\quad pH = -\\log[H^+] \\quad , \\quad pH + pOH = 14$</div>`;
+  if (providedFormulas.length > 0) {
+    formulaBoxesHtml = providedFormulas.map((f: any) => {
+      const title = f.titleAr || f.title || "قانون وصيغة رياضية";
+      const cleaned = cleanLatexSymbols(f.formula || "");
+      return `            <div class="formula-box">
+                <span class="formula-title">📐 ${escapeHtml(title)}</span>
+                <span class="formula-math">${formatMathInText(cleaned)}</span>
+            </div>`;
+    }).join("\n");
   } else {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين الحركة والقدرة:</strong> $F = m \\cdot a \\quad , \\quad v = v_0 + a t \\quad , \\quad P = \\frac{V^2}{R}$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين الكهرباء والتفاضل:</strong> $V = I \\cdot R \\quad , \\quad \\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\int x^n dx = \\frac{x^{n+1}}{n+1}$</div>`;
+    // Extract distinct formulas/laws present in the generated questions
+    const questionLaws = Array.from(
+      new Set(questions.map((q: any) => q.lawOrFormula).filter(Boolean))
+    );
+    if (questionLaws.length > 0) {
+      formulaBoxesHtml = questionLaws.slice(0, 4).map((law: any, idx: number) => {
+        const cleaned = cleanLatexSymbols(String(law));
+        return `            <div class="formula-box">
+                <span class="formula-title">📐 صيغة وقانون مسألة (${idx + 1})</span>
+                <span class="formula-math">${formatMathInText(cleaned)}</span>
+            </div>`;
+      }).join("\n");
+    }
   }
 
-  code = code.replace(
-    /<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">[\s\S]*?<\/div>/i,
-    `<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">\n            ${formulaBox1}\n            ${formulaBox2}\n        </div>`
-  );
+  if (formulaBoxesHtml) {
+    const freshBox = `<!-- 📝 صيغ وقوانين أساسية للامتحان -->
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-teal-200 no-print" id="notes-formula-box">
+        <h3 class="font-bold text-lg mb-3 text-teal-700 text-center" data-ar="📐 القوانين والصيغ الرياضية والعلمية الهامة" data-en="📐 Key Mathematical & Scientific Formulas">📐 القوانين والصيغ الرياضية والعلمية الهامة</h3>
+        <div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">
+${formulaBoxesHtml}
+        </div>
+    </div>\n\n    <main`;
+
+    code = code.replace(
+      /<!--\s*📝\s*صيغ وقوانين أساسية للامتحان\s*-->[\s\S]*?<main/i,
+      freshBox
+    );
+  } else {
+    // If this exam has NO mathematical/physical formulas, hide the formula box completely!
+    const hiddenBox = `<!-- 📝 صيغ وقوانين أساسية للامتحان -->
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-teal-200 no-print" id="notes-formula-box" style="display: none;"></div>\n\n    <main`;
+
+    code = code.replace(
+      /<!--\s*📝\s*صيغ وقوانين أساسية للامتحان\s*-->[\s\S]*?<main/i,
+      hiddenBox
+    );
+  }
 
   return code;
 }

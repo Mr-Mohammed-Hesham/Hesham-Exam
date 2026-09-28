@@ -10,6 +10,9 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
@@ -62,10 +65,20 @@ export const OFFICIAL_HESHAM_EXAM_TEMPLATE = `<!DOCTYPE html>
         }
         .save-indicator.show { opacity: 1; }
         .formula-box {
-            background: #f0fdfa; border: 2px solid #14b8a6;
-            border-radius: 8px; padding: 12px; margin: 10px 0;
-            font-family: 'Times New Roman', serif;
-            direction: ltr; text-align: center;
+            background: #f8fafc; border: 1.5px solid #0d9488;
+            border-radius: 12px; padding: 12px 16px; margin: 4px 0;
+            box-shadow: 0 2px 6px rgba(13,148,136,0.06);
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .formula-box .formula-title {
+            font-size: 0.9rem; font-weight: 700; color: #0f766e;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .formula-box .formula-math {
+            font-family: 'Cambria Math', 'KaTeX_Math', 'Times New Roman', serif;
+            font-size: 1.15rem; direction: ltr; text-align: center;
+            color: #0f172a; padding: 6px 12px; background: #ffffff;
+            border-radius: 8px; border: 1px dashed #cbd5e1; overflow-x: auto;
         }
         .exam-diagram-container {
             display: flex; justify-content: center; align-items: center;
@@ -870,6 +883,23 @@ function renderExam() {
         html += \`</ol></section>\`;
     });
     container.innerHTML = html;
+    triggerMathRendering();
+}
+
+function triggerMathRendering() {
+    if (typeof renderMathInElement === 'function') {
+        try {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ],
+                throwOnError: false
+            });
+        } catch(e) {}
+    }
 }
 
 function startTimer() {
@@ -1014,6 +1044,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (saved.answers) restoreAnswers(saved.answers);
     }
     setupAnswerListeners(); setupInputListeners(); startTimer();
+    setTimeout(triggerMathRendering, 250);
 });
 window.addEventListener('beforeunload', () => saveState(false));
 </script>

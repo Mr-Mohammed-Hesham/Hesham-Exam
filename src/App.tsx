@@ -423,20 +423,31 @@ export default function App() {
             generationMode,
           };
         } catch (fetchError: any) {
-          console.warn("Backend call failed, checking fallback:", fetchError);
-          // Gracefully synthesize simulated exam using the robust physics & math bank
-          res = generateClientExam({
-            images: payloadImages,
-            examText: examText.trim() || instructions || examTitle || "امتحان فيزياء ورياضيات تفاعلي",
-            examTitle: examTitle || "امتحان محاكي تفاعلي",
-            instructions,
-            questionCount,
-            durationMinutes,
-            difficulty,
-            solveQuestions,
-            generationMode,
-          });
-          usedClientEngine = true;
+          console.warn("Backend call failed:", fetchError);
+          // Only use client text engine if the teacher actually provided written text/questions
+          if (hasText) {
+            res = generateClientExam({
+              images: payloadImages,
+              examText: examText.trim(),
+              examTitle: examTitle || "امتحان تفاعلي",
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+            setSuccessNotice(
+              `تم استخراج وتوليد الامتحان بالكامل من النص المكتوب بنجاح (${questionCount} أسئلة).`
+            );
+          } else {
+            // Strictly prevent generating random questions from an unrelated template
+            throw new Error(
+              fetchError.message ||
+                "تعذر استخراج أسئلة الامتحان من الصورة أو الملف المرفوع. لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى كتابة أو لصق نص الأسئلة أو إعادة المحاولة."
+            );
+          }
         }
       }
 

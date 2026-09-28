@@ -110,12 +110,53 @@ function escapeHtml(str: any): string {
     .replace(/'/g, "&#039;");
 }
 
+function cleanLatexSymbols(formula: string): string {
+  if (!formula) return "";
+  let s = String(formula);
+  s = s.replace(/\\quad/g, "   ");
+  s = s.replace(/\\qquad/g, "    ");
+  s = s.replace(/\\[,;!]/g, " ");
+  s = s.replace(/\\(text|mathrm|mathbf)\{([^}]+)\}/g, "$2");
+  s = s.replace(/\\cdot/g, " · ");
+  s = s.replace(/\\times/g, " × ");
+  s = s.replace(/\\div/g, " ÷ ");
+  s = s.replace(/\\pm/g, " ± ");
+  s = s.replace(/\\approx/g, " ≈ ");
+  s = s.replace(/\\neq/g, " ≠ ");
+  s = s.replace(/\\leq/g, " ≤ ");
+  s = s.replace(/\\geq/g, " ≥ ");
+  s = s.replace(/\\to/g, " → ");
+  s = s.replace(/\\infty/g, " ∞ ");
+  s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1 / $2)");
+  s = s.replace(/\\sqrt\{([^}]+)\}/g, "√($1)");
+  s = s.replace(/\\Delta/g, "Δ");
+  s = s.replace(/\\theta/g, "θ");
+  s = s.replace(/\\pi/g, "π");
+  s = s.replace(/\\Omega/g, "Ω");
+  s = s.replace(/\\mu/g, "μ");
+  s = s.replace(/\\lambda/g, "λ");
+  s = s.replace(/\\alpha/g, "α");
+  s = s.replace(/\\beta/g, "β");
+  s = s.replace(/\\Sigma/g, "∑");
+  s = s.replace(/\\int/g, "∫");
+  s = s.replace(/\^2\b/g, "²");
+  s = s.replace(/\^3\b/g, "³");
+  s = s.replace(/\^0\b/g, "⁰");
+  return s.trim();
+}
+
 function formatMathInText(text: string): string {
   if (!text) return "";
-  // Convert LaTeX $formula$ to <span class="math-display">formula</span>
-  let res = text.replace(/\$([^$]+)\$/g, '<span class="math-display">$1</span>');
+  // Convert LaTeX $formula$ into clean math display span
+  let res = text.replace(/\$([^$]+)\$/g, (_match, expr) => {
+    const cleaned = cleanLatexSymbols(expr);
+    return `<span class="math-display">$${cleaned}$</span>`;
+  });
   // Convert backticked formulas
-  res = res.replace(/`([^`]+)`/g, '<span class="math-display">$1</span>');
+  res = res.replace(/`([^`]+)`/g, (_match, expr) => {
+    const cleaned = cleanLatexSymbols(expr);
+    return `<span class="math-display">$${cleaned}$</span>`;
+  });
   return res;
 }
 
@@ -482,32 +523,58 @@ function hydrateOfficialExamTemplate({
     `$1${escapeHtml(titleAr)}$2${escapeHtml(titleEn)}$3${escapeHtml(titleAr)}$4`
   );
 
-  // Populate Notes/Formulas box at the top with verified formulas and laws
-  const combinedContext = `${titleAr} ${subjectAr}`.toLowerCase();
-  let formulaBox1 = "";
-  let formulaBox2 = "";
+  // Dynamically populate Notes/Formulas box at the top with verified formulas strictly relevant to this lesson
+  let formulaBoxesHtml = "";
+  const providedFormulas = Array.isArray((meta as any).keyFormulas) ? (meta as any).keyFormulas : [];
 
-  if (/كهرب|أوم|كيرشوف|مقاوم|جهد|دائرة|circuit|ohm/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين الدوائر والأومية:</strong> $V = I \\cdot R \\quad , \\quad R_s = \\sum R_i \\quad , \\quad \\frac{1}{R_p} = \\sum \\frac{1}{R_i}$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>القدرة والطاقة الكهربية:</strong> $P = V \\cdot I = I^2 \\cdot R = \\frac{V^2}{R} \\quad , \\quad E = P \\cdot t$</div>`;
-  } else if (/حرك|سرع|تسارع|نيوتن|قوة|مقذوف|kinematics|motion|force/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>معادلات الحركة الخطية بعجلة منتظمة:</strong> $v = v_0 + a t \\quad , \\quad d = v_0 t + \\frac{1}{2} a t^2 \\quad , \\quad v^2 = v_0^2 + 2 a d$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين نيوتن والشغل والطاقة:</strong> $F = m \\cdot a \\quad , \\quad W = F \\cdot d \\cos(\\theta) \\quad , \\quad KE = \\frac{1}{2} m v^2$</div>`;
-  } else if (/تفاضل|تكامل|مشتق|دالة|حساب مثلثات|calculus|derivative|integral/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قواعد الاشتقاق والتفاضل:</strong> $\\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\frac{d}{dx}(\\sin x) = \\cos x \\quad , \\quad [u \\cdot v]' = u' v + u v'$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>التكامل وحساب المثلثات:</strong> $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad , \\quad \\sin^2(\\theta) + \\cos^2(\\theta) = 1$</div>`;
-  } else if (/كيمياء|مول|معادل|غاز|تركيز|ph|chemistry|mole/i.test(combinedContext)) {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين كمية المادة والكتلة:</strong> $n = \\frac{m}{M_w} \\quad , \\quad M = \\frac{n}{V_{(L)}} \\quad , \\quad P V = n R T$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين التخفيف والأس الهيدروجيني:</strong> $M_1 V_1 = M_2 V_2 \\quad , \\quad pH = -\\log[H^+] \\quad , \\quad pH + pOH = 14$</div>`;
+  if (providedFormulas.length > 0) {
+    formulaBoxesHtml = providedFormulas.map((f: any) => {
+      const title = f.titleAr || f.title || "قانون وصيغة رياضية";
+      const cleaned = cleanLatexSymbols(f.formula || "");
+      return `            <div class="formula-box">
+                <span class="formula-title">📐 ${escapeHtml(title)}</span>
+                <span class="formula-math">${formatMathInText(cleaned)}</span>
+            </div>`;
+    }).join("\n");
   } else {
-    formulaBox1 = `<div class="formula-box"><strong>قوانين الحركة والقدرة:</strong> $F = m \\cdot a \\quad , \\quad v = v_0 + a t \\quad , \\quad P = \\frac{V^2}{R}$</div>`;
-    formulaBox2 = `<div class="formula-box"><strong>قوانين الكهرباء والتفاضل:</strong> $V = I \\cdot R \\quad , \\quad \\frac{d}{dx}(x^n) = n x^{n-1} \\quad , \\quad \\int x^n dx = \\frac{x^{n+1}}{n+1}$</div>`;
+    // Extract distinct formulas/laws present in the generated questions
+    const questionLaws = Array.from(
+      new Set(questions.map((q: any) => q.lawOrFormula).filter(Boolean))
+    );
+    if (questionLaws.length > 0) {
+      formulaBoxesHtml = questionLaws.slice(0, 4).map((law: any, idx: number) => {
+        const cleaned = cleanLatexSymbols(String(law));
+        return `            <div class="formula-box">
+                <span class="formula-title">📐 صيغة وقانون مسألة (${idx + 1})</span>
+                <span class="formula-math">${formatMathInText(cleaned)}</span>
+            </div>`;
+      }).join("\n");
+    }
   }
 
-  code = code.replace(
-    /<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">[\s\S]*?<\/div>/i,
-    `<div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">\n            ${formulaBox1}\n            ${formulaBox2}\n        </div>`
-  );
+  if (formulaBoxesHtml) {
+    const freshBox = `<!-- 📝 صيغ وقوانين أساسية للامتحان -->
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-teal-200 no-print" id="notes-formula-box">
+        <h3 class="font-bold text-lg mb-3 text-teal-700 text-center" data-ar="📐 القوانين والصيغ الرياضية والعلمية الهامة" data-en="📐 Key Mathematical & Scientific Formulas">📐 القوانين والصيغ الرياضية والعلمية الهامة</h3>
+        <div class="grid md:grid-cols-2 gap-3 text-sm" id="notes-content">
+${formulaBoxesHtml}
+        </div>
+    </div>\n\n    <main`;
+
+    code = code.replace(
+      /<!--\s*📝\s*صيغ وقوانين أساسية للامتحان\s*-->[\s\S]*?<main/i,
+      freshBox
+    );
+  } else {
+    // If this exam has NO mathematical/physical formulas, hide the formula box completely!
+    const hiddenBox = `<!-- 📝 صيغ وقوانين أساسية للامتحان -->
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-teal-200 no-print" id="notes-formula-box" style="display: none;"></div>\n\n    <main`;
+
+    code = code.replace(
+      /<!--\s*📝\s*صيغ وقوانين أساسية للامتحان\s*-->[\s\S]*?<main/i,
+      hiddenBox
+    );
+  }
 
   return code;
 }
@@ -528,6 +595,7 @@ function hydrateExamCodeWithQuestions({
     difficulty: string;
     solveQuestions: boolean;
     detectedSubject?: string;
+    keyFormulas?: any[];
   };
 }): string {
   // Check if generatedCode is healthy and actually contains the questions
@@ -818,34 +886,33 @@ MANDATORY QUESTION COUNT REQUIREMENT: EXACTLY ${questionCount} QUESTIONS!
 (Carefully inspect and analyze the attached image/document parts above. Identify the subject, curriculum concepts, formulas, laws, graphs, tables, and numerical relations.)
 
 === MANDATORY QUESTION COUNT: EXACTLY ${questionCount} QUESTIONS ===
-You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' array. Do NOT stop at 3 questions.
+You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' array. Do NOT stop early.
 
 === GENERATION MODE: ${isExactExtract ? "EXACT EXTRACTION (استخراج دقيق للمسائل من الصورة)" : "SIMILAR NEW QUESTIONS (توليد مسائل ودوال وقوانين جديدة من نفس أفكار الصورة)"} ===
 
 === MANDATORY INSTRUCTIONS ===
 1. DO NOT make the questions all dry theoretical statements or rote definitions.
 2. The exam MUST be comprehensive and include: quantitative problems with numbers & laws, functions & relations with graphs, practical experiment questions with data tables, and interactive conceptual deductions.
-3. Every question must have:
+3. In 'keyFormulas': provide 2-4 key mathematical or physical formulas or equations strictly relevant to this specific lesson (e.g. for optics: Snell's law and lens equation; for Ohm's law: V = I · R and P = V · I). If the subject has no mathematical formulas (e.g. languages, humanities, history), return an empty array [].
+4. Every question must have:
    - 'category': "problem_and_law" | "function_and_graph" | "practical_and_table" | "interactive_reasoning"
    - 'lawOrFormula': The formula or law (e.g. V = I × R or f(x) = 2x² - 3x or F = m × a)
    - 'diagramSvg': SVG code for questions with graphs, functions, or circuits.
    - 'tableHtml': HTML table for questions with experimental measurements.
-4. Target Questions Count: EXACTLY ${questionCount} questions.
-5. Exam Duration: EXACTLY ${durationMinutes} minutes.
-6. Exam Title: ${examTitle || "Auto-detect from curriculum topic"}.
-7. Difficulty: ${difficulty === "same" ? "نفس مستوى صعوبة مسائل الصورة/الملف" : difficulty}.
-8. Additional instructions: ${instructions || "None"}.
+5. Target Questions Count: EXACTLY ${questionCount} questions.
+6. Exam Duration: EXACTLY ${durationMinutes} minutes.
+7. Exam Title: ${examTitle || "Auto-detect from curriculum topic"}.
+8. Difficulty: ${difficulty === "same" ? "نفس مستوى صعوبة مسائل الصورة/الملف" : difficulty}.
+9. Additional instructions: ${instructions || "None"}.
 `;
 
     parts.push({ text: promptText });
 
     const modelsToTry = [
-      "gemini-3.7-flash",
-      "gemini-3.1-flash-lite",
-      "gemini-3.5-flash",
-      "gemini-flash-lite-latest",
       "gemini-3.8-flash",
       "gemini-flash-latest",
+      "gemini-3.1-flash-lite",
+      "gemini-3.1-pro-preview",
     ];
     let lastError: any = null;
     let response: any = null;
@@ -870,6 +937,19 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
                 detectedSubject: {
                   type: Type.STRING,
                   description: "Detected subject (e.g. Mathematics, Chemistry, Physics, English, Arabic, History)",
+                },
+                keyFormulas: {
+                  type: Type.ARRAY,
+                  description: "2 to 4 key mathematical or physical formulas, laws, or core rules strictly relevant to this exam's lesson. If the subject has no formulas, return [].",
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      titleAr: { type: Type.STRING, description: "Title of the law in Arabic" },
+                      titleEn: { type: Type.STRING, description: "Title in English" },
+                      formula: { type: Type.STRING, description: "Formula or equation" },
+                    },
+                    required: ["titleAr", "formula"],
+                  },
                 },
                 detectedLanguage: {
                   type: Type.STRING,
@@ -967,7 +1047,14 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     }
 
     if (!parsedData || !parsedData.extractedQuestions || parsedData.extractedQuestions.length === 0) {
-      console.log("[Hesham Exam AI] Models exhausted or quota limit reached. Generating high-quality simulated exam fallback.");
+      if (!hasText) {
+        return res.status(502).json({
+          success: false,
+          error: `تعذر استخراج أسئلة الامتحان من الصورة أو الملف المرفوع حالياً (${lastError?.message || "خطأ مؤقت في الاتصال"}). لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى الضغط على زر 'إعادة المحاولة' أو كتابة/لصق نص الأسئلة في خانة 'نص الامتحان المكتوب'.`,
+        });
+      }
+
+      console.log("[Hesham Exam AI] Generating targeted questions based on teacher provided text.");
       
       const fallbackMeta = resolveExamTitleAndGrade({
         examTitle,
@@ -993,6 +1080,7 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
           difficulty: difficulty || "same",
           solveQuestions: Boolean(solveQuestions),
           detectedSubject: fallbackMeta.subject,
+          keyFormulas: [],
         },
       });
 
@@ -1003,7 +1091,7 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
           detectedSubject: fallbackMeta.subject || "فيزياء ورياضيات",
           detectedLanguage: templateType || "html",
           suggestedFileName: "exam_simulated.html",
-          summary: "تم توليد الامتحان المحاكي بمسائله الفيزيائية والرياضية ورسوماته البيانية بنجاح وفق المعايير المعتمدة.",
+          summary: "تم توليد الامتحان المحاكي بمسائله ومعادلاته بنجاح وفق النص المكتوب.",
           extractedQuestions: fallbackQuestions,
           generatedCode: fallbackCode,
           generationMode,
@@ -1045,6 +1133,7 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
         difficulty,
         solveQuestions,
         detectedSubject: finalMeta.subheading,
+        keyFormulas: parsedData.keyFormulas,
       },
     });
 

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ExamImage } from "../types";
 import { SAMPLE_EXAMS, SampleExam } from "../data/sampleExams";
+import { processUploadFile } from "../utils/fileProcessor";
 import { isRunningOnGitHubPages, isExternalOrigin, getGeminiApiKey } from "../config/api";
 
 export interface ImageUploaderProps {
@@ -132,41 +133,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const processFiles = async (files: FileList | File[]) => {
     const fileList = Array.from(files);
-    const readPromises = fileList.map((file) => {
-      return new Promise<ExamImage | null>((resolve) => {
-        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-        const isText = file.type.startsWith("text/") || 
-                       file.name.toLowerCase().endsWith(".txt") || 
-                       file.name.toLowerCase().endsWith(".md") || 
-                       file.name.toLowerCase().endsWith(".json") ||
-                       file.name.toLowerCase().endsWith(".csv");
-
-        let category: 'image' | 'pdf' | 'document' | 'text' = 'image';
-        let mimeType = file.type || "image/jpeg";
-
-        if (isPdf) {
-          category = 'pdf';
-          mimeType = "application/pdf";
-        } else if (isText) {
-          category = 'text';
-          mimeType = file.type || "text/plain";
+    const readPromises = fileList.map(async (file) => {
+      try {
+        const item = await processUploadFile(file);
+        // If a text file with content was uploaded and examText is empty, auto-populate examText
+        if (item.extractedText && !examText.trim()) {
+          onExamTextChange(item.extractedText);
         }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve({
-            id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-            name: file.name,
-            mimeType,
-            data: reader.result as string,
-            previewUrl: category === 'image' ? (reader.result as string) : undefined,
-            fileCategory: category,
-            size: file.size,
-          });
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(file);
-      });
+        return item as ExamImage;
+      } catch (err) {
+        console.error("Error processing file:", file.name, err);
+        return null;
+      }
     });
 
     const newItems = (await Promise.all(readPromises)).filter(Boolean) as ExamImage[];
