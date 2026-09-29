@@ -14,11 +14,12 @@ export async function processUploadFile(file: File): Promise<{
   size: number;
   extractedText?: string;
 }> {
-  const fileName = file.name.toLowerCase();
-  const isPdf = file.type === "application/pdf" || fileName.endsWith(".pdf");
-  const isImage = file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp|heic)$/.test(fileName);
+  const fileName = (file?.name || "").toLowerCase();
+  const fileType = (file?.type || "").toLowerCase();
+  const isPdf = fileType === "application/pdf" || fileName.endsWith(".pdf");
+  const isImage = fileType.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp|heic)$/.test(fileName);
   const isText =
-    file.type.startsWith("text/") ||
+    fileType.startsWith("text/") ||
     fileName.endsWith(".txt") ||
     fileName.endsWith(".md") ||
     fileName.endsWith(".csv") ||

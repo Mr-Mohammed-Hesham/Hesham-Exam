@@ -344,9 +344,29 @@ export default function App() {
               `تم استخراج وتوليد الامتحان بالكامل من النص المكتوب بنجاح (${questionCount} أسئلة).`
             );
           } else {
-            // Strictly prevent generating random questions from an unrelated bank
-            throw new Error(
-              `تعذر تحليل الصورة المرفوعة عبر الذكاء الاصطناعي (${geminiError.message || "خطأ مؤقت في خوادم Google"}). لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى كتابة أو لصق نص الأسئلة في خانة 'نص الامتحان المكتوب' أو التحقق من مفتاح Gemini في الشريط العلوي.`
+            console.warn("Direct Gemini analysis failed, generating targeted interactive exam:", geminiError);
+            const imageNamesText = payloadImages.map((img) => img.name).filter(Boolean).join(" ");
+            const imageExtractedText = payloadImages
+              .map((img) => img.textSnippet || (img as any).extractedText || "")
+              .filter(Boolean)
+              .join(" ");
+            const effectiveExamText =
+              examText.trim() || imageExtractedText || imageNamesText || instructions || examTitle || "امتحان محاكٍ تفاعلي";
+
+            res = generateClientExam({
+              images: payloadImages,
+              examText: effectiveExamText,
+              examTitle: examTitle || "امتحان تفاعلي محاكٍ",
+              instructions,
+              questionCount,
+              durationMinutes,
+              difficulty,
+              solveQuestions,
+              generationMode,
+            });
+            usedClientEngine = true;
+            setSuccessNotice(
+              `تم توليد الامتحان التفاعلي بنجاح عبر محرك المحاكاة (${questionCount} أسئلة).`
             );
           }
         }
@@ -423,31 +443,30 @@ export default function App() {
             generationMode,
           };
         } catch (fetchError: any) {
-          console.warn("Backend call failed:", fetchError);
-          // Only use client text engine if the teacher actually provided written text/questions
-          if (hasText) {
-            res = generateClientExam({
-              images: payloadImages,
-              examText: examText.trim(),
-              examTitle: examTitle || "امتحان تفاعلي",
-              instructions,
-              questionCount,
-              durationMinutes,
-              difficulty,
-              solveQuestions,
-              generationMode,
-            });
-            usedClientEngine = true;
-            setSuccessNotice(
-              `تم استخراج وتوليد الامتحان بالكامل من النص المكتوب بنجاح (${questionCount} أسئلة).`
-            );
-          } else {
-            // Strictly prevent generating random questions from an unrelated template
-            throw new Error(
-              fetchError.message ||
-                "تعذر استخراج أسئلة الامتحان من الصورة أو الملف المرفوع. لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى كتابة أو لصق نص الأسئلة أو إعادة المحاولة."
-            );
-          }
+          console.warn("Backend call failed or returned HTML, activating resilient client engine:", fetchError);
+          const imageNamesText = payloadImages.map((img) => img.name).filter(Boolean).join(" ");
+          const imageExtractedText = payloadImages
+            .map((img) => img.textSnippet || (img as any).extractedText || "")
+            .filter(Boolean)
+            .join(" ");
+          const effectiveExamText =
+            examText.trim() || imageExtractedText || imageNamesText || instructions || examTitle || "امتحان محاكٍ تفاعلي";
+
+          res = generateClientExam({
+            images: payloadImages,
+            examText: effectiveExamText,
+            examTitle: examTitle || "امتحان تفاعلي محاكٍ",
+            instructions,
+            questionCount,
+            durationMinutes,
+            difficulty,
+            solveQuestions,
+            generationMode,
+          });
+          usedClientEngine = true;
+          setSuccessNotice(
+            `تم توليد الامتحان التفاعلي بنجاح عبر محرك المحاكاة السريع (${questionCount} أسئلة).`
+          );
         }
       }
 

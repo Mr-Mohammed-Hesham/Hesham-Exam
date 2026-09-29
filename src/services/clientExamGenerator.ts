@@ -448,8 +448,8 @@ const HISTORY_BANK: any[] = [
   },
 ];
 
-function selectQuestionsForExam(count: number, topicHint: string): ExtractedQuestion[] {
-  const text = topicHint.toLowerCase();
+function selectQuestionsForExam(count: number, topicHint: string = ""): ExtractedQuestion[] {
+  const text = (topicHint || "").toLowerCase();
   
   const isArabic = /عرب|لغة عربية|نحو|بلاغة|صرف|أدب|نصوص|قراءة|إعراب/i.test(text);
   const isEnglish = /english|انجليز|إنجليز|grammar|vocabulary|reading|language/i.test(text);
@@ -833,7 +833,7 @@ export function parseQuestionsFromText(rawText: string, targetCount: number = 7)
 
       // Check for answer declaration
       const ansMatch = line.match(/(?:الإجابة|الجواب|الحل|Answer|Correct)\s*[\:\=]\s*([أ-يa-zA-Z0-9]+)/i);
-      if (ansMatch) {
+      if (ansMatch && ansMatch[1]) {
         const val = ansMatch[1].trim().toLowerCase();
         if (val === "أ" || val === "a" || val === "1") correctIdx = 0;
         else if (val === "ب" || val === "b" || val === "2") correctIdx = 1;

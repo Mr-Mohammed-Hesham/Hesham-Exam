@@ -92,7 +92,7 @@ export function isRunningOnGitHubPages(): boolean {
 
 export function isExternalOrigin(): boolean {
   if (typeof window === "undefined") return false;
-  const host = window.location.hostname.toLowerCase();
+  const host = (window.location?.hostname || "").toLowerCase();
   // Any origin outside the direct container host
   return (
     host.includes("github.io") ||

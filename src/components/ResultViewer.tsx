@@ -56,13 +56,15 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
 
   // Sync editable code when result changes
   useEffect(() => {
-    setEditableCode(result.generatedCode);
+    setEditableCode(result?.generatedCode || "");
     setCodeEditNotice(null);
-  }, [result.generatedCode]);
+  }, [result?.generatedCode]);
 
-  const isWebCode = result.detectedLanguage.toLowerCase().includes("html") || 
-                    result.generatedCode.trim().toLowerCase().startsWith("<!doctype") ||
-                    result.generatedCode.trim().toLowerCase().startsWith("<html");
+  const detectedLang = (result?.detectedLanguage || "").toLowerCase();
+  const codeContent = (result?.generatedCode || "").trim().toLowerCase();
+  const isWebCode = detectedLang.includes("html") || 
+                    codeContent.startsWith("<!doctype") ||
+                    codeContent.startsWith("<html");
 
   // Default to code tab if not an HTML web page
   useEffect(() => {
@@ -72,17 +74,18 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
   }, [isWebCode, activeTab]);
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(result.generatedCode);
+    navigator.clipboard.writeText(result?.generatedCode || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownloadCode = () => {
-    const blob = new Blob([result.generatedCode], { type: "text/plain;charset=utf-8" });
+    const safeCode = result?.generatedCode || "";
+    const blob = new Blob([safeCode], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = result.suggestedFileName || `exam_${Date.now()}.${result.detectedLanguage || "html"}`;
+    link.download = result?.suggestedFileName || `exam_${Date.now()}.${result?.detectedLanguage || "html"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -91,10 +94,11 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
 
   const handleOpenInNewWindow = () => {
     if (!isWebCode) return;
+    const safeCode = result?.generatedCode || "";
     const newWindow = window.open();
     if (newWindow) {
       newWindow.document.open();
-      newWindow.document.write(result.generatedCode);
+      newWindow.document.write(safeCode);
       newWindow.document.close();
     }
   };
@@ -146,10 +150,11 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
     setCodeEditNotice(null);
   };
 
-  const codeBytes = new Blob([result.generatedCode]).size;
+  const safeGeneratedCode = result?.generatedCode || "";
+  const codeBytes = new Blob([safeGeneratedCode]).size;
   const codeSizeKb = (codeBytes / 1024).toFixed(1);
-  const codeLines = result.generatedCode.split("\n");
-  const hasValidCode = result.generatedCode && result.generatedCode.trim().length > 50;
+  const codeLines = safeGeneratedCode.split("\n");
+  const hasValidCode = safeGeneratedCode.trim().length > 50;
 
   return (
     <div id="results-section" className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
@@ -164,7 +169,7 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
                 تم التوليد بنجاح
               </span>
               <span className="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-mono">
-                {result.detectedLanguage.toUpperCase()}
+                {(result?.detectedLanguage || "HTML").toUpperCase()}
               </span>
               <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-mono">
                 {result.extractedQuestions?.length || 0} {result.generationMode === "generate_new_similar" ? "أسئلة جديدة مبتكرة" : "أسئلة"}
@@ -638,13 +643,15 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
                       {q.options && q.options.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                           {q.options.map((opt, optIdx) => {
-                            const isCorrect = q.correctAnswer !== undefined && (
-                              q.correctAnswer.toString().toLowerCase().includes(opt.toLowerCase()) ||
-                              q.correctAnswer.toString() === optIdx.toString() ||
-                              (q.correctAnswer.toString().toUpperCase() === "A" && optIdx === 0) ||
-                              (q.correctAnswer.toString().toUpperCase() === "B" && optIdx === 1) ||
-                              (q.correctAnswer.toString().toUpperCase() === "C" && optIdx === 2) ||
-                              (q.correctAnswer.toString().toUpperCase() === "D" && optIdx === 3)
+                            const optStr = typeof opt === "string" ? opt : String(opt ?? "");
+                            const ansStr = q.correctAnswer !== undefined && q.correctAnswer !== null ? String(q.correctAnswer) : "";
+                            const isCorrect = ansStr !== "" && (
+                              (optStr !== "" && ansStr.toLowerCase().includes(optStr.toLowerCase())) ||
+                              ansStr === optIdx.toString() ||
+                              (ansStr.toUpperCase() === "A" && optIdx === 0) ||
+                              (ansStr.toUpperCase() === "B" && optIdx === 1) ||
+                              (ansStr.toUpperCase() === "C" && optIdx === 2) ||
+                              (ansStr.toUpperCase() === "D" && optIdx === 3)
                             );
                             return (
                               <div

@@ -194,10 +194,10 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
   });
 
   const defaultModelsToTry = [
-    "gemini-3.8-flash",
-    "gemini-flash-latest",
     "gemini-3.1-flash-lite",
+    "gemini-flash-latest",
     "gemini-3.1-pro-preview",
+    "gemini-3.8-flash",
   ];
 
   let modelsToTry = [...defaultModelsToTry];
@@ -280,17 +280,20 @@ Solve Questions: ${solveQuestions ? "yes" : "no"}`,
         lastError = new Error(errMsg);
         console.log(`[Gemini Direct] Model ${cleanModel} returned (${response.status}):`, errMsg);
 
-        // If high demand or rate limit, brief sleep before trying alternative model
+        // If high demand, quota, or rate limit, brief delay before trying alternative model
+        const errMsgLower = String(errMsg || "").toLowerCase();
         const isTemporary =
           response.status === 503 ||
           response.status === 429 ||
-          errMsg.toLowerCase().includes("high demand") ||
-          errMsg.toLowerCase().includes("overloaded") ||
-          errMsg.toLowerCase().includes("resource");
+          errMsgLower.includes("high demand") ||
+          errMsgLower.includes("overloaded") ||
+          errMsgLower.includes("resource") ||
+          errMsgLower.includes("quota") ||
+          errMsgLower.includes("exceeded");
 
         if (isTemporary) {
-          console.log(`[Gemini Direct] Temporary surge on ${cleanModel}, waiting 1.2s before trying fallback model...`);
-          await new Promise((r) => setTimeout(r, 1200));
+          console.log(`[Gemini Direct] Switching from ${cleanModel} to fallback model...`);
+          await new Promise((r) => setTimeout(r, 400));
         }
         continue;
       }

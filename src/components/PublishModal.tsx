@@ -81,8 +81,8 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
   if (!isOpen) return null;
 
-  const targetPagesUrl = `https://${githubUsername.toLowerCase()}.github.io/${repositorySlug}/`;
-  const githubRepoUrl = `https://github.com/${githubUsername}/${repositorySlug}`;
+  const targetPagesUrl = `https://${(githubUsername || "").toLowerCase()}.github.io/${repositorySlug}/`;
+  const githubRepoUrl = `https://github.com/${githubUsername || ""}/${repositorySlug}`;
   const questionsCount = result.extractedQuestions?.length || 0;
   const codeSizeKb = (new Blob([result.generatedCode]).size / 1024).toFixed(1);
 
@@ -116,7 +116,7 @@ git push -u origin main`;
   };
 
   const handleSlugChange = (value: string) => {
-    const clean = value
+    const clean = (value || "")
       .toLowerCase()
       .replace(/[^\w-]/g, "")
       .replace(/[\s_]+/g, "-");

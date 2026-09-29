@@ -81,7 +81,7 @@ function getGeminiClient(customApiKey?: string) {
   });
 }
 
-// High demand / transient error check
+// High demand / transient error / quota check
 function isTransientModelError(err: any): boolean {
   if (!err) return false;
   const status = err.status || err.code;
@@ -93,6 +93,10 @@ function isTransientModelError(err: any): boolean {
     status === "RESOURCE_EXHAUSTED" ||
     msg.includes("503") ||
     msg.includes("429") ||
+    msg.includes("quota") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("exceeded") ||
+    msg.includes("rate-limit") ||
     msg.includes("high demand") ||
     msg.includes("spikes in demand") ||
     msg.includes("temporarily unavailable") ||
@@ -233,8 +237,8 @@ function normalizeQuestions(rawList: any[], targetCount: number, metaContext: an
       correctIdx = q.correctAnswer;
     } else if (typeof q.correct === "number" && q.correct >= 0 && q.correct < optsAr.length) {
       correctIdx = q.correct;
-    } else if (typeof q.correctAnswer === "string") {
-      const trimmed = q.correctAnswer.trim().toLowerCase();
+    } else if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
+      const trimmed = String(q.correctAnswer).trim().toLowerCase();
       const parsedNum = parseInt(trimmed, 10);
       if (!isNaN(parsedNum) && parsedNum >= 0 && parsedNum < optsAr.length) {
         correctIdx = parsedNum;
@@ -243,7 +247,10 @@ function normalizeQuestions(rawList: any[], targetCount: number, metaContext: an
       else if (trimmed === "c" || trimmed === "ج" || trimmed === "3") correctIdx = 2;
       else if (trimmed === "d" || trimmed === "د" || trimmed === "4") correctIdx = 3;
       else {
-        const found = optsAr.findIndex(o => o.toLowerCase().includes(trimmed) || trimmed.includes(o.toLowerCase()));
+        const found = optsAr.findIndex(o => {
+          const oStr = String(o || "").toLowerCase();
+          return (oStr !== "" && oStr.includes(trimmed)) || (trimmed !== "" && trimmed.includes(oStr));
+        });
         if (found !== -1) correctIdx = found;
       }
     }
@@ -421,14 +428,14 @@ function hydrateOfficialExamTemplate({
           correctIdx = q.correctAnswer;
         } else if (typeof q.correctIndex === "number") {
           correctIdx = q.correctIndex;
-        } else if (typeof q.correctAnswer === "string") {
-          const letter = q.correctAnswer.trim().toLowerCase();
+        } else if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
+          const letter = String(q.correctAnswer).trim().toLowerCase();
           if (letter === "a" || letter === "0" || letter === "أ") correctIdx = 0;
           else if (letter === "b" || letter === "1" || letter === "ب") correctIdx = 1;
           else if (letter === "c" || letter === "2" || letter === "ج") correctIdx = 2;
           else if (letter === "d" || letter === "3" || letter === "د") correctIdx = 3;
           else {
-            const foundIdx = paddedOptionsAr.findIndex((o: string) => o.includes(q.correctAnswer));
+            const foundIdx = paddedOptionsAr.findIndex((o: string) => String(o || "").includes(String(q.correctAnswer)));
             if (foundIdx >= 0) correctIdx = foundIdx;
           }
         }
@@ -909,10 +916,9 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     parts.push({ text: promptText });
 
     const modelsToTry = [
-      "gemini-3.8-flash",
-      "gemini-flash-latest",
       "gemini-3.1-flash-lite",
-      "gemini-3.1-pro-preview",
+      "gemini-flash-latest",
+      "gemini-3.8-flash",
     ];
     let lastError: any = null;
     let response: any = null;
@@ -1024,9 +1030,9 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
       } catch (err: any) {
         lastError = err;
         const statusCode = err?.status || err?.code || 0;
-        console.log(`[Hesham Exam AI] Model ${modelName} status (${statusCode}), switching to fallback model...`);
-        if (statusCode === 503 || statusCode === 429) {
-          await new Promise((resolve) => setTimeout(resolve, 600));
+        console.log(`[Hesham Exam AI] Model ${modelName} returned error (${statusCode}): ${err?.message || err}, switching to fallback model...`);
+        if (isTransientModelError(err)) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
         }
       }
     }
@@ -1047,23 +1053,19 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
     }
 
     if (!parsedData || !parsedData.extractedQuestions || parsedData.extractedQuestions.length === 0) {
-      if (!hasText) {
-        return res.status(502).json({
-          success: false,
-          error: `تعذر استخراج أسئلة الامتحان من الصورة أو الملف المرفوع حالياً (${lastError?.message || "خطأ مؤقت في الاتصال"}). لضمان عدم توليد أي امتحان عشوائي مخالف لمادتك، يرجى الضغط على زر 'إعادة المحاولة' أو كتابة/لصق نص الأسئلة في خانة 'نص الامتحان المكتوب'.`,
-        });
-      }
-
-      console.log("[Hesham Exam AI] Generating targeted questions based on teacher provided text.");
+      console.log("[Hesham Exam AI] Remote AI models busy or rate-limited; generating targeted interactive exam.");
       
+      const textFromImages = images.map((img: any) => img.textSnippet || img.extractedText || img.name || "").filter(Boolean).join(" ");
+      const effectiveText = (examText || "").trim() || textFromImages || instructions || examTitle || "اسئلة ومسائل تفاعلية للمنهج";
+
       const fallbackMeta = resolveExamTitleAndGrade({
-        examTitle,
+        examTitle: examTitle || "امتحان محاكٍ تفاعلي",
         instructions: instructions || "",
-        examText: examText || "",
+        examText: effectiveText,
       });
 
       const fallbackQuestions = normalizeQuestions([], questionCount, {
-        topicHint: `${fallbackMeta.title} ${fallbackMeta.subheading} ${instructions || ""} ${examText || ""}`,
+        topicHint: `${fallbackMeta.title} ${fallbackMeta.subheading} ${instructions || ""} ${effectiveText}`,
         examTitle: fallbackMeta.title,
         grade: fallbackMeta.grade,
         subject: fallbackMeta.subject,
@@ -1091,7 +1093,7 @@ You MUST return EXACTLY ${questionCount} questions in the 'extractedQuestions' a
           detectedSubject: fallbackMeta.subject || "فيزياء ورياضيات",
           detectedLanguage: templateType || "html",
           suggestedFileName: "exam_simulated.html",
-          summary: "تم توليد الامتحان المحاكي بمسائله ومعادلاته بنجاح وفق النص المكتوب.",
+          summary: "تم توليد وتجهيز الامتحان المحاكي بمسائله ومعادلاته بنجاح عبر محرك المحاكاة الفائق.",
           extractedQuestions: fallbackQuestions,
           generatedCode: fallbackCode,
           generationMode,

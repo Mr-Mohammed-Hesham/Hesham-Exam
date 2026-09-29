@@ -148,7 +148,7 @@ export function generateRepositorySlug(title: string): string {
 
   // Remove any remaining Arabic characters or unsupported symbols
   // Keep only alphanumeric characters and spaces/hyphens
-  let slug = transliterated
+  let slug = (transliterated || "")
     .toLowerCase()
     .replace(/[^\w\s-]/g, "") // remove non-ascii and special symbols
     .replace(/[\s_]+/g, "-") // collapse spaces and underscores to hyphen

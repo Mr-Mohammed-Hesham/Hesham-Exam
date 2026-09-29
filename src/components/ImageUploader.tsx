@@ -367,7 +367,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 <div className="w-full h-full flex flex-col justify-between" onClick={(e) => e.stopPropagation()}>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full max-h-[300px] overflow-y-auto p-1">
                     {images.map((item, idx) => {
-                      const isPdf = item.fileCategory === 'pdf' || item.name.toLowerCase().endsWith('.pdf');
+                      const itemName = (item.name || "").toLowerCase();
+                      const isPdf = item.fileCategory === 'pdf' || itemName.endsWith('.pdf');
                       const isDoc = item.fileCategory === 'document' || item.fileCategory === 'text' || (!item.previewUrl && !isPdf);
                       
                       return (

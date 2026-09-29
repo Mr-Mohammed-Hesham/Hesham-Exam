@@ -37,7 +37,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     if (!file) return;
 
     // Detect language from extension
-    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const ext = (file?.name ? file.name.split(".").pop() : "")?.toLowerCase() || "";
     let lang = "javascript";
     if (ext === "py") lang = "python";
     else if (ext === "html" || ext === "htm") lang = "html";
